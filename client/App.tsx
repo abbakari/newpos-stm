@@ -12,6 +12,7 @@ import PlaceholderPage from "./pages/PlaceholderPage";
 import SearchCustomers from "./pages/customers/SearchCustomers";
 import AddCustomer from "./pages/customers/AddCustomer";
 import CustomerDetails from "./pages/customers/CustomerDetails";
+import CustomerTypes from "./pages/customers/CustomerTypes";
 import TireServices from "./pages/services/TireServices";
 import TireInventory from "./pages/inventory/TireInventory";
 import InvoiceManagement from "./pages/invoices/InvoiceManagement";
@@ -74,11 +75,9 @@ const App = () => (
             </DashboardLayout>
           } />
           <Route path="/customers/types" element={
-            <WrappedPlaceholder 
-              title="Customer Types" 
-              description="Manage customer categories (Government, NGO, Private, Personal)" 
-              icon={Building2} 
-            />
+            <DashboardLayout>
+              <CustomerTypes />
+            </DashboardLayout>
           } />
           
           {/* Service Management Routes */}
