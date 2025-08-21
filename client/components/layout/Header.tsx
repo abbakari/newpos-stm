@@ -68,6 +68,9 @@ export function Header({ onToggleSidebar, isCollapsed }: HeaderProps) {
 
         {/* Right Section */}
         <div className="flex items-center gap-2">
+          {/* Role Switcher */}
+          <RoleSwitcher />
+
           {/* Quick Actions */}
        
 
