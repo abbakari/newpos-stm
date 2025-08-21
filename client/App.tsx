@@ -139,6 +139,14 @@ const App = () => (
             }
           />
           <Route
+            path="/sales"
+            element={
+              <DashboardLayout>
+                <SalesManagement />
+              </DashboardLayout>
+            }
+          />
+          <Route
             path="/services/consultations"
             element={
               <WrappedPlaceholder
