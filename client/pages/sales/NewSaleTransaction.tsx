@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -40,6 +40,7 @@ import {
   ArrowLeft,
   Calculator,
   Package,
+  UserPlus,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -172,6 +173,19 @@ const paymentMethods = [
   "Credit",
 ];
 
+interface SalesPerson {
+  id: string;
+  name: string;
+  phone?: string;
+  role?: string;
+}
+
+const defaultSalesPeople: SalesPerson[] = [
+  { id: "SP-001", name: "Sarah Wilson", phone: "+256 700 111 222", role: "Sales Associate" },
+  { id: "SP-002", name: "James Okello", phone: "+256 700 333 444", role: "Sales Associate" },
+  { id: "SP-003", name: "Peter Mukasa", phone: "+256 700 555 666", role: "Senior Sales" },
+];
+
 export default function NewSaleTransaction() {
   const [transactionType, setTransactionType] = useState<string>("");
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
@@ -186,6 +200,24 @@ export default function NewSaleTransaction() {
   const [saleItems, setSaleItems] = useState<SaleItem[]>([]);
   const [notes, setNotes] = useState("");
   const [discount, setDiscount] = useState(0);
+
+  // Salesperson state
+  const [salesPeople, setSalesPeople] = useState<SalesPerson[]>(() => {
+    try {
+      const raw = localStorage.getItem("salesPeople");
+      return raw ? (JSON.parse(raw) as SalesPerson[]) : defaultSalesPeople;
+    } catch {
+      return defaultSalesPeople;
+    }
+  });
+  const [selectedSalesPersonId, setSelectedSalesPersonId] = useState<string>("");
+  const [showAddSalesForm, setShowAddSalesForm] = useState(false);
+  const [newSalesName, setNewSalesName] = useState("");
+  const [newSalesPhone, setNewSalesPhone] = useState("");
+
+  useEffect(() => {
+    try { localStorage.setItem("salesPeople", JSON.stringify(salesPeople)); } catch {}
+  }, [salesPeople]);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("en-UG", {
@@ -292,6 +324,7 @@ export default function NewSaleTransaction() {
       return;
     }
 
+    const selectedSP = salesPeople.find((s) => s.id === selectedSalesPersonId);
     const transactionData = {
       customerId: selectedCustomer.id,
       customerName: selectedCustomer.name,
@@ -302,6 +335,8 @@ export default function NewSaleTransaction() {
       paymentMethod,
       notes,
       discount,
+      salesPersonId: selectedSP?.id,
+      salesPersonName: selectedSP?.name,
       ...totals,
     };
 
@@ -565,6 +600,81 @@ export default function NewSaleTransaction() {
             </CardContent>
           </Card>
 
+          {/* Salesperson */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <User className="h-5 w-5" /> Salesperson
+              </CardTitle>
+              <CardDescription>Assign the salesperson handling this sale or add a new one</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-end gap-2">
+                <div className="flex-1">
+                  <Label>Assign Salesperson</Label>
+                  <Select value={selectedSalesPersonId} onValueChange={setSelectedSalesPersonId}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select salesperson" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {salesPeople.map((sp) => (
+                        <SelectItem key={sp.id} value={sp.id}>
+                          {sp.name}{sp.phone ? ` • ${sp.phone}` : ""}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Button variant="outline" size="sm" onClick={() => setShowAddSalesForm((v) => !v)}>
+                  <UserPlus className="h-4 w-4 mr-1" /> {showAddSalesForm ? "Close" : "Add new"}
+                </Button>
+              </div>
+
+              {showAddSalesForm && (
+                <div className="grid gap-3 md:grid-cols-3">
+                  <div className="md:col-span-1">
+                    <Label>Name</Label>
+                    <Input value={newSalesName} onChange={(e) => setNewSalesName(e.target.value)} placeholder="Full name" />
+                  </div>
+                  <div className="md:col-span-1">
+                    <Label>Phone</Label>
+                    <Input value={newSalesPhone} onChange={(e) => setNewSalesPhone(e.target.value)} placeholder="+256 ..." />
+                  </div>
+                  <div className="md:col-span-1 flex items-end">
+                    <Button
+                      onClick={() => {
+                        if (!newSalesName.trim()) { alert("Enter salesperson name"); return; }
+                        const id = `SP-${Date.now()}`;
+                        const sp: SalesPerson = { id, name: newSalesName.trim(), phone: newSalesPhone.trim() || undefined };
+                        setSalesPeople((prev) => [sp, ...prev]);
+                        setSelectedSalesPersonId(id);
+                        setNewSalesName("");
+                        setNewSalesPhone("");
+                        setShowAddSalesForm(false);
+                      }}
+                    >
+                      Save
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {selectedSalesPersonId && (
+                <div className="p-3 bg-accent rounded-md text-sm">
+                  {(() => { const sp = salesPeople.find((x) => x.id === selectedSalesPersonId); return sp ? (<>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-medium">{sp.name}</p>
+                        <p className="text-muted-foreground">{sp.phone || "-"}</p>
+                      </div>
+                      <Badge variant="outline">Assigned</Badge>
+                    </div>
+                  </>) : null; })()}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
           {/* Product Selection */}
           <Card>
             <CardHeader>
@@ -748,6 +858,13 @@ export default function NewSaleTransaction() {
                 <div>
                   <p className="text-sm text-muted-foreground">Location:</p>
                   <p className="font-medium">{selectedLocation}</p>
+                </div>
+              )}
+
+              {selectedSalesPersonId && (
+                <div>
+                  <p className="text-sm text-muted-foreground">Salesperson:</p>
+                  <p className="font-medium">{(salesPeople.find((s) => s.id === selectedSalesPersonId)?.name) || "-"}</p>
                 </div>
               )}
 

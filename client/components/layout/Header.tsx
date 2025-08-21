@@ -68,10 +68,7 @@ export function Header({ onToggleSidebar, isCollapsed }: HeaderProps) {
         {/* Right Section */}
         <div className="flex items-center gap-2">
           {/* Quick Actions */}
-          <Button size="sm" className="hidden md:flex items-center gap-2">
-            <Plus className="h-4 w-4" />
-            New Order
-          </Button>
+       
 
           {/* Notifications */}
           <DropdownMenu>

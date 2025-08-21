@@ -7,6 +7,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -167,7 +168,7 @@ const existingCustomers = [
 export default function AddCustomer() {
   const navigate = useNavigate();
   const { addVisit, markLeft, visits } = useVisitTracking();
-  const { addCustomer } = useCustomerStore();
+  const { addCustomer, customers } = useCustomerStore();
 
   type ActiveTab = "basic" | "contact" | "service" | "preferences";
   const [activeTab, setActiveTab] = useState<ActiveTab>("basic");
@@ -298,8 +299,8 @@ export default function AddCustomer() {
       location: [formData.address, formData.city, formData.district, formData.country]
         .filter(Boolean)
         .join(", "),
-      registeredDate: new Date().toISOString().slice(0, 10),
-      lastVisit: new Date().toISOString().slice(0, 10),
+      registeredDate: (formData.arrivedAt && new Date(formData.arrivedAt).toISOString()) || new Date().toISOString(),
+      lastVisit: (formData.arrivedAt && new Date(formData.arrivedAt).toISOString()) || new Date().toISOString(),
       totalOrders: 0,
       status: "Active",
     });
@@ -387,8 +388,8 @@ export default function AddCustomer() {
         location: [formData.address, formData.city, formData.district, formData.country]
           .filter(Boolean)
           .join(", "),
-        registeredDate: new Date().toISOString().slice(0, 10),
-        lastVisit: new Date().toISOString().slice(0, 10),
+        registeredDate: (formData.arrivedAt && new Date(formData.arrivedAt).toISOString()) || new Date().toISOString(),
+        lastVisit: (formData.arrivedAt && new Date(formData.arrivedAt).toISOString()) || new Date().toISOString(),
         totalOrders: 0,
         status: "Active",
       });
@@ -637,16 +638,7 @@ export default function AddCustomer() {
                   {/* Personal Customer Specific Fields */}
                   {isPersonal && (
                     <>
-                      <div className="space-y-2">
-                        <Label htmlFor="nationalId">National ID</Label>
-                        <Input
-                          id="nationalId"
-                          value={formData.nationalId}
-                          onChange={(e) => handleInputChange("nationalId", e.target.value)}
-                          placeholder="Enter national ID number"
-                        />
-                      </div>
-
+                      
                       <div className="space-y-3">
                         <div className="flex items-center space-x-2">
                           <Checkbox
@@ -991,25 +983,67 @@ export default function AddCustomer() {
               <div className="space-y-3">
                 {createdCustomers.map((c) => {
                   const visit = visits.find((v) => v.id === c.visitId);
+                  const customerRec = customers.find((x) => x.id === c.id);
+                  const loc = customerRec?.location || "-";
+                  const email = customerRec?.email || "-";
+                  const type = customerRec?.type || c.customerType;
+                  const subType = customerRec?.subType || "";
+                  const headerName = c.name;
+                  const statusClass = visit
+                    ? (visit.leftAt
+                        ? "bg-success text-success-foreground"
+                        : (visit.expectedLeaveAt && new Date().toISOString() > visit.expectedLeaveAt
+                            ? "bg-destructive text-destructive-foreground"
+                            : "bg-warning text-warning-foreground"))
+                    : "";
                   return (
-                    <div key={c.id} className="flex items-center justify-between p-3 border rounded-lg">
-                      <div>
-                        <p className="font-medium text-foreground">{c.name}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {c.customerType} • {c.phone || "-"} • Added {new Date(c.createdAt).toLocaleString()}
-                        </p>
-                        {visit && (
-                          <p className="text-xs text-muted-foreground">
-                            Visit: {visit.visitType}{visit.service ? ` • ${visit.service}` : ""} • Status: {visit.status}
-                            {visit.expectedLeaveAt ? ` • Expected: ${new Date(visit.expectedLeaveAt).toLocaleTimeString()}` : ""}
-                          </p>
-                        )}
-                      </div>
-                      {visit && !visit.leftAt ? (
-                        <div className="flex gap-2">
-                          <Button size="sm" variant="outline" onClick={() => markLeft(visit.id)}>Mark Left</Button>
+                    <div key={c.id} className="border rounded-lg overflow-hidden">
+                      <div className="p-3 bg-gradient-to-r from-indigo-600/10 to-sky-600/10 dark:from-indigo-900/20 dark:to-sky-900/20 flex items-center justify-between">
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <p className="font-semibold text-foreground">{headerName}</p>
+                            <Badge variant="outline">{type}{subType ? ` • ${subType}` : ""}</Badge>
+                          </div>
+                          <p className="text-xs text-muted-foreground">Added {new Date(c.createdAt).toLocaleString()}</p>
                         </div>
-                      ) : null}
+                        {visit ? (
+                          <div className="flex items-center gap-2">
+                            <Badge variant="outline">{visit.visitType}{visit.service ? ` • ${visit.service}` : ""}</Badge>
+                            <Badge className={statusClass}>
+                              {visit.leftAt ? "Completed" : (visit.expectedLeaveAt && new Date().toISOString() > visit.expectedLeaveAt ? "Overdue" : "Active")}
+                            </Badge>
+                          </div>
+                        ) : null}
+                      </div>
+                      <div className="p-3 grid gap-3 md:grid-cols-3">
+                        <div className="space-y-1 text-sm">
+                          <div className="flex items-center gap-2"><Phone className="h-3 w-3" /><span>{customerRec?.phone || '-'}</span></div>
+                          <div className="flex items-center gap-2 text-muted-foreground"><Mail className="h-3 w-3" /><span>{email}</span></div>
+                          <div className="flex items-center gap-2 text-muted-foreground"><MapPin className="h-3 w-3" /><span>{loc}</span></div>
+                        </div>
+                        <div className="space-y-1 text-sm">
+                          <div><span className="text-muted-foreground">Registered:</span> <span className="font-medium">{customerRec?.registeredDate ? new Date(customerRec.registeredDate).toLocaleString() : '-'}</span></div>
+                          <div><span className="text-muted-foreground">Last Visit:</span> <span className="font-medium">{customerRec?.lastVisit ? new Date(customerRec.lastVisit).toLocaleString() : '-'}</span></div>
+                          <div><span className="text-muted-foreground">Customer ID:</span> <span className="font-medium">{c.id}</span></div>
+                        </div>
+                        <div className="space-y-1 text-sm">
+                          {visit ? (
+                            <>
+                              <div><span className="text-muted-foreground">Arrived:</span> <span className="font-medium">{new Date(visit.arrivedAt).toLocaleString()}</span></div>
+                              <div><span className="text-muted-foreground">Expected Leave:</span> <span className="font-medium">{visit.expectedLeaveAt ? new Date(visit.expectedLeaveAt).toLocaleString() : '-'}</span></div>
+                              <div><span className="text-muted-foreground">Left:</span> <span className="font-medium">{visit.leftAt ? new Date(visit.leftAt).toLocaleString() : '-'}</span></div>
+                            </>
+                          ) : (
+                            <div className="text-muted-foreground">No active visit</div>
+                          )}
+                        </div>
+                      </div>
+                      <div className="p-3 border-t flex items-center justify-end gap-2">
+                        {visit && !visit.leftAt ? (
+                          <Button size="sm" variant="outline" onClick={() => markLeft(visit.id)}>Mark Left</Button>
+                        ) : null}
+                        <Link to={`/customers/${c.id}`}><Button size="sm" variant="outline">Manage</Button></Link>
+                      </div>
                     </div>
                   );
                 })}

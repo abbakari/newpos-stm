@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   Card,
   CardContent,
@@ -9,6 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select,
@@ -50,7 +51,9 @@ import {
   AlertCircle,
   XCircle,
   Printer,
+  AlertTriangle,
 } from "lucide-react";
+import { useVisitTracking } from "@/context/VisitTrackingContext";
 
 interface Invoice {
   id: string;
@@ -58,8 +61,8 @@ interface Invoice {
   customerName: string;
   customerType: string;
   orderId: string;
-  date: string;
-  dueDate: string;
+  date: string; // ISO or YYYY-MM-DD
+  dueDate: string; // ISO or YYYY-MM-DD
   amount: number;
   tax: number;
   total: number;
@@ -194,6 +197,19 @@ const getStatusColor = (status: string) => {
   }
 };
 
+const getVisitStatusColor = (status: string) => {
+  switch (status) {
+    case "Active":
+      return "bg-warning text-warning-foreground";
+    case "Overdue":
+      return "bg-destructive text-destructive-foreground";
+    case "Completed":
+      return "bg-success text-success-foreground";
+    default:
+      return "bg-muted text-muted-foreground";
+  }
+};
+
 const getStatusIcon = (status: string) => {
   switch (status) {
     case "Paid":
@@ -211,66 +227,98 @@ const getStatusIcon = (status: string) => {
   }
 };
 
+const fmtDateTime = (val?: string) => {
+  if (!val) return "-";
+  const d = new Date(val);
+  if (isNaN(d.getTime())) return val; // fallback for YYYY-MM-DD
+  return d.toLocaleString();
+};
+
 export default function InvoiceManagement() {
   const [invoices] = useState(mockInvoices);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
+  const [selectedVisitId, setSelectedVisitId] = useState<string | null>(null);
+  const [updateExpectedLocal, setUpdateExpectedLocal] = useState<string>("");
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("en-UG", {
-      style: "currency",
-      currency: "UGX",
-      minimumFractionDigits: 0,
-    }).format(amount);
-  };
+  const { visits, updateExpectedLeave, markLeft } = useVisitTracking();
+
+  const formatCurrency = (amount: number) =>
+    new Intl.NumberFormat("en-UG", { style: "currency", currency: "UGX", minimumFractionDigits: 0 }).format(amount);
 
   const filteredInvoices = invoices.filter((invoice) => {
     const matchesSearch =
       invoice.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
       invoice.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       invoice.orderId.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus =
-      selectedStatus === "all" || invoice.status === selectedStatus;
-
+    const matchesStatus = selectedStatus === "all" || invoice.status === selectedStatus;
     return matchesSearch && matchesStatus;
   });
 
-  // Calculate summary statistics
+  const findCandidateVisits = (invoice: Invoice) => {
+    const invDate = new Date(invoice.date);
+    return visits
+      .filter(
+        (v) => v.customerId === invoice.customerId || v.customerName === invoice.customerName,
+      )
+      .map((v) => ({ v, diff: Math.abs(new Date(v.arrivedAt).getTime() - invDate.getTime()) }))
+      .sort((a, b) => a.diff - b.diff)
+      .map((x) => x.v);
+  };
+
+  const linkedVisitForRow = (invoice: Invoice) => {
+    const candidates = findCandidateVisits(invoice);
+    return candidates[0] || null;
+  };
+
   const totalInvoices = invoices.length;
   const paidInvoices = invoices.filter((inv) => inv.status === "Paid").length;
-  const overdueInvoices = invoices.filter(
-    (inv) => inv.status === "Overdue",
-  ).length;
-  const totalRevenue = invoices
-    .filter((inv) => inv.status === "Paid")
-    .reduce((sum, inv) => sum + inv.total, 0);
-  const pendingAmount = invoices
-    .filter((inv) => inv.status === "Sent")
-    .reduce((sum, inv) => sum + inv.total, 0);
-  const overdueAmount = invoices
-    .filter((inv) => inv.status === "Overdue")
-    .reduce((sum, inv) => sum + inv.total, 0);
+  const overdueInvoices = invoices.filter((inv) => inv.status === "Overdue").length;
+  const totalRevenue = invoices.filter((inv) => inv.status === "Paid").reduce((sum, inv) => sum + inv.total, 0);
+  const pendingAmount = invoices.filter((inv) => inv.status === "Sent").reduce((sum, inv) => sum + inv.total, 0);
+  const overdueAmount = invoices.filter((inv) => inv.status === "Overdue").reduce((sum, inv) => sum + inv.total, 0);
 
   return (
     <div className="space-y-6">
-      {/* Page Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">
-            Invoice Management
-          </h1>
-          <p className="text-muted-foreground">
-            Generate, track, and manage customer invoices and payments
-          </p>
+      {/* Header */}
+      <div className="rounded-xl overflow-hidden border">
+        <div className="bg-gradient-to-r from-emerald-600/10 to-cyan-600/10 dark:from-emerald-900/20 dark:to-cyan-900/20 p-6">
+          <h1 className="text-3xl font-bold text-foreground">Invoice Management</h1>
+          <p className="text-muted-foreground">Generate, track, and manage customer invoices and payments. Linked with visit tracking context.</p>
         </div>
-        <Button>
-          <Plus className="h-4 w-4 mr-2" />
-          Create Invoice
-        </Button>
+        <div className="p-4 bg-background flex items-center justify-between">
+          <div className="flex items-center gap-2 w-full md:w-auto">
+            <div className="relative w-full md:w-96">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search by invoice ID, customer, or order ID..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+              <SelectTrigger className="w-40">
+                <SelectValue placeholder="Filter by Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="Draft">Draft</SelectItem>
+                <SelectItem value="Sent">Sent</SelectItem>
+                <SelectItem value="Paid">Paid</SelectItem>
+                <SelectItem value="Overdue">Overdue</SelectItem>
+                <SelectItem value="Cancelled">Cancelled</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <Button>
+            <Plus className="h-4 w-4 mr-2" /> Create Invoice
+          </Button>
+        </div>
       </div>
 
-      {/* Summary Stats */}
+      {/* Summary */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardContent className="p-6">
@@ -294,9 +342,7 @@ export default function InvoiceManagement() {
               <div>
                 <p className="text-sm text-muted-foreground">Paid Invoices</p>
                 <p className="text-2xl font-bold">{paidInvoices}</p>
-                <p className="text-xs text-muted-foreground">
-                  {formatCurrency(totalRevenue)}
-                </p>
+                <p className="text-xs text-muted-foreground">{formatCurrency(totalRevenue)}</p>
               </div>
             </div>
           </CardContent>
@@ -309,9 +355,7 @@ export default function InvoiceManagement() {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Pending Payment</p>
-                <p className="text-2xl font-bold">
-                  {formatCurrency(pendingAmount)}
-                </p>
+                <p className="text-2xl font-bold">{formatCurrency(pendingAmount)}</p>
               </div>
             </div>
           </CardContent>
@@ -325,52 +369,12 @@ export default function InvoiceManagement() {
               <div>
                 <p className="text-sm text-muted-foreground">Overdue</p>
                 <p className="text-2xl font-bold">{overdueInvoices}</p>
-                <p className="text-xs text-muted-foreground">
-                  {formatCurrency(overdueAmount)}
-                </p>
+                <p className="text-xs text-muted-foreground">{formatCurrency(overdueAmount)}</p>
               </div>
             </div>
           </CardContent>
         </Card>
       </div>
-
-      {/* Search and Filters */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Search & Filter Invoices</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search by invoice ID, customer, or order ID..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-            </div>
-            <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-              <SelectTrigger className="w-full md:w-48">
-                <SelectValue placeholder="Filter by Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="Draft">Draft</SelectItem>
-                <SelectItem value="Sent">Sent</SelectItem>
-                <SelectItem value="Paid">Paid</SelectItem>
-                <SelectItem value="Overdue">Overdue</SelectItem>
-                <SelectItem value="Cancelled">Cancelled</SelectItem>
-              </SelectContent>
-            </Select>
-            <Button variant="outline" size="icon">
-              <Filter className="h-4 w-4" />
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Invoice List */}
       <Card>
@@ -378,19 +382,11 @@ export default function InvoiceManagement() {
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="text-lg">Invoice List</CardTitle>
-              <CardDescription>
-                {filteredInvoices.length} invoices found
-              </CardDescription>
+              <CardDescription>{filteredInvoices.length} invoices found</CardDescription>
             </div>
             <div className="flex gap-2">
-              <Button variant="outline" size="sm">
-                <Download className="h-4 w-4 mr-2" />
-                Export
-              </Button>
-              <Button variant="outline" size="sm">
-                <Printer className="h-4 w-4 mr-2" />
-                Print
-              </Button>
+              <Button variant="outline" size="sm"><Download className="h-4 w-4 mr-2" /> Export</Button>
+              <Button variant="outline" size="sm"><Printer className="h-4 w-4 mr-2" /> Print</Button>
             </div>
           </div>
         </CardHeader>
@@ -406,124 +402,176 @@ export default function InvoiceManagement() {
                   <TableHead>Due Date</TableHead>
                   <TableHead>Amount</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead>Visit</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredInvoices.map((invoice) => {
                   const StatusIcon = getStatusIcon(invoice.status);
+                  const linked = linkedVisitForRow(invoice);
                   return (
                     <TableRow key={invoice.id} className="hover:bg-accent/50">
-                      <TableCell className="font-medium">
-                        {invoice.id}
-                      </TableCell>
+                      <TableCell className="font-medium">{invoice.id}</TableCell>
                       <TableCell>
                         <div>
                           <p className="font-medium">{invoice.customerName}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {invoice.customerType}
-                          </p>
+                          <p className="text-sm text-muted-foreground">{invoice.customerType}</p>
                         </div>
                       </TableCell>
                       <TableCell>{invoice.orderId}</TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-1">
-                          <Calendar className="h-3 w-3" />
-                          {invoice.date}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-1">
-                          <Calendar className="h-3 w-3" />
-                          {invoice.dueDate}
-                        </div>
-                      </TableCell>
+                      <TableCell><div className="flex items-center gap-1"><Calendar className="h-3 w-3" />{fmtDateTime(invoice.date)}</div></TableCell>
+                      <TableCell><div className="flex items-center gap-1"><Calendar className="h-3 w-3" />{fmtDateTime(invoice.dueDate)}</div></TableCell>
                       <TableCell>
                         <div>
-                          <p className="font-medium">
-                            {formatCurrency(invoice.total)}
-                          </p>
-                          <p className="text-sm text-muted-foreground">
-                            +{formatCurrency(invoice.tax)} tax
-                          </p>
+                          <p className="font-medium">{formatCurrency(invoice.total)}</p>
+                          <p className="text-sm text-muted-foreground">+{formatCurrency(invoice.tax)} tax</p>
                         </div>
                       </TableCell>
                       <TableCell>
                         <Badge className={getStatusColor(invoice.status)}>
-                          <StatusIcon className="h-3 w-3 mr-1" />
-                          {invoice.status}
+                          <StatusIcon className="h-3 w-3 mr-1" />{invoice.status}
                         </Badge>
+                      </TableCell>
+                      <TableCell>
+                        {linked ? (
+                          <div className="flex flex-col gap-1 text-xs">
+                            <Badge className={getVisitStatusColor(linked.status)}>
+                              {linked.status}
+                            </Badge>
+                            <div className="flex items-center gap-1 text-muted-foreground">
+                              <Clock className="h-3 w-3" /> Arr: {new Date(linked.arrivedAt).toLocaleTimeString()}
+                            </div>
+                            <div className="flex items-center gap-1 text-muted-foreground">
+                              <Clock className="h-3 w-3" /> Exp: {linked.expectedLeaveAt ? new Date(linked.expectedLeaveAt).toLocaleTimeString() : "-"}
+                            </div>
+                          </div>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">No linked visit</span>
+                        )}
                       </TableCell>
                       <TableCell>
                         <div className="flex gap-1">
                           <Dialog>
                             <DialogTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => setSelectedInvoice(invoice)}
-                              >
+                              <Button variant="ghost" size="sm" onClick={() => {
+                                setSelectedInvoice(invoice);
+                                const cands = findCandidateVisits(invoice);
+                                setSelectedVisitId(cands[0]?.id ?? null);
+                                setUpdateExpectedLocal("");
+                              }}>
                                 <Eye className="h-4 w-4" />
                               </Button>
                             </DialogTrigger>
-                            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                            <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
                               <DialogHeader>
-                                <DialogTitle>
-                                  Invoice Details - {invoice.id}
-                                </DialogTitle>
-                                <DialogDescription>
-                                  Complete invoice information and line items
-                                </DialogDescription>
+                                <DialogTitle>Invoice Details - {invoice.id}</DialogTitle>
+                                <DialogDescription>Complete invoice information, items, and related visit timing</DialogDescription>
                               </DialogHeader>
                               {selectedInvoice && (
                                 <div className="space-y-6">
-                                  {/* Invoice Header */}
+                                  {/* Header sections */}
                                   <div className="grid gap-4 md:grid-cols-2">
-                                    <div>
-                                      <h4 className="font-medium mb-2">
-                                        Customer Information
-                                      </h4>
-                                      <p className="text-sm">
-                                        <strong>Name:</strong>{" "}
-                                        {selectedInvoice.customerName}
-                                      </p>
-                                      <p className="text-sm">
-                                        <strong>Type:</strong>{" "}
-                                        {selectedInvoice.customerType}
-                                      </p>
-                                      <p className="text-sm">
-                                        <strong>Order ID:</strong>{" "}
-                                        {selectedInvoice.orderId}
-                                      </p>
-                                    </div>
-                                    <div>
-                                      <h4 className="font-medium mb-2">
-                                        Invoice Information
-                                      </h4>
-                                      <p className="text-sm">
-                                        <strong>Date:</strong>{" "}
-                                        {selectedInvoice.date}
-                                      </p>
-                                      <p className="text-sm">
-                                        <strong>Due Date:</strong>{" "}
-                                        {selectedInvoice.dueDate}
-                                      </p>
-                                      <p className="text-sm">
-                                        <strong>Status:</strong>
-                                        <Badge
-                                          className={`ml-2 ${getStatusColor(selectedInvoice.status)}`}
-                                        >
-                                          {selectedInvoice.status}
-                                        </Badge>
-                                      </p>
-                                    </div>
+                                    <Card>
+                                      <CardHeader className="pb-2"><CardTitle className="text-base">Customer</CardTitle></CardHeader>
+                                      <CardContent className="pt-0 text-sm">
+                                        <div className="flex justify-between"><span className="text-muted-foreground">Name</span><span className="font-medium">{selectedInvoice.customerName}</span></div>
+                                        <div className="flex justify-between"><span className="text-muted-foreground">Type</span><span className="font-medium">{selectedInvoice.customerType}</span></div>
+                                        <div className="flex justify-between"><span className="text-muted-foreground">Order</span><span className="font-medium">{selectedInvoice.orderId}</span></div>
+                                      </CardContent>
+                                    </Card>
+                                    <Card>
+                                      <CardHeader className="pb-2"><CardTitle className="text-base">Invoice</CardTitle></CardHeader>
+                                      <CardContent className="pt-0 text-sm">
+                                        <div className="flex justify-between"><span className="text-muted-foreground">Date</span><span className="font-medium">{fmtDateTime(selectedInvoice.date)}</span></div>
+                                        <div className="flex justify-between"><span className="text-muted-foreground">Due Date</span><span className="font-medium">{fmtDateTime(selectedInvoice.dueDate)}</span></div>
+                                        <div className="flex items-center justify-between"><span className="text-muted-foreground">Status</span><Badge className={getStatusColor(selectedInvoice.status)}>{selectedInvoice.status}</Badge></div>
+                                      </CardContent>
+                                    </Card>
                                   </div>
 
-                                  {/* Invoice Items */}
+                                  {/* Visit timing context */}
+                                  <Card className="border-l-4 border-l-primary">
+                                    <CardHeader>
+                                      <CardTitle className="text-base flex items-center gap-2"><Clock className="h-5 w-5" /> Related Visit Timing</CardTitle>
+                                      <CardDescription>Auto-linked by customer and date. Adjust expected leave or mark left.</CardDescription>
+                                    </CardHeader>
+                                    <CardContent className="space-y-4">
+                                      {(() => {
+                                        const candidates = findCandidateVisits(selectedInvoice);
+                                        const selected = candidates.find((v) => v.id === selectedVisitId) || candidates[0];
+                                        return candidates.length === 0 ? (
+                                          <p className="text-sm text-muted-foreground">No visits found for this customer around the invoice date.</p>
+                                        ) : (
+                                          <div className="space-y-4">
+                                            {candidates.length > 1 && (
+                                              <div className="grid gap-1 md:grid-cols-2">
+                                                <div>
+                                                  <Label className="text-xs">Choose Visit</Label>
+                                                  <Select value={selected?.id} onValueChange={(v) => setSelectedVisitId(v)}>
+                                                    <SelectTrigger>
+                                                      <SelectValue placeholder="Select visit" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                      {candidates.map((v) => (
+                                                        <SelectItem key={v.id} value={v.id}>
+                                                          {new Date(v.arrivedAt).toLocaleString()} • {v.visitType}{v.service ? ` • ${v.service}` : ""}
+                                                        </SelectItem>
+                                                      ))}
+                                                    </SelectContent>
+                                                  </Select>
+                                                </div>
+                                              </div>
+                                            )}
+
+                                            {selected && (
+                                              <div className="space-y-3 text-sm">
+                                                <div className="flex items-center gap-2">
+                                                  <Badge className={getVisitStatusColor(selected.status)}>{selected.status}</Badge>
+                                                  <Badge variant="outline">{selected.visitType}{selected.service ? ` • ${selected.service}` : ""}</Badge>
+                                                </div>
+                                                <div className="grid gap-2 md:grid-cols-3">
+                                                  <div className="flex items-center justify-between">
+                                                    <span className="text-muted-foreground">Arrived</span>
+                                                    <span className="font-medium">{new Date(selected.arrivedAt).toLocaleString()}</span>
+                                                  </div>
+                                                  <div className="flex items-center justify-between">
+                                                    <span className="text-muted-foreground">Expected Leave</span>
+                                                    <span className="font-medium">{selected.expectedLeaveAt ? new Date(selected.expectedLeaveAt).toLocaleString() : "-"}</span>
+                                                  </div>
+                                                  <div className="flex items-center justify-between">
+                                                    <span className="text-muted-foreground">Left</span>
+                                                    <span className="font-medium">{selected.leftAt ? new Date(selected.leftAt).toLocaleString() : "-"}</span>
+                                                  </div>
+                                                </div>
+
+                                                {!selected.leftAt && (
+                                                  <div className="grid gap-2 md:grid-cols-3 items-end">
+                                                    <div className="md:col-span-2">
+                                                      <Label className="text-xs">Update Expected Leave</Label>
+                                                      <Input
+                                                        type="datetime-local"
+                                                        value={updateExpectedLocal || (selected.expectedLeaveAt ? (() => { const d = new Date(selected.expectedLeaveAt); const pad = (n: number) => `${n}`.padStart(2, "0"); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;})() : "")}
+                                                        onChange={(e) => setUpdateExpectedLocal(e.target.value)}
+                                                      />
+                                                    </div>
+                                                    <div className="flex gap-2">
+                                                      <Button variant="outline" onClick={() => { const next = updateExpectedLocal || selected.expectedLeaveAt; if (!next) return; const iso = new Date(next).toISOString(); updateExpectedLeave(selected.id, iso); }}>Update</Button>
+                                                      <Button onClick={() => markLeft(selected.id)}>Mark Left</Button>
+                                                    </div>
+                                                  </div>
+                                                )}
+                                              </div>
+                                            )}
+                                          </div>
+                                        );
+                                      })()}
+                                    </CardContent>
+                                  </Card>
+
+                                  {/* Items */}
                                   <div>
-                                    <h4 className="font-medium mb-3">
-                                      Invoice Items
-                                    </h4>
+                                    <h4 className="font-medium mb-3">Invoice Items</h4>
                                     <Table>
                                       <TableHeader>
                                         <TableRow>
@@ -537,57 +585,24 @@ export default function InvoiceManagement() {
                                       <TableBody>
                                         {selectedInvoice.items.map((item) => (
                                           <TableRow key={item.id}>
-                                            <TableCell>
-                                              {item.description}
-                                            </TableCell>
-                                            <TableCell>
-                                              <Badge variant="outline">
-                                                {item.type}
-                                              </Badge>
-                                            </TableCell>
-                                            <TableCell>
-                                              {item.quantity}
-                                            </TableCell>
-                                            <TableCell>
-                                              {formatCurrency(item.unitPrice)}
-                                            </TableCell>
-                                            <TableCell>
-                                              {formatCurrency(item.total)}
-                                            </TableCell>
+                                            <TableCell>{item.description}</TableCell>
+                                            <TableCell><Badge variant="outline">{item.type}</Badge></TableCell>
+                                            <TableCell>{item.quantity}</TableCell>
+                                            <TableCell>{formatCurrency(item.unitPrice)}</TableCell>
+                                            <TableCell>{formatCurrency(item.total)}</TableCell>
                                           </TableRow>
                                         ))}
                                       </TableBody>
                                     </Table>
                                   </div>
 
-                                  {/* Invoice Totals */}
+                                  {/* Totals */}
                                   <div className="border-t pt-4">
                                     <div className="flex justify-end">
                                       <div className="w-64 space-y-2">
-                                        <div className="flex justify-between">
-                                          <span>Subtotal:</span>
-                                          <span>
-                                            {formatCurrency(
-                                              selectedInvoice.amount,
-                                            )}
-                                          </span>
-                                        </div>
-                                        <div className="flex justify-between">
-                                          <span>Tax (18%):</span>
-                                          <span>
-                                            {formatCurrency(
-                                              selectedInvoice.tax,
-                                            )}
-                                          </span>
-                                        </div>
-                                        <div className="flex justify-between font-bold text-lg border-t pt-2">
-                                          <span>Total:</span>
-                                          <span>
-                                            {formatCurrency(
-                                              selectedInvoice.total,
-                                            )}
-                                          </span>
-                                        </div>
+                                        <div className="flex justify-between"><span>Subtotal:</span><span>{formatCurrency(selectedInvoice.amount)}</span></div>
+                                        <div className="flex justify-between"><span>Tax (18%):</span><span>{formatCurrency(selectedInvoice.tax)}</span></div>
+                                        <div className="flex justify-between font-bold text-lg border-t pt-2"><span>Total:</span><span>{formatCurrency(selectedInvoice.total)}</span></div>
                                       </div>
                                     </div>
                                   </div>
@@ -595,38 +610,21 @@ export default function InvoiceManagement() {
                                   {/* Notes */}
                                   {selectedInvoice.notes && (
                                     <div>
-                                      <h4 className="font-medium mb-2">
-                                        Notes
-                                      </h4>
-                                      <p className="text-sm text-muted-foreground">
-                                        {selectedInvoice.notes}
-                                      </p>
+                                      <h4 className="font-medium mb-2">Notes</h4>
+                                      <p className="text-sm text-muted-foreground">{selectedInvoice.notes}</p>
                                     </div>
                                   )}
                                 </div>
                               )}
                               <DialogFooter>
-                                <Button variant="outline">
-                                  <Download className="h-4 w-4 mr-2" />
-                                  Download PDF
-                                </Button>
-                                <Button variant="outline">
-                                  <Send className="h-4 w-4 mr-2" />
-                                  Send to Customer
-                                </Button>
-                                <Button>
-                                  <Edit className="h-4 w-4 mr-2" />
-                                  Edit Invoice
-                                </Button>
+                                <Button variant="outline"><Download className="h-4 w-4 mr-2" /> Download PDF</Button>
+                                <Button variant="outline"><Send className="h-4 w-4 mr-2" /> Send to Customer</Button>
+                                <Button><Edit className="h-4 w-4 mr-2" /> Edit Invoice</Button>
                               </DialogFooter>
                             </DialogContent>
                           </Dialog>
-                          <Button variant="ghost" size="sm">
-                            <Download className="h-4 w-4" />
-                          </Button>
-                          <Button variant="ghost" size="sm">
-                            <Edit className="h-4 w-4" />
-                          </Button>
+                          <Button variant="ghost" size="sm"><Download className="h-4 w-4" /></Button>
+                          <Button variant="ghost" size="sm"><Edit className="h-4 w-4" /></Button>
                         </div>
                       </TableCell>
                     </TableRow>
