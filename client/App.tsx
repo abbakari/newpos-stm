@@ -17,6 +17,9 @@ import TireServices from "./pages/services/TireServices";
 import CarServices from "./pages/services/CarServices";
 import TireInventory from "./pages/inventory/TireInventory";
 import InvoiceManagement from "./pages/invoices/InvoiceManagement";
+import SalesManagement from "./pages/sales/SalesManagement";
+import NewSaleTransaction from "./pages/sales/NewSaleTransaction";
+import SalesAnalytics from "./pages/sales/SalesAnalytics";
 import NotFound from "./pages/NotFound";
 import {
   Users,
@@ -134,6 +137,30 @@ const App = () => (
             element={
               <DashboardLayout>
                 <InvoiceManagement />
+              </DashboardLayout>
+            }
+          />
+          <Route
+            path="/sales"
+            element={
+              <DashboardLayout>
+                <SalesManagement />
+              </DashboardLayout>
+            }
+          />
+          <Route
+            path="/sales/new"
+            element={
+              <DashboardLayout>
+                <NewSaleTransaction />
+              </DashboardLayout>
+            }
+          />
+          <Route
+            path="/sales/analytics"
+            element={
+              <DashboardLayout>
+                <SalesAnalytics />
               </DashboardLayout>
             }
           />

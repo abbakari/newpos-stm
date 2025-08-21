@@ -94,6 +94,8 @@ const mockCustomer = {
       status: "Completed",
       invoice: "INV-001234",
       duration: "45 minutes",
+      transactionType: "Service + Sales",
+      location: "Service Bay 1",
     },
     {
       id: "ORD-1230",
@@ -104,6 +106,8 @@ const mockCustomer = {
       status: "Completed",
       invoice: "INV-001230",
       duration: "2 hours",
+      transactionType: "Service + Sales",
+      location: "Service Bay 2",
     },
     {
       id: "ORD-1225",
@@ -114,6 +118,8 @@ const mockCustomer = {
       status: "Completed",
       invoice: "INV-001225",
       duration: "1.5 hours",
+      transactionType: "Service Only",
+      location: "Service Bay 1",
     },
     {
       id: "ORD-1220",
@@ -124,8 +130,53 @@ const mockCustomer = {
       status: "Completed",
       invoice: "INV-001220",
       duration: "1 hour",
+      transactionType: "Service Only",
+      location: "Service Bay 3",
     },
   ],
+  salesHistory: [
+    {
+      id: "SALE-001",
+      date: "2024-01-18",
+      transactionType: "Sales Only",
+      location: "Shop Front",
+      items: ["Michelin Tires x4", "Engine Oil", "Air Freshener"],
+      amount: 920000,
+      paymentMethod: "Mobile Money",
+      salesPerson: "Sarah Wilson",
+    },
+    {
+      id: "SALE-002",
+      date: "2024-01-12",
+      transactionType: "Sales Only",
+      location: "Shop Front",
+      items: ["Car Battery", "Battery Cables"],
+      amount: 285000,
+      paymentMethod: "Cash",
+      salesPerson: "James Okello",
+    },
+    {
+      id: "SALE-003",
+      date: "2024-01-08",
+      transactionType: "Sales Only",
+      location: "Shop Front",
+      items: ["Brake Pads", "Brake Fluid"],
+      amount: 125000,
+      paymentMethod: "Mobile Money",
+      salesPerson: "Peter Mukasa",
+    },
+  ],
+  visitAnalytics: {
+    totalVisits: 12,
+    salesOnlyVisits: 6,
+    serviceOnlyVisits: 3,
+    serviceWithSalesVisits: 3,
+    preferredLocation: "Shop Front",
+    averageTransactionValue: 350000,
+    loyaltyLevel: "Gold",
+    lastSalesOnlyVisit: "2024-01-18",
+    lastServiceVisit: "2024-01-20",
+  },
   invoices: [
     {
       id: "INV-001234",
@@ -302,6 +353,8 @@ export default function CustomerDetails() {
           <TabsTrigger value="profile">Profile</TabsTrigger>
           <TabsTrigger value="vehicles">Vehicles</TabsTrigger>
           <TabsTrigger value="orders">Order History</TabsTrigger>
+          <TabsTrigger value="sales">Sales History</TabsTrigger>
+          <TabsTrigger value="analytics">Visit Analytics</TabsTrigger>
           <TabsTrigger value="invoices">Invoices</TabsTrigger>
         </TabsList>
 
@@ -529,7 +582,7 @@ export default function CustomerDetails() {
                 <div>
                   <CardTitle className="flex items-center gap-2">
                     <FileText className="h-5 w-5" />
-                    Order History
+                    Service Order History
                   </CardTitle>
                   <CardDescription>
                     Complete history of all services and orders
@@ -550,6 +603,7 @@ export default function CustomerDetails() {
                       <TableHead>Date</TableHead>
                       <TableHead>Service</TableHead>
                       <TableHead>Vehicle</TableHead>
+                      <TableHead>Type & Location</TableHead>
                       <TableHead>Duration</TableHead>
                       <TableHead>Amount</TableHead>
                       <TableHead>Status</TableHead>
@@ -565,6 +619,17 @@ export default function CustomerDetails() {
                         <TableCell>{order.date}</TableCell>
                         <TableCell>{order.service}</TableCell>
                         <TableCell>{order.vehicle}</TableCell>
+                        <TableCell>
+                          <div className="space-y-1">
+                            <Badge variant="outline" className="text-xs">
+                              {order.transactionType}
+                            </Badge>
+                            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                              <MapPin className="h-3 w-3" />
+                              {order.location}
+                            </div>
+                          </div>
+                        </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-1">
                             <Clock className="h-3 w-3" />
@@ -596,6 +661,353 @@ export default function CustomerDetails() {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        {/* Sales History Tab */}
+        <TabsContent value="sales">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <DollarSign className="h-5 w-5" />
+                    Sales-Only Transaction History
+                  </CardTitle>
+                  <CardDescription>
+                    Transactions where customer came only for purchasing items
+                  </CardDescription>
+                </div>
+                <Button>
+                  <Plus className="h-4 w-4 mr-2" />
+                  New Sale
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Sale ID</TableHead>
+                      <TableHead>Date</TableHead>
+                      <TableHead>Location</TableHead>
+                      <TableHead>Items</TableHead>
+                      <TableHead>Amount</TableHead>
+                      <TableHead>Payment</TableHead>
+                      <TableHead>Salesperson</TableHead>
+                      <TableHead>Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {customer.salesHistory.map((sale) => (
+                      <TableRow key={sale.id}>
+                        <TableCell className="font-medium">{sale.id}</TableCell>
+                        <TableCell>{sale.date}</TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-1">
+                            <MapPin className="h-3 w-3" />
+                            {sale.location}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div>
+                            <p className="font-medium">
+                              {sale.items.length} items
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                              {sale.items.slice(0, 2).join(", ")}
+                              {sale.items.length > 2 &&
+                                ` +${sale.items.length - 2} more`}
+                            </p>
+                          </div>
+                        </TableCell>
+                        <TableCell className="font-medium">
+                          {formatCurrency(sale.amount)}
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline">{sale.paymentMethod}</Badge>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-1">
+                            <User className="h-3 w-3" />
+                            <span className="text-sm">{sale.salesPerson}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex gap-1">
+                            <Button variant="ghost" size="sm">
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                            <Button variant="ghost" size="sm">
+                              <Download className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Visit Analytics Tab */}
+        <TabsContent value="analytics">
+          <div className="space-y-6">
+            {/* Visit Pattern Analysis */}
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
+                      <Activity className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">
+                        Total Visits
+                      </p>
+                      <p className="text-2xl font-bold">
+                        {customer.visitAnalytics.totalVisits}
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 bg-orange-100 dark:bg-orange-900 rounded-lg flex items-center justify-center">
+                      <DollarSign className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">
+                        Sales Only
+                      </p>
+                      <p className="text-2xl font-bold">
+                        {customer.visitAnalytics.salesOnlyVisits}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {Math.round(
+                          (customer.visitAnalytics.salesOnlyVisits /
+                            customer.visitAnalytics.totalVisits) *
+                            100,
+                        )}
+                        % of visits
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center">
+                      <Car className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">
+                        Service + Sales
+                      </p>
+                      <p className="text-2xl font-bold">
+                        {customer.visitAnalytics.serviceWithSalesVisits}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {Math.round(
+                          (customer.visitAnalytics.serviceWithSalesVisits /
+                            customer.visitAnalytics.totalVisits) *
+                            100,
+                        )}
+                        % of visits
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center">
+                      <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">
+                        Service Only
+                      </p>
+                      <p className="text-2xl font-bold">
+                        {customer.visitAnalytics.serviceOnlyVisits}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {Math.round(
+                          (customer.visitAnalytics.serviceOnlyVisits /
+                            customer.visitAnalytics.totalVisits) *
+                            100,
+                        )}
+                        % of visits
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Customer Behavior Analysis */}
+            <div className="grid gap-6 lg:grid-cols-2">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Activity className="h-5 w-5" />
+                    Customer Behavior Pattern
+                  </CardTitle>
+                  <CardDescription>
+                    Analysis of visit types and purchasing behavior
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <div className="flex items-center justify-between text-sm mb-2">
+                      <span>Sales-Only Visits</span>
+                      <span>
+                        {customer.visitAnalytics.salesOnlyVisits}/
+                        {customer.visitAnalytics.totalVisits}
+                      </span>
+                    </div>
+                    <div className="w-full bg-muted rounded-full h-2">
+                      <div
+                        className="bg-orange-500 h-2 rounded-full"
+                        style={{
+                          width: `${(customer.visitAnalytics.salesOnlyVisits / customer.visitAnalytics.totalVisits) * 100}%`,
+                        }}
+                      ></div>
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-between text-sm mb-2">
+                      <span>Service + Sales Visits</span>
+                      <span>
+                        {customer.visitAnalytics.serviceWithSalesVisits}/
+                        {customer.visitAnalytics.totalVisits}
+                      </span>
+                    </div>
+                    <div className="w-full bg-muted rounded-full h-2">
+                      <div
+                        className="bg-purple-500 h-2 rounded-full"
+                        style={{
+                          width: `${(customer.visitAnalytics.serviceWithSalesVisits / customer.visitAnalytics.totalVisits) * 100}%`,
+                        }}
+                      ></div>
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-between text-sm mb-2">
+                      <span>Service-Only Visits</span>
+                      <span>
+                        {customer.visitAnalytics.serviceOnlyVisits}/
+                        {customer.visitAnalytics.totalVisits}
+                      </span>
+                    </div>
+                    <div className="w-full bg-muted rounded-full h-2">
+                      <div
+                        className="bg-green-500 h-2 rounded-full"
+                        style={{
+                          width: `${(customer.visitAnalytics.serviceOnlyVisits / customer.visitAnalytics.totalVisits) * 100}%`,
+                        }}
+                      ></div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <TrendingUp className="h-5 w-5" />
+                    Customer Insights
+                  </CardTitle>
+                  <CardDescription>
+                    Key insights about customer preferences and value
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <p className="text-muted-foreground">Avg Transaction:</p>
+                      <p className="font-medium text-lg">
+                        {formatCurrency(
+                          customer.visitAnalytics.averageTransactionValue,
+                        )}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground">Loyalty Level:</p>
+                      <Badge
+                        className="mt-1"
+                        variant={
+                          customer.visitAnalytics.loyaltyLevel === "Gold"
+                            ? "default"
+                            : "secondary"
+                        }
+                      >
+                        {customer.visitAnalytics.loyaltyLevel}
+                      </Badge>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground">
+                        Preferred Location:
+                      </p>
+                      <p className="font-medium">
+                        {customer.visitAnalytics.preferredLocation}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground">Customer Type:</p>
+                      <p className="font-medium">{customer.customerType}</p>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span>Last Sales Visit:</span>
+                      <span className="font-medium">
+                        {customer.visitAnalytics.lastSalesOnlyVisit}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span>Last Service Visit:</span>
+                      <span className="font-medium">
+                        {customer.visitAnalytics.lastServiceVisit}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Customer Recommendations */}
+                  <div className="mt-4 p-3 bg-muted/50 rounded-lg">
+                    <p className="text-sm font-medium mb-2">Recommendations:</p>
+                    <ul className="text-sm text-muted-foreground space-y-1">
+                      {customer.visitAnalytics.salesOnlyVisits >
+                      customer.visitAnalytics.serviceWithSalesVisits ? (
+                        <li>
+                          • High sales-only customer - offer service package
+                          deals
+                        </li>
+                      ) : (
+                        <li>
+                          • Service-focused customer - promote premium services
+                        </li>
+                      )}
+                      <li>
+                        • Prefers {customer.visitAnalytics.preferredLocation} -
+                        schedule accordingly
+                      </li>
+                      <li>
+                        • {customer.visitAnalytics.loyaltyLevel} customer -
+                        eligible for loyalty rewards
+                      </li>
+                    </ul>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
         </TabsContent>
 
         {/* Invoices Tab */}

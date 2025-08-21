@@ -107,6 +107,12 @@ const sidebarItems: SidebarItem[] = [
     ],
   },
   {
+    id: "sales",
+    label: "Sales Management",
+    icon: ShoppingCart,
+    href: "/sales",
+  },
+  {
     id: "invoices",
     label: "Invoice Management",
     icon: Receipt,
