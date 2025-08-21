@@ -24,6 +24,8 @@ import {
   Bell,
   LogOut,
   Building2,
+  Package,
+  Receipt,
 } from 'lucide-react';
 
 interface SidebarItem {
@@ -60,6 +62,20 @@ const sidebarItems: SidebarItem[] = [
       { id: 'tire-services', label: 'Tire Services', icon: ShoppingCart, href: '/services/tires' },
       { id: 'consultations', label: 'Consultations', icon: HelpCircle, href: '/services/consultations' },
     ],
+  },
+  {
+    id: 'inventory',
+    label: 'Inventory Management',
+    icon: Package,
+    children: [
+      { id: 'tire-inventory', label: 'Tire Inventory', icon: Package, href: '/inventory/tires' },
+    ],
+  },
+  {
+    id: 'invoices',
+    label: 'Invoice Management',
+    icon: Receipt,
+    href: '/invoices',
   },
   {
     id: 'orders',
