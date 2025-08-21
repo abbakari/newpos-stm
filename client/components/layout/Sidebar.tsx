@@ -51,24 +51,28 @@ const sidebarItems: SidebarItem[] = [
     id: "customers",
     label: "Customer Management",
     icon: Users,
+    requiredRoles: [UserRole.ADMIN, UserRole.OFFICE_MANAGER],
     children: [
       {
         id: "customer-search",
         label: "Search Customers",
         icon: Search,
         href: "/customers/search",
+        requiredRoles: [UserRole.ADMIN, UserRole.OFFICE_MANAGER],
       },
       {
         id: "customer-add",
         label: "Add New Customer",
         icon: UserPlus,
         href: "/customers/add",
+        requiredRoles: [UserRole.ADMIN, UserRole.OFFICE_MANAGER],
       },
       {
         id: "customer-types",
         label: "Customer Types",
         icon: Building2,
         href: "/customers/types",
+        requiredRoles: [UserRole.ADMIN, UserRole.OFFICE_MANAGER],
       },
     ],
   },
