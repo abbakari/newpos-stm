@@ -274,11 +274,18 @@ export function Sidebar({ isCollapsed }: SidebarProps) {
   };
 
   const renderSidebarItem = (item: SidebarItem, level: number = 0) => {
+    // Check if user has access to this item
+    if (!hasItemAccess(item)) {
+      return null;
+    }
+
     const hasChildren = item.children && item.children.length > 0;
+    const visibleChildren = hasChildren ? item.children!.filter(hasItemAccess) : [];
+    const hasVisibleChildren = visibleChildren.length > 0;
     const isExpanded = expandedItems.includes(item.id);
     const isItemActive = item.href ? isActive(item.href) : false;
 
-    if (hasChildren) {
+    if (hasVisibleChildren) {
       return (
         <div key={item.id} className="space-y-1">
           <button
@@ -305,7 +312,7 @@ export function Sidebar({ isCollapsed }: SidebarProps) {
           </button>
           {!isCollapsed && isExpanded && (
             <div className="space-y-1 ml-4">
-              {item.children?.map((child) =>
+              {visibleChildren.map((child) =>
                 renderSidebarItem(child, level + 1),
               )}
             </div>
