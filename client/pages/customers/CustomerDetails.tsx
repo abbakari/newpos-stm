@@ -353,6 +353,8 @@ export default function CustomerDetails() {
           <TabsTrigger value="profile">Profile</TabsTrigger>
           <TabsTrigger value="vehicles">Vehicles</TabsTrigger>
           <TabsTrigger value="orders">Order History</TabsTrigger>
+          <TabsTrigger value="sales">Sales History</TabsTrigger>
+          <TabsTrigger value="analytics">Visit Analytics</TabsTrigger>
           <TabsTrigger value="invoices">Invoices</TabsTrigger>
         </TabsList>
 
