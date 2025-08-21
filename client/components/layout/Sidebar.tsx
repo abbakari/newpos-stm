@@ -98,6 +98,7 @@ const sidebarItems: SidebarItem[] = [
         label: "Consultations",
         icon: HelpCircle,
         href: "/services/consultations",
+        requiredRoles: [UserRole.ADMIN, UserRole.OFFICE_MANAGER],
       },
     ],
   },
