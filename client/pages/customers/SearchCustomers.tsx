@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   Card,
   CardContent,
@@ -11,13 +11,6 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   Table,
   TableBody,
   TableCell,
@@ -27,22 +20,25 @@ import {
 } from "@/components/ui/table";
 import {
   Search,
-  Filter,
-  Plus,
-  Eye,
   Edit,
   Phone,
   Mail,
   Calendar,
   MapPin,
   Car,
-  Users,
-  Building2,
-  UserCheck,
+  FileText,
+  DollarSign,
+  Clock,
+  User,
+  Eye,
+  Download,
+  CheckCircle,
+  Activity,
+  TrendingUp,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
 
-const mockCustomers = [
+// Lightweight directory for search results
+const initialCustomers = [
   {
     id: "CUST-001",
     name: "John Doe",
@@ -55,7 +51,6 @@ const mockCustomers = [
     lastVisit: "2024-01-20",
     totalOrders: 5,
     status: "Active",
-    vehicles: ["Toyota Camry 2020", "Honda Civic 2019"],
   },
   {
     id: "CUST-002",
@@ -69,7 +64,6 @@ const mockCustomers = [
     lastVisit: "2024-01-19",
     totalOrders: 23,
     status: "Active",
-    vehicles: ["Multiple Fleet Vehicles"],
   },
   {
     id: "CUST-003",
@@ -83,7 +77,6 @@ const mockCustomers = [
     lastVisit: "2024-01-18",
     totalOrders: 15,
     status: "Active",
-    vehicles: ["Fleet of 12 vehicles"],
   },
   {
     id: "CUST-004",
@@ -97,7 +90,6 @@ const mockCustomers = [
     lastVisit: "2024-01-17",
     totalOrders: 8,
     status: "Active",
-    vehicles: ["4x4 Land Cruisers", "Pickup Trucks"],
   },
   {
     id: "CUST-005",
@@ -111,7 +103,6 @@ const mockCustomers = [
     lastVisit: "2024-01-16",
     totalOrders: 2,
     status: "Active",
-    vehicles: ["Client Vehicle Services"],
   },
 ];
 
@@ -133,273 +124,1156 @@ const getCustomerTypeColor = (type: string) => {
 const getStatusColor = (status: string) => {
   switch (status) {
     case "Active":
+    case "Paid":
+    case "Completed":
       return "bg-success text-success-foreground";
     case "Inactive":
-      return "bg-muted text-muted-foreground";
+    case "Pending":
+    case "In Progress":
+      return "bg-warning text-warning-foreground";
     case "Suspended":
+    case "Cancelled":
+    case "Overdue":
       return "bg-destructive text-destructive-foreground";
     default:
       return "bg-muted text-muted-foreground";
   }
 };
 
+const formatCurrency = (amount: number) => {
+  return new Intl.NumberFormat("en-UG", {
+    style: "currency",
+    currency: "UGX",
+    minimumFractionDigits: 0,
+  }).format(amount);
+};
+
+// Detailed customer records pulled when a customer is selected (mocked)
+const detailedCustomers: Record<string, any> = {
+  "CUST-001": {
+    id: "CUST-001",
+    firstName: "John",
+    lastName: "Doe",
+    companyName: "",
+    customerType: "Personal",
+    subType: "Car Owner",
+    phone: "+256 700 123 456",
+    email: "john.doe@email.com",
+    altPhone: "+256 702 456 789",
+    address: "123 Main Street, Kololo",
+    city: "Kampala",
+    district: "Kampala",
+    country: "Uganda",
+    nationalId: "CM1234567890",
+    isOwner: true,
+    registeredDate: "2024-01-15",
+    lastVisit: "2024-01-20",
+    totalOrders: 5,
+    totalSpent: 1250000,
+    status: "Active",
+    vehicles: [
+      {
+        id: "VEH-001",
+        make: "Toyota",
+        model: "Camry",
+        year: "2020",
+        plateNumber: "UAG 123A",
+        color: "Black",
+        engineNumber: "ENG123456",
+        chassisNumber: "CHS789012",
+      },
+      {
+        id: "VEH-002",
+        make: "Honda",
+        model: "Civic",
+        year: "2019",
+        plateNumber: "UAG 456B",
+        color: "White",
+        engineNumber: "ENG654321",
+        chassisNumber: "CHS210987",
+      },
+    ],
+    orderHistory: [
+      {
+        id: "ORD-1234",
+        date: "2024-01-20",
+        service: "Oil Change",
+        vehicle: "Toyota Camry",
+        amount: 150000,
+        status: "Completed",
+        invoice: "INV-001234",
+        duration: "45 minutes",
+        transactionType: "Service + Sales",
+        location: "Service Bay 1",
+      },
+      {
+        id: "ORD-1230",
+        date: "2024-01-15",
+        service: "Tire Replacement",
+        vehicle: "Honda Civic",
+        amount: 800000,
+        status: "Completed",
+        invoice: "INV-001230",
+        duration: "2 hours",
+        transactionType: "Service + Sales",
+        location: "Service Bay 2",
+      },
+    ],
+    salesHistory: [
+      {
+        id: "SALE-001",
+        date: "2024-01-18",
+        transactionType: "Sales Only",
+        location: "Shop Front",
+        items: ["Michelin Tires x4", "Engine Oil", "Air Freshener"],
+        amount: 920000,
+        paymentMethod: "Mobile Money",
+        salesPerson: "Sarah Wilson",
+      },
+    ],
+    visitAnalytics: {
+      totalVisits: 12,
+      salesOnlyVisits: 6,
+      serviceOnlyVisits: 3,
+      serviceWithSalesVisits: 3,
+      preferredLocation: "Shop Front",
+      averageTransactionValue: 350000,
+      loyaltyLevel: "Gold",
+      lastSalesOnlyVisit: "2024-01-18",
+      lastServiceVisit: "2024-01-20",
+    },
+    invoices: [
+      {
+        id: "INV-001234",
+        orderId: "ORD-1234",
+        date: "2024-01-20",
+        amount: 150000,
+        status: "Paid",
+        dueDate: "2024-01-20",
+        paymentMethod: "Cash",
+      },
+      {
+        id: "INV-001230",
+        orderId: "ORD-1230",
+        date: "2024-01-15",
+        amount: 800000,
+        status: "Paid",
+        dueDate: "2024-01-15",
+        paymentMethod: "Mobile Money",
+      },
+    ],
+    notes:
+      "Regular customer, prefers morning appointments. Very particular about service quality.",
+    preferredServices: ["Oil Change", "Tire Installation", "Engine Repair"],
+  },
+};
+
+function synthesizeDetailsFromDirectory(c: any) {
+  // Fallback details if no rich record exists
+  const [firstName, lastName] = c.name.split(" ");
+  return {
+    id: c.id,
+    firstName: firstName || c.name,
+    lastName: lastName || "",
+    companyName: lastName ? "" : c.name,
+    customerType: c.type,
+    subType: c.subType,
+    phone: c.phone,
+    email: c.email,
+    altPhone: "",
+    address: c.location,
+    city: "",
+    district: "",
+    country: "",
+    nationalId: "",
+    isOwner: true,
+    registeredDate: c.registeredDate,
+    lastVisit: c.lastVisit,
+    totalOrders: c.totalOrders,
+    totalSpent: 0,
+    status: c.status,
+    vehicles: [],
+    orderHistory: [],
+    salesHistory: [],
+    visitAnalytics: {
+      totalVisits: 0,
+      salesOnlyVisits: 0,
+      serviceOnlyVisits: 0,
+      serviceWithSalesVisits: 0,
+      preferredLocation: "",
+      averageTransactionValue: 0,
+      loyaltyLevel: "",
+      lastSalesOnlyVisit: "",
+      lastServiceVisit: "",
+    },
+    invoices: [],
+    notes: "",
+    preferredServices: [],
+  };
+}
+
 export default function SearchCustomers() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedType, setSelectedType] = useState("all");
-  const [selectedStatus, setSelectedStatus] = useState("all");
+  const [customers, setCustomers] = useState(initialCustomers);
+  const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(
+    null,
+  );
+  const [isEditing, setIsEditing] = useState(false);
+  const [details, setDetails] = useState<any | null>(null);
 
-  const filteredCustomers = mockCustomers.filter((customer) => {
-    const matchesSearch =
-      customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      customer.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      customer.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesType =
-      selectedType === "all" || customer.type === selectedType;
-    const matchesStatus =
-      selectedStatus === "all" || customer.status === selectedStatus;
+  const filteredCustomers = useMemo(() => {
+    if (!searchTerm.trim()) return [];
+    return customers.filter((customer) => {
+      const st = searchTerm.toLowerCase();
+      return (
+        customer.name.toLowerCase().includes(st) ||
+        customer.id.toLowerCase().includes(st) ||
+        customer.email.toLowerCase().includes(st) ||
+        customer.phone.includes(searchTerm)
+      );
+    });
+  }, [customers, searchTerm]);
 
-    return matchesSearch && matchesType && matchesStatus;
-  });
+  // Load details when a customer is selected
+  const selectCustomer = (id: string) => {
+    setSelectedCustomerId(id);
+    const fromDir = customers.find((c) => c.id === id);
+    const rich = detailedCustomers[id];
+    const det = rich || (fromDir ? synthesizeDetailsFromDirectory(fromDir) : null);
+    setDetails(det);
+    setIsEditing(false);
+  };
+
+  // Save basic edits (mocked local update only)
+  const saveEdits = () => {
+    if (!details) return;
+    // Reflect changes into search directory (phone/email/location where applicable)
+    setCustomers((prev) =>
+      prev.map((c) =>
+        c.id === details.id
+          ? {
+              ...c,
+              phone: details.phone || c.phone,
+              email: details.email || c.email,
+              location: details.address || c.location,
+            }
+          : c,
+      ),
+    );
+    setIsEditing(false);
+  };
 
   return (
     <div className="space-y-6">
-      {/* Page Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">
-            Customer Management
-          </h1>
-          <p className="text-muted-foreground">
-            Search, manage, and track your customers across all service
-            categories
-          </p>
-        </div>
-        <Button>
-          <Plus className="h-4 w-4 mr-2" />
-          Add New Customer
-        </Button>
+      {/* Header */}
+      <div>
+        <h1 className="text-3xl font-bold text-foreground">Search Customers</h1>
+        <p className="text-muted-foreground">
+          Search a customer and view complete information organized by section. This
+          page does not add new customers.
+        </p>
       </div>
 
-      {/* Search and Filters */}
+      {/* Search Bar */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Search & Filter Customers</CardTitle>
+          <CardTitle className="text-lg">Search</CardTitle>
+          <CardDescription>Search by name, ID, phone, or email</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search by name, customer ID, or email..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-            </div>
-            <Select value={selectedType} onValueChange={setSelectedType}>
-              <SelectTrigger className="w-full md:w-48">
-                <SelectValue placeholder="Customer Type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Types</SelectItem>
-                <SelectItem value="Government">Government</SelectItem>
-                <SelectItem value="NGO">NGO</SelectItem>
-                <SelectItem value="Private">Private</SelectItem>
-                <SelectItem value="Personal">Personal</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-              <SelectTrigger className="w-full md:w-48">
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="Active">Active</SelectItem>
-                <SelectItem value="Inactive">Inactive</SelectItem>
-                <SelectItem value="Suspended">Suspended</SelectItem>
-              </SelectContent>
-            </Select>
-            <Button variant="outline" size="icon">
-              <Filter className="h-4 w-4" />
-            </Button>
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Type to search..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
           </div>
         </CardContent>
       </Card>
 
-      {/* Customer Stats */}
-      <div className="grid gap-4 md:grid-cols-4">
+      {/* Content */}
+      {!searchTerm.trim() ? (
         <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
-                <Users className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Total Customers</p>
-                <p className="text-2xl font-bold">2,847</p>
-              </div>
+          <CardContent className="p-12 flex flex-col items-center justify-center text-center gap-3">
+            <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
+              <Search className="h-6 w-6 text-muted-foreground" />
             </div>
+            <h3 className="text-xl font-semibold">Waiting for a search</h3>
+            <p className="text-sm text-muted-foreground">
+              Start typing a customer name, ID, phone, or email to view their
+              information.
+            </p>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center">
-                <UserCheck className="h-5 w-5 text-green-600 dark:text-green-400" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">
-                  Active This Month
-                </p>
-                <p className="text-2xl font-bold">1,234</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center">
-                <Building2 className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">
-                  Corporate Clients
-                </p>
-                <p className="text-2xl font-bold">156</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 bg-orange-100 dark:bg-orange-900 rounded-lg flex items-center justify-center">
-                <Car className="h-5 w-5 text-orange-600 dark:text-orange-400" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">
-                  Personal Customers
-                </p>
-                <p className="text-2xl font-bold">2,691</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Customer List */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="text-lg">Customer Directory</CardTitle>
+      ) : (
+        <div className="grid gap-6 lg:grid-cols-3">
+          {/* Results list */}
+          <Card className="lg:col-span-1">
+            <CardHeader>
+              <CardTitle className="text-lg">Results</CardTitle>
               <CardDescription>
-                {filteredCustomers.length} customers found
+                {filteredCustomers.length} customer{filteredCustomers.length === 1 ? "" : "s"} found
               </CardDescription>
-            </div>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm">
-                Export CSV
-              </Button>
-              <Button variant="outline" size="sm">
-                Print List
-              </Button>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Customer</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Contact</TableHead>
-                  <TableHead>Location</TableHead>
-                  <TableHead>Last Visit</TableHead>
-                  <TableHead>Orders</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredCustomers.map((customer) => (
-                  <TableRow key={customer.id} className="hover:bg-accent/50">
-                    <TableCell>
-                      <div>
-                        <p className="font-medium text-foreground">
-                          {customer.name}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          {customer.id}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {customer.subType}
-                        </p>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              {filteredCustomers.length === 0 && (
+                <p className="text-sm text-muted-foreground">No customers match your search.</p>
+              )}
+              {filteredCustomers.map((c) => (
+                <div
+                  key={c.id}
+                  onClick={() => selectCustomer(c.id)}
+                  className={`p-3 rounded-lg border cursor-pointer hover:bg-accent ${
+                    selectedCustomerId === c.id ? "bg-accent" : ""
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <p className="font-medium text-foreground">{c.name}</p>
+                      <p className="text-xs text-muted-foreground">{c.id}</p>
+                      <div className="mt-2 flex items-center gap-2">
+                        <Badge variant="outline" className={getCustomerTypeColor(c.type)}>
+                          {c.type}
+                        </Badge>
+                        <Badge className={getStatusColor(c.status)}>{c.status}</Badge>
                       </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        variant="outline"
-                        className={getCustomerTypeColor(customer.type)}
-                      >
-                        {customer.type}
+                    </div>
+                    <div className="text-right space-y-1 text-sm">
+                      <div className="flex items-center gap-1 justify-end">
+                        <Phone className="h-3 w-3" /> {c.phone}
+                      </div>
+                      <div className="flex items-center gap-1 justify-end text-muted-foreground">
+                        <Mail className="h-3 w-3" /> {c.email}
+                      </div>
+                      <div className="flex items-center gap-1 justify-end text-muted-foreground">
+                        <MapPin className="h-3 w-3" /> {c.location}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+
+          {/* Details panel */}
+          <div className="lg:col-span-2 space-y-6">
+            {!selectedCustomerId || !details ? (
+              <Card>
+                <CardContent className="p-12 text-center text-muted-foreground">
+                  Select a customer on the left to view details.
+                </CardContent>
+              </Card>
+            ) : (
+              <>
+                {/* Header for selected customer */}
+                <div className="flex items-start justify-between">
+                  <div>
+                    <h2 className="text-2xl font-bold text-foreground">
+                      {details.companyName || `${details.firstName} ${details.lastName}`}
+                    </h2>
+                    <div className="flex items-center gap-2 mt-1">
+                      <Badge variant="outline" className={getCustomerTypeColor(details.customerType)}>
+                        {details.customerType}
                       </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-1 text-sm">
-                          <Phone className="h-3 w-3" />
-                          {customer.phone}
+                      <Badge className={getStatusColor(details.status)}>{details.status}</Badge>
+                      <span className="text-sm text-muted-foreground">ID: {details.id}</span>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" onClick={() => setIsEditing((v) => !v)}>
+                      <Edit className="h-4 w-4 mr-2" /> {isEditing ? "Cancel" : "Edit Customer"}
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Quick stats */}
+                <div className="grid gap-4 md:grid-cols-4">
+                  <Card>
+                    <CardContent className="p-6">
+                      <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
+                          <FileText className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                         </div>
-                        <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                          <Mail className="h-3 w-3" />
-                          {customer.email}
+                        <div>
+                          <p className="text-sm text-muted-foreground">Total Orders</p>
+                          <p className="text-2xl font-bold">{details.totalOrders}</p>
                         </div>
                       </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-1 text-sm">
-                        <MapPin className="h-3 w-3" />
-                        {customer.location}
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-6">
+                      <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center">
+                          <DollarSign className="h-5 w-5 text-green-600 dark:text-green-400" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Total Spent</p>
+                          <p className="text-2xl font-bold">{formatCurrency(details.totalSpent || 0)}</p>
+                        </div>
                       </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-1 text-sm">
-                        <Calendar className="h-3 w-3" />
-                        {customer.lastVisit}
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-6">
+                      <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center">
+                          <Car className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Vehicles</p>
+                          <p className="text-2xl font-bold">{details.vehicles?.length || 0}</p>
+                        </div>
                       </div>
-                    </TableCell>
-                    <TableCell>
-                      <span className="font-medium">
-                        {customer.totalOrders}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      <Badge className={getStatusColor(customer.status)}>
-                        {customer.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex gap-1">
-                        <Button variant="ghost" size="sm">
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="sm">
-                          <Edit className="h-4 w-4" />
-                        </Button>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-6">
+                      <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 bg-orange-100 dark:bg-orange-900 rounded-lg flex items-center justify-center">
+                          <Calendar className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Last Visit</p>
+                          <p className="text-2xl font-bold">{details.lastVisit || "-"}</p>
+                        </div>
                       </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <Tabs defaultValue="profile" className="space-y-6">
+                  <TabsList>
+                    <TabsTrigger value="profile">Profile</TabsTrigger>
+                    <TabsTrigger value="vehicles">Vehicles</TabsTrigger>
+                    <TabsTrigger value="orders">Order History</TabsTrigger>
+                    <TabsTrigger value="sales">Sales History</TabsTrigger>
+                    <TabsTrigger value="analytics">Visit Analytics</TabsTrigger>
+                    <TabsTrigger value="invoices">Invoices</TabsTrigger>
+                  </TabsList>
+
+                  {/* Profile */}
+                  <TabsContent value="profile">
+                    <div className="grid gap-6 lg:grid-cols-2">
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="flex items-center gap-2">
+                            <User className="h-5 w-5" /> Personal Information
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                          {!isEditing ? (
+                            <div className="grid gap-3">
+                              <div className="flex justify-between">
+                                <span className="text-sm text-muted-foreground">Customer Type:</span>
+                                <Badge variant="outline" className={getCustomerTypeColor(details.customerType)}>
+                                  {details.customerType} {details.subType ? `- ${details.subType}` : ""}
+                                </Badge>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-sm text-muted-foreground">National ID:</span>
+                                <span className="text-sm font-medium">{details.nationalId || "-"}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-sm text-muted-foreground">Owner Status:</span>
+                                <span className="text-sm font-medium">{details.isOwner ? "Vehicle Owner" : "Driver/Representative"}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-sm text-muted-foreground">Registered:</span>
+                                <span className="text-sm font-medium">{details.registeredDate || "-"}</span>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="grid gap-3">
+                              <div>
+                                <label className="text-xs text-muted-foreground">National ID</label>
+                                <Input
+                                  value={details.nationalId || ""}
+                                  onChange={(e) => setDetails({ ...details, nationalId: e.target.value })}
+                                />
+                              </div>
+                              <div>
+                                <label className="text-xs text-muted-foreground">Owner Status</label>
+                                <Input
+                                  value={details.isOwner ? "Vehicle Owner" : "Driver/Representative"}
+                                  onChange={(e) =>
+                                    setDetails({ ...details, isOwner: e.target.value.toLowerCase().includes("owner") })
+                                  }
+                                />
+                              </div>
+                              <div>
+                                <label className="text-xs text-muted-foreground">Registered</label>
+                                <Input
+                                  value={details.registeredDate || ""}
+                                  onChange={(e) => setDetails({ ...details, registeredDate: e.target.value })}
+                                />
+                              </div>
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="flex items-center gap-2">
+                            <Phone className="h-5 w-5" /> Contact Information
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                          {!isEditing ? (
+                            <div className="space-y-3">
+                              <div className="flex items-center gap-3">
+                                <Phone className="h-4 w-4 text-muted-foreground" />
+                                <div>
+                                  <p className="text-sm font-medium">{details.phone}</p>
+                                  <p className="text-xs text-muted-foreground">Primary</p>
+                                </div>
+                              </div>
+                              {details.altPhone ? (
+                                <div className="flex items-center gap-3">
+                                  <Phone className="h-4 w-4 text-muted-foreground" />
+                                  <div>
+                                    <p className="text-sm font-medium">{details.altPhone}</p>
+                                    <p className="text-xs text-muted-foreground">Alternative</p>
+                                  </div>
+                                </div>
+                              ) : null}
+                              <div className="flex items-center gap-3">
+                                <Mail className="h-4 w-4 text-muted-foreground" />
+                                <div>
+                                  <p className="text-sm font-medium">{details.email}</p>
+                                  <p className="text-xs text-muted-foreground">Email</p>
+                                </div>
+                              </div>
+                              <div className="flex items-start gap-3">
+                                <MapPin className="h-4 w-4 text-muted-foreground mt-0.5" />
+                                <div>
+                                  <p className="text-sm font-medium">{details.address || "-"}</p>
+                                  <p className="text-xs text-muted-foreground">
+                                    {[details.city, details.district, details.country].filter(Boolean).join(", ") || ""}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="grid gap-3">
+                              <div>
+                                <label className="text-xs text-muted-foreground">Phone</label>
+                                <Input
+                                  value={details.phone || ""}
+                                  onChange={(e) => setDetails({ ...details, phone: e.target.value })}
+                                />
+                              </div>
+                              <div>
+                                <label className="text-xs text-muted-foreground">Alt Phone</label>
+                                <Input
+                                  value={details.altPhone || ""}
+                                  onChange={(e) => setDetails({ ...details, altPhone: e.target.value })}
+                                />
+                              </div>
+                              <div>
+                                <label className="text-xs text-muted-foreground">Email</label>
+                                <Input
+                                  value={details.email || ""}
+                                  onChange={(e) => setDetails({ ...details, email: e.target.value })}
+                                />
+                              </div>
+                              <div>
+                                <label className="text-xs text-muted-foreground">Address</label>
+                                <Input
+                                  value={details.address || ""}
+                                  onChange={(e) => setDetails({ ...details, address: e.target.value })}
+                                />
+                              </div>
+                              <div className="grid grid-cols-3 gap-2">
+                                <div>
+                                  <label className="text-xs text-muted-foreground">City</label>
+                                  <Input
+                                    value={details.city || ""}
+                                    onChange={(e) => setDetails({ ...details, city: e.target.value })}
+                                  />
+                                </div>
+                                <div>
+                                  <label className="text-xs text-muted-foreground">District</label>
+                                  <Input
+                                    value={details.district || ""}
+                                    onChange={(e) => setDetails({ ...details, district: e.target.value })}
+                                  />
+                                </div>
+                                <div>
+                                  <label className="text-xs text-muted-foreground">Country</label>
+                                  <Input
+                                    value={details.country || ""}
+                                    onChange={(e) => setDetails({ ...details, country: e.target.value })}
+                                  />
+                                </div>
+                              </div>
+                              <div className="flex justify-end gap-2 pt-2">
+                                <Button variant="outline" onClick={() => setIsEditing(false)}>Cancel</Button>
+                                <Button onClick={saveEdits}>Save Changes</Button>
+                              </div>
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+
+                      <Card className="lg:col-span-2">
+                        <CardHeader>
+                          <CardTitle>Service Preferences & Notes</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                          {!isEditing ? (
+                            <>
+                              <div>
+                                <p className="text-sm text-muted-foreground mb-2">Preferred Services:</p>
+                                <div className="flex flex-wrap gap-2">
+                                  {(details.preferredServices || []).map((service: string) => (
+                                    <Badge key={service} variant="secondary">
+                                      {service}
+                                    </Badge>
+                                  ))}
+                                  {(!details.preferredServices || details.preferredServices.length === 0) && (
+                                    <p className="text-sm text-muted-foreground">None</p>
+                                  )}
+                                </div>
+                              </div>
+                              <div>
+                                <p className="text-sm text-muted-foreground mb-2">Notes:</p>
+                                <p className="text-sm">{details.notes || "-"}</p>
+                              </div>
+                            </>
+                          ) : (
+                            <>
+                              <div>
+                                <label className="text-xs text-muted-foreground">Preferred Services (comma separated)</label>
+                                <Input
+                                  value={(details.preferredServices || []).join(", ")}
+                                  onChange={(e) =>
+                                    setDetails({
+                                      ...details,
+                                      preferredServices: e.target.value
+                                        .split(",")
+                                        .map((s) => s.trim())
+                                        .filter(Boolean),
+                                    })
+                                  }
+                                />
+                              </div>
+                              <div>
+                                <label className="text-xs text-muted-foreground">Notes</label>
+                                <Input
+                                  value={details.notes || ""}
+                                  onChange={(e) => setDetails({ ...details, notes: e.target.value })}
+                                />
+                              </div>
+                            </>
+                          )}
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </TabsContent>
+
+                  {/* Vehicles */}
+                  <TabsContent value="vehicles">
+                    <Card>
+                      <CardHeader>
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <CardTitle className="flex items-center gap-2">
+                              <Car className="h-5 w-5" /> Registered Vehicles
+                            </CardTitle>
+                            <CardDescription>
+                              {details.vehicles?.length || 0} vehicles registered
+                            </CardDescription>
+                          </div>
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        {(!details.vehicles || details.vehicles.length === 0) && (
+                          <p className="text-sm text-muted-foreground">No vehicles available.</p>
+                        )}
+                        <div className="grid gap-4 md:grid-cols-2">
+                          {(details.vehicles || []).map((vehicle: any) => (
+                            <Card key={vehicle.id} className="border-l-4 border-l-primary">
+                              <CardContent className="p-4">
+                                <div className="space-y-3">
+                                  <div className="flex items-center justify-between">
+                                    <h4 className="font-medium text-lg">
+                                      {vehicle.make} {vehicle.model}
+                                    </h4>
+                                    <Badge variant="outline">{vehicle.year}</Badge>
+                                  </div>
+                                  <div className="grid grid-cols-2 gap-2 text-sm">
+                                    <div>
+                                      <span className="text-muted-foreground">Plate:</span>
+                                      <span className="font-medium ml-1">{vehicle.plateNumber}</span>
+                                    </div>
+                                    <div>
+                                      <span className="text-muted-foreground">Color:</span>
+                                      <span className="font-medium ml-1">{vehicle.color}</span>
+                                    </div>
+                                    <div>
+                                      <span className="text-muted-foreground">Engine:</span>
+                                      <span className="font-medium ml-1">{vehicle.engineNumber}</span>
+                                    </div>
+                                    <div>
+                                      <span className="text-muted-foreground">Chassis:</span>
+                                      <span className="font-medium ml-1">{vehicle.chassisNumber}</span>
+                                    </div>
+                                  </div>
+                                  <div className="flex gap-2 pt-2">
+                                    <Button variant="outline" size="sm">
+                                      <Eye className="h-4 w-4 mr-1" /> History
+                                    </Button>
+                                    <Button variant="outline" size="sm">
+                                      <Edit className="h-4 w-4 mr-1" /> Edit
+                                    </Button>
+                                  </div>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+
+                  {/* Orders */}
+                  <TabsContent value="orders">
+                    <Card>
+                      <CardHeader>
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <CardTitle className="flex items-center gap-2">
+                              <FileText className="h-5 w-5" /> Service Order History
+                            </CardTitle>
+                            <CardDescription>Complete history of all services and orders</CardDescription>
+                          </div>
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        {(!details.orderHistory || details.orderHistory.length === 0) ? (
+                          <p className="text-sm text-muted-foreground">No order history available.</p>
+                        ) : (
+                          <div className="overflow-x-auto">
+                            <Table>
+                              <TableHeader>
+                                <TableRow>
+                                  <TableHead>Order ID</TableHead>
+                                  <TableHead>Date</TableHead>
+                                  <TableHead>Service</TableHead>
+                                  <TableHead>Vehicle</TableHead>
+                                  <TableHead>Type & Location</TableHead>
+                                  <TableHead>Duration</TableHead>
+                                  <TableHead>Amount</TableHead>
+                                  <TableHead>Status</TableHead>
+                                  <TableHead>Actions</TableHead>
+                                </TableRow>
+                              </TableHeader>
+                              <TableBody>
+                                {details.orderHistory.map((order: any) => (
+                                  <TableRow key={order.id}>
+                                    <TableCell className="font-medium">{order.id}</TableCell>
+                                    <TableCell>{order.date}</TableCell>
+                                    <TableCell>{order.service}</TableCell>
+                                    <TableCell>{order.vehicle}</TableCell>
+                                    <TableCell>
+                                      <div className="space-y-1">
+                                        <Badge variant="outline" className="text-xs">{order.transactionType}</Badge>
+                                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                                          <MapPin className="h-3 w-3" /> {order.location}
+                                        </div>
+                                      </div>
+                                    </TableCell>
+                                    <TableCell>
+                                      <div className="flex items-center gap-1">
+                                        <Clock className="h-3 w-3" /> {order.duration}
+                                      </div>
+                                    </TableCell>
+                                    <TableCell className="font-medium">{formatCurrency(order.amount)}</TableCell>
+                                    <TableCell>
+                                      <Badge className={getStatusColor(order.status)}>{order.status}</Badge>
+                                    </TableCell>
+                                    <TableCell>
+                                      <div className="flex gap-1">
+                                        <Button variant="ghost" size="sm">
+                                          <Eye className="h-4 w-4" />
+                                        </Button>
+                                        <Button variant="ghost" size="sm">
+                                          <Download className="h-4 w-4" />
+                                        </Button>
+                                      </div>
+                                    </TableCell>
+                                  </TableRow>
+                                ))}
+                              </TableBody>
+                            </Table>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+
+                  {/* Sales */}
+                  <TabsContent value="sales">
+                    <Card>
+                      <CardHeader>
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <CardTitle className="flex items-center gap-2">
+                              <DollarSign className="h-5 w-5" /> Sales-Only Transaction History
+                            </CardTitle>
+                            <CardDescription>Transactions where customer came only for purchasing items</CardDescription>
+                          </div>
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        {(!details.salesHistory || details.salesHistory.length === 0) ? (
+                          <p className="text-sm text-muted-foreground">No sales history available.</p>
+                        ) : (
+                          <div className="overflow-x-auto">
+                            <Table>
+                              <TableHeader>
+                                <TableRow>
+                                  <TableHead>Sale ID</TableHead>
+                                  <TableHead>Date</TableHead>
+                                  <TableHead>Location</TableHead>
+                                  <TableHead>Items</TableHead>
+                                  <TableHead>Amount</TableHead>
+                                  <TableHead>Payment</TableHead>
+                                  <TableHead>Salesperson</TableHead>
+                                  <TableHead>Actions</TableHead>
+                                </TableRow>
+                              </TableHeader>
+                              <TableBody>
+                                {details.salesHistory.map((sale: any) => (
+                                  <TableRow key={sale.id}>
+                                    <TableCell className="font-medium">{sale.id}</TableCell>
+                                    <TableCell>{sale.date}</TableCell>
+                                    <TableCell>
+                                      <div className="flex items-center gap-1">
+                                        <MapPin className="h-3 w-3" /> {sale.location}
+                                      </div>
+                                    </TableCell>
+                                    <TableCell>
+                                      <div>
+                                        <p className="font-medium">{sale.items.length} items</p>
+                                        <p className="text-sm text-muted-foreground">
+                                          {sale.items.slice(0, 2).join(", ")}
+                                          {sale.items.length > 2 && ` +${sale.items.length - 2} more`}
+                                        </p>
+                                      </div>
+                                    </TableCell>
+                                    <TableCell className="font-medium">{formatCurrency(sale.amount)}</TableCell>
+                                    <TableCell>
+                                      <Badge variant="outline">{sale.paymentMethod}</Badge>
+                                    </TableCell>
+                                    <TableCell>
+                                      <div className="flex items-center gap-1">
+                                        <User className="h-3 w-3" />
+                                        <span className="text-sm">{sale.salesPerson}</span>
+                                      </div>
+                                    </TableCell>
+                                    <TableCell>
+                                      <div className="flex gap-1">
+                                        <Button variant="ghost" size="sm">
+                                          <Eye className="h-4 w-4" />
+                                        </Button>
+                                        <Button variant="ghost" size="sm">
+                                          <Download className="h-4 w-4" />
+                                        </Button>
+                                      </div>
+                                    </TableCell>
+                                  </TableRow>
+                                ))}
+                              </TableBody>
+                            </Table>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+
+                  {/* Analytics */}
+                  <TabsContent value="analytics">
+                    <div className="space-y-6">
+                      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                        <Card>
+                          <CardContent className="p-6">
+                            <div className="flex items-center gap-3">
+                              <div className="h-10 w-10 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
+                                <Activity className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                              </div>
+                              <div>
+                                <p className="text-sm text-muted-foreground">Total Visits</p>
+                                <p className="text-2xl font-bold">{details.visitAnalytics?.totalVisits || 0}</p>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                        <Card>
+                          <CardContent className="p-6">
+                            <div className="flex items-center gap-3">
+                              <div className="h-10 w-10 bg-orange-100 dark:bg-orange-900 rounded-lg flex items-center justify-center">
+                                <DollarSign className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+                              </div>
+                              <div>
+                                <p className="text-sm text-muted-foreground">Sales Only</p>
+                                <p className="text-2xl font-bold">{details.visitAnalytics?.salesOnlyVisits || 0}</p>
+                                <p className="text-xs text-muted-foreground">
+                                  {details.visitAnalytics?.totalVisits
+                                    ? Math.round(
+                                        ((details.visitAnalytics.salesOnlyVisits || 0) /
+                                          (details.visitAnalytics.totalVisits || 1)) *
+                                          100,
+                                      )
+                                    : 0}
+                                  % of visits
+                                </p>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                        <Card>
+                          <CardContent className="p-6">
+                            <div className="flex items-center gap-3">
+                              <div className="h-10 w-10 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center">
+                                <Car className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                              </div>
+                              <div>
+                                <p className="text-sm text-muted-foreground">Service + Sales</p>
+                                <p className="text-2xl font-bold">{details.visitAnalytics?.serviceWithSalesVisits || 0}</p>
+                                <p className="text-xs text-muted-foreground">
+                                  {details.visitAnalytics?.totalVisits
+                                    ? Math.round(
+                                        ((details.visitAnalytics.serviceWithSalesVisits || 0) /
+                                          (details.visitAnalytics.totalVisits || 1)) *
+                                          100,
+                                      )
+                                    : 0}
+                                  % of visits
+                                </p>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                        <Card>
+                          <CardContent className="p-6">
+                            <div className="flex items-center gap-3">
+                              <div className="h-10 w-10 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center">
+                                <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
+                              </div>
+                              <div>
+                                <p className="text-sm text-muted-foreground">Service Only</p>
+                                <p className="text-2xl font-bold">{details.visitAnalytics?.serviceOnlyVisits || 0}</p>
+                                <p className="text-xs text-muted-foreground">
+                                  {details.visitAnalytics?.totalVisits
+                                    ? Math.round(
+                                        ((details.visitAnalytics.serviceOnlyVisits || 0) /
+                                          (details.visitAnalytics.totalVisits || 1)) *
+                                          100,
+                                      )
+                                    : 0}
+                                  % of visits
+                                </p>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </div>
+
+                      <div className="grid gap-6 lg:grid-cols-2">
+                        <Card>
+                          <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                              <Activity className="h-5 w-5" /> Customer Behavior Pattern
+                            </CardTitle>
+                            <CardDescription>Analysis of visit types and purchasing behavior</CardDescription>
+                          </CardHeader>
+                          <CardContent className="space-y-4">
+                            <div>
+                              <div className="flex items-center justify-between text-sm mb-2">
+                                <span>Sales-Only Visits</span>
+                                <span>
+                                  {details.visitAnalytics?.salesOnlyVisits || 0}/{details.visitAnalytics?.totalVisits || 0}
+                                </span>
+                              </div>
+                              <div className="w-full bg-muted rounded-full h-2">
+                                <div
+                                  className="bg-orange-500 h-2 rounded-full"
+                                  style={{
+                                    width: `${
+                                      (details.visitAnalytics?.totalVisits
+                                        ? ((details.visitAnalytics.salesOnlyVisits || 0) /
+                                            (details.visitAnalytics.totalVisits || 1)) * 100
+                                        : 0
+                                      ).toFixed(2)
+                                    }%`,
+                                  }}
+                                ></div>
+                              </div>
+                            </div>
+                            <div>
+                              <div className="flex items-center justify-between text-sm mb-2">
+                                <span>Service + Sales Visits</span>
+                                <span>
+                                  {details.visitAnalytics?.serviceWithSalesVisits || 0}/{details.visitAnalytics?.totalVisits || 0}
+                                </span>
+                              </div>
+                              <div className="w-full bg-muted rounded-full h-2">
+                                <div
+                                  className="bg-purple-500 h-2 rounded-full"
+                                  style={{
+                                    width: `${
+                                      (details.visitAnalytics?.totalVisits
+                                        ? ((details.visitAnalytics.serviceWithSalesVisits || 0) /
+                                            (details.visitAnalytics.totalVisits || 1)) * 100
+                                        : 0
+                                      ).toFixed(2)
+                                    }%`,
+                                  }}
+                                ></div>
+                              </div>
+                            </div>
+                            <div>
+                              <div className="flex items-center justify-between text-sm mb-2">
+                                <span>Service-Only Visits</span>
+                                <span>
+                                  {details.visitAnalytics?.serviceOnlyVisits || 0}/{details.visitAnalytics?.totalVisits || 0}
+                                </span>
+                              </div>
+                              <div className="w-full bg-muted rounded-full h-2">
+                                <div
+                                  className="bg-green-500 h-2 rounded-full"
+                                  style={{
+                                    width: `${
+                                      (details.visitAnalytics?.totalVisits
+                                        ? ((details.visitAnalytics.serviceOnlyVisits || 0) /
+                                            (details.visitAnalytics.totalVisits || 1)) * 100
+                                        : 0
+                                      ).toFixed(2)
+                                    }%`,
+                                  }}
+                                ></div>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+
+                        <Card>
+                          <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                              <TrendingUp className="h-5 w-5" /> Customer Insights
+                            </CardTitle>
+                            <CardDescription>Key insights about preferences and value</CardDescription>
+                          </CardHeader>
+                          <CardContent className="space-y-4">
+                            <div className="grid grid-cols-2 gap-4 text-sm">
+                              <div>
+                                <p className="text-muted-foreground">Avg Transaction:</p>
+                                <p className="font-medium text-lg">
+                                  {formatCurrency(details.visitAnalytics?.averageTransactionValue || 0)}
+                                </p>
+                              </div>
+                              <div>
+                                <p className="text-muted-foreground">Loyalty Level:</p>
+                                <Badge className="mt-1" variant={details.visitAnalytics?.loyaltyLevel === "Gold" ? "default" : "secondary"}>
+                                  {details.visitAnalytics?.loyaltyLevel || "-"}
+                                </Badge>
+                              </div>
+                              <div>
+                                <p className="text-muted-foreground">Preferred Location:</p>
+                                <p className="font-medium">{details.visitAnalytics?.preferredLocation || "-"}</p>
+                              </div>
+                              <div>
+                                <p className="text-muted-foreground">Customer Type:</p>
+                                <p className="font-medium">{details.customerType}</p>
+                              </div>
+                            </div>
+                            <div className="space-y-2">
+                              <div className="flex justify-between text-sm">
+                                <span>Last Sales Visit:</span>
+                                <span className="font-medium">{details.visitAnalytics?.lastSalesOnlyVisit || "-"}</span>
+                              </div>
+                              <div className="flex justify-between text-sm">
+                                <span>Last Service Visit:</span>
+                                <span className="font-medium">{details.visitAnalytics?.lastServiceVisit || "-"}</span>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </div>
+                    </div>
+                  </TabsContent>
+
+                  {/* Invoices */}
+                  <TabsContent value="invoices">
+                    <Card>
+                      <CardHeader>
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <CardTitle className="flex items-center gap-2">
+                              <FileText className="h-5 w-5" /> Invoice History
+                            </CardTitle>
+                            <CardDescription>All invoices and payment records</CardDescription>
+                          </div>
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        {(!details.invoices || details.invoices.length === 0) ? (
+                          <p className="text-sm text-muted-foreground">No invoices available.</p>
+                        ) : (
+                          <div className="overflow-x-auto">
+                            <Table>
+                              <TableHeader>
+                                <TableRow>
+                                  <TableHead>Invoice ID</TableHead>
+                                  <TableHead>Order ID</TableHead>
+                                  <TableHead>Date</TableHead>
+                                  <TableHead>Amount</TableHead>
+                                  <TableHead>Status</TableHead>
+                                  <TableHead>Payment Method</TableHead>
+                                  <TableHead>Actions</TableHead>
+                                </TableRow>
+                              </TableHeader>
+                              <TableBody>
+                                {details.invoices.map((invoice: any) => (
+                                  <TableRow key={invoice.id}>
+                                    <TableCell className="font-medium">{invoice.id}</TableCell>
+                                    <TableCell>{invoice.orderId}</TableCell>
+                                    <TableCell>{invoice.date}</TableCell>
+                                    <TableCell className="font-medium">{formatCurrency(invoice.amount)}</TableCell>
+                                    <TableCell>
+                                      <Badge className={getStatusColor(invoice.status)}>{invoice.status}</Badge>
+                                    </TableCell>
+                                    <TableCell>{invoice.paymentMethod}</TableCell>
+                                    <TableCell>
+                                      <div className="flex gap-1">
+                                        <Button variant="ghost" size="sm">
+                                          <Eye className="h-4 w-4" />
+                                        </Button>
+                                        <Button variant="ghost" size="sm">
+                                          <Download className="h-4 w-4" />
+                                        </Button>
+                                      </div>
+                                    </TableCell>
+                                  </TableRow>
+                                ))}
+                              </TableBody>
+                            </Table>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+                </Tabs>
+              </>
+            )}
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      )}
     </div>
   );
 }
