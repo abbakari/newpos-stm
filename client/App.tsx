@@ -21,6 +21,7 @@ import SalesManagement from "./pages/sales/SalesManagement";
 import NewSaleTransaction from "./pages/sales/NewSaleTransaction";
 import SalesAnalytics from "./pages/sales/SalesAnalytics";
 import NotFound from "./pages/NotFound";
+import JobCards from "./pages/orders/JobCards";
 import {
   Users,
   Search,
