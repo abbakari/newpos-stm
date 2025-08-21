@@ -388,13 +388,13 @@ export function Sidebar({ isCollapsed }: SidebarProps) {
           <div className="h-8 w-8 bg-sidebar-accent rounded-full flex items-center justify-center">
             <Users className="h-4 w-4 text-sidebar-accent-foreground" />
           </div>
-          {!isCollapsed && (
+          {!isCollapsed && user && (
             <div className="flex-1">
               <p className="text-sm font-medium text-sidebar-foreground">
-                Admin User
+                {user.name}
               </p>
               <p className="text-xs text-sidebar-foreground/70">
-                admin@trackpro.com
+                {user.role.replace('_', ' ').toLowerCase().replace(/\b\w/g, l => l.toUpperCase())}
               </p>
             </div>
           )}
