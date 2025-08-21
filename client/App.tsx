@@ -10,6 +10,11 @@ import { DashboardLayout } from "./components/layout/DashboardLayout";
 import Dashboard from "./pages/Dashboard";
 import PlaceholderPage from "./pages/PlaceholderPage";
 import SearchCustomers from "./pages/customers/SearchCustomers";
+import AddCustomer from "./pages/customers/AddCustomer";
+import CustomerDetails from "./pages/customers/CustomerDetails";
+import TireServices from "./pages/services/TireServices";
+import TireInventory from "./pages/inventory/TireInventory";
+import InvoiceManagement from "./pages/invoices/InvoiceManagement";
 import NotFound from "./pages/NotFound";
 import { 
   Users, 
@@ -59,11 +64,14 @@ const App = () => (
             </DashboardLayout>
           } />
           <Route path="/customers/add" element={
-            <WrappedPlaceholder 
-              title="Add New Customer" 
-              description="Register new customers with their detailed information" 
-              icon={UserPlus} 
-            />
+            <DashboardLayout>
+              <AddCustomer />
+            </DashboardLayout>
+          } />
+          <Route path="/customers/:customerId" element={
+            <DashboardLayout>
+              <CustomerDetails />
+            </DashboardLayout>
           } />
           <Route path="/customers/types" element={
             <WrappedPlaceholder 
@@ -82,11 +90,19 @@ const App = () => (
             />
           } />
           <Route path="/services/tires" element={
-            <WrappedPlaceholder 
-              title="Tire Services" 
-              description="Handle tire sales and installation services" 
-              icon={ShoppingCart} 
-            />
+            <DashboardLayout>
+              <TireServices />
+            </DashboardLayout>
+          } />
+          <Route path="/inventory/tires" element={
+            <DashboardLayout>
+              <TireInventory />
+            </DashboardLayout>
+          } />
+          <Route path="/invoices" element={
+            <DashboardLayout>
+              <InvoiceManagement />
+            </DashboardLayout>
           } />
           <Route path="/services/consultations" element={
             <WrappedPlaceholder 
