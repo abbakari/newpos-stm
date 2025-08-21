@@ -1,8 +1,14 @@
-import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Construction, ArrowLeft } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import React from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Construction, ArrowLeft } from "lucide-react";
+import { Link } from "react-router-dom";
 
 interface PlaceholderPageProps {
   title: string;
@@ -10,10 +16,10 @@ interface PlaceholderPageProps {
   icon?: React.ComponentType<any>;
 }
 
-export default function PlaceholderPage({ 
-  title, 
-  description, 
-  icon: Icon = Construction 
+export default function PlaceholderPage({
+  title,
+  description,
+  icon: Icon = Construction,
 }: PlaceholderPageProps) {
   return (
     <div className="space-y-6">
@@ -35,17 +41,17 @@ export default function PlaceholderPage({
               <Icon className="h-8 w-8 text-primary" />
             </div>
             <CardTitle className="text-xl">{title}</CardTitle>
-            <CardDescription className="text-base">{description}</CardDescription>
+            <CardDescription className="text-base">
+              {description}
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground mb-6">
-              This page is currently under development. The feature will be available soon
-              as part of the comprehensive tracking system.
+              This page is currently under development. The feature will be
+              available soon as part of the comprehensive tracking system.
             </p>
             <div className="space-y-2">
-              <Button className="w-full">
-                Request Feature Development
-              </Button>
+              <Button className="w-full">Request Feature Development</Button>
               <Button variant="outline" className="w-full" asChild>
                 <Link to="/">Return to Dashboard</Link>
               </Button>

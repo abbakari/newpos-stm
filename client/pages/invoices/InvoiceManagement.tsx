@@ -1,16 +1,22 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import React, { useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -18,7 +24,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from "@/components/ui/table";
 import {
   Dialog,
   DialogContent,
@@ -27,7 +33,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
+} from "@/components/ui/dialog";
 import {
   Search,
   Filter,
@@ -44,7 +50,7 @@ import {
   AlertCircle,
   XCircle,
   Printer,
-} from 'lucide-react';
+} from "lucide-react";
 
 interface Invoice {
   id: string;
@@ -57,7 +63,7 @@ interface Invoice {
   amount: number;
   tax: number;
   total: number;
-  status: 'Draft' | 'Sent' | 'Paid' | 'Overdue' | 'Cancelled';
+  status: "Draft" | "Sent" | "Paid" | "Overdue" | "Cancelled";
   paymentMethod?: string;
   items: InvoiceItem[];
   notes?: string;
@@ -69,103 +75,103 @@ interface InvoiceItem {
   quantity: number;
   unitPrice: number;
   total: number;
-  type: 'Service' | 'Product';
+  type: "Service" | "Product";
 }
 
 const mockInvoices: Invoice[] = [
   {
-    id: 'INV-001234',
-    customerId: 'CUST-001',
-    customerName: 'John Doe',
-    customerType: 'Personal',
-    orderId: 'ORD-1234',
-    date: '2024-01-20',
-    dueDate: '2024-01-20',
+    id: "INV-001234",
+    customerId: "CUST-001",
+    customerName: "John Doe",
+    customerType: "Personal",
+    orderId: "ORD-1234",
+    date: "2024-01-20",
+    dueDate: "2024-01-20",
     amount: 150000,
     tax: 27000,
     total: 177000,
-    status: 'Paid',
-    paymentMethod: 'Cash',
+    status: "Paid",
+    paymentMethod: "Cash",
     items: [
       {
-        id: 'ITEM-001',
-        description: 'Oil Change Service',
+        id: "ITEM-001",
+        description: "Oil Change Service",
         quantity: 1,
         unitPrice: 80000,
         total: 80000,
-        type: 'Service',
+        type: "Service",
       },
       {
-        id: 'ITEM-002',
-        description: 'Engine Oil - 5W30',
+        id: "ITEM-002",
+        description: "Engine Oil - 5W30",
         quantity: 4,
         unitPrice: 17500,
         total: 70000,
-        type: 'Product',
+        type: "Product",
       },
     ],
-    notes: 'Regular maintenance service completed',
+    notes: "Regular maintenance service completed",
   },
   {
-    id: 'INV-001235',
-    customerId: 'CUST-002',
-    customerName: 'Uganda Revenue Authority',
-    customerType: 'Government',
-    orderId: 'ORD-1235',
-    date: '2024-01-19',
-    dueDate: '2024-02-19',
+    id: "INV-001235",
+    customerId: "CUST-002",
+    customerName: "Uganda Revenue Authority",
+    customerType: "Government",
+    orderId: "ORD-1235",
+    date: "2024-01-19",
+    dueDate: "2024-02-19",
     amount: 2800000,
     tax: 504000,
     total: 3304000,
-    status: 'Sent',
+    status: "Sent",
     items: [
       {
-        id: 'ITEM-003',
-        description: 'Fleet Maintenance Service',
+        id: "ITEM-003",
+        description: "Fleet Maintenance Service",
         quantity: 5,
         unitPrice: 200000,
         total: 1000000,
-        type: 'Service',
+        type: "Service",
       },
       {
-        id: 'ITEM-004',
-        description: 'Tire Set - Michelin 215/65R16',
+        id: "ITEM-004",
+        description: "Tire Set - Michelin 215/65R16",
         quantity: 20,
         unitPrice: 90000,
         total: 1800000,
-        type: 'Product',
+        type: "Product",
       },
     ],
-    notes: 'Monthly fleet maintenance contract',
+    notes: "Monthly fleet maintenance contract",
   },
   {
-    id: 'INV-001236',
-    customerId: 'CUST-003',
-    customerName: 'Express Taxi Services',
-    customerType: 'Private',
-    orderId: 'ORD-1236',
-    date: '2024-01-18',
-    dueDate: '2024-02-18',
+    id: "INV-001236",
+    customerId: "CUST-003",
+    customerName: "Express Taxi Services",
+    customerType: "Private",
+    orderId: "ORD-1236",
+    date: "2024-01-18",
+    dueDate: "2024-02-18",
     amount: 450000,
     tax: 81000,
     total: 531000,
-    status: 'Overdue',
+    status: "Overdue",
     items: [
       {
-        id: 'ITEM-005',
-        description: 'Brake Service',
+        id: "ITEM-005",
+        description: "Brake Service",
         quantity: 3,
         unitPrice: 120000,
         total: 360000,
-        type: 'Service',
+        type: "Service",
       },
       {
-        id: 'ITEM-006',
-        description: 'Brake Pads',
+        id: "ITEM-006",
+        description: "Brake Pads",
         quantity: 6,
         unitPrice: 15000,
         total: 90000,
-        type: 'Product',
+        type: "Product",
       },
     ],
   },
@@ -173,32 +179,32 @@ const mockInvoices: Invoice[] = [
 
 const getStatusColor = (status: string) => {
   switch (status) {
-    case 'Paid':
-      return 'bg-success text-success-foreground';
-    case 'Sent':
-      return 'bg-info text-info-foreground';
-    case 'Draft':
-      return 'bg-muted text-muted-foreground';
-    case 'Overdue':
-      return 'bg-destructive text-destructive-foreground';
-    case 'Cancelled':
-      return 'bg-muted text-muted-foreground';
+    case "Paid":
+      return "bg-success text-success-foreground";
+    case "Sent":
+      return "bg-info text-info-foreground";
+    case "Draft":
+      return "bg-muted text-muted-foreground";
+    case "Overdue":
+      return "bg-destructive text-destructive-foreground";
+    case "Cancelled":
+      return "bg-muted text-muted-foreground";
     default:
-      return 'bg-muted text-muted-foreground';
+      return "bg-muted text-muted-foreground";
   }
 };
 
 const getStatusIcon = (status: string) => {
   switch (status) {
-    case 'Paid':
+    case "Paid":
       return CheckCircle;
-    case 'Sent':
+    case "Sent":
       return Send;
-    case 'Draft':
+    case "Draft":
       return FileText;
-    case 'Overdue':
+    case "Overdue":
       return AlertCircle;
-    case 'Cancelled':
+    case "Cancelled":
       return XCircle;
     default:
       return FileText;
@@ -207,41 +213,53 @@ const getStatusIcon = (status: string) => {
 
 export default function InvoiceManagement() {
   const [invoices] = useState(mockInvoices);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedStatus, setSelectedStatus] = useState('all');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState("all");
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-UG', {
-      style: 'currency',
-      currency: 'UGX',
+    return new Intl.NumberFormat("en-UG", {
+      style: "currency",
+      currency: "UGX",
       minimumFractionDigits: 0,
     }).format(amount);
   };
 
-  const filteredInvoices = invoices.filter(invoice => {
-    const matchesSearch = invoice.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         invoice.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         invoice.orderId.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = selectedStatus === 'all' || invoice.status === selectedStatus;
-    
+  const filteredInvoices = invoices.filter((invoice) => {
+    const matchesSearch =
+      invoice.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      invoice.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      invoice.orderId.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus =
+      selectedStatus === "all" || invoice.status === selectedStatus;
+
     return matchesSearch && matchesStatus;
   });
 
   // Calculate summary statistics
   const totalInvoices = invoices.length;
-  const paidInvoices = invoices.filter(inv => inv.status === 'Paid').length;
-  const overdueInvoices = invoices.filter(inv => inv.status === 'Overdue').length;
-  const totalRevenue = invoices.filter(inv => inv.status === 'Paid').reduce((sum, inv) => sum + inv.total, 0);
-  const pendingAmount = invoices.filter(inv => inv.status === 'Sent').reduce((sum, inv) => sum + inv.total, 0);
-  const overdueAmount = invoices.filter(inv => inv.status === 'Overdue').reduce((sum, inv) => sum + inv.total, 0);
+  const paidInvoices = invoices.filter((inv) => inv.status === "Paid").length;
+  const overdueInvoices = invoices.filter(
+    (inv) => inv.status === "Overdue",
+  ).length;
+  const totalRevenue = invoices
+    .filter((inv) => inv.status === "Paid")
+    .reduce((sum, inv) => sum + inv.total, 0);
+  const pendingAmount = invoices
+    .filter((inv) => inv.status === "Sent")
+    .reduce((sum, inv) => sum + inv.total, 0);
+  const overdueAmount = invoices
+    .filter((inv) => inv.status === "Overdue")
+    .reduce((sum, inv) => sum + inv.total, 0);
 
   return (
     <div className="space-y-6">
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Invoice Management</h1>
+          <h1 className="text-3xl font-bold text-foreground">
+            Invoice Management
+          </h1>
           <p className="text-muted-foreground">
             Generate, track, and manage customer invoices and payments
           </p>
@@ -276,7 +294,9 @@ export default function InvoiceManagement() {
               <div>
                 <p className="text-sm text-muted-foreground">Paid Invoices</p>
                 <p className="text-2xl font-bold">{paidInvoices}</p>
-                <p className="text-xs text-muted-foreground">{formatCurrency(totalRevenue)}</p>
+                <p className="text-xs text-muted-foreground">
+                  {formatCurrency(totalRevenue)}
+                </p>
               </div>
             </div>
           </CardContent>
@@ -289,7 +309,9 @@ export default function InvoiceManagement() {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Pending Payment</p>
-                <p className="text-2xl font-bold">{formatCurrency(pendingAmount)}</p>
+                <p className="text-2xl font-bold">
+                  {formatCurrency(pendingAmount)}
+                </p>
               </div>
             </div>
           </CardContent>
@@ -303,7 +325,9 @@ export default function InvoiceManagement() {
               <div>
                 <p className="text-sm text-muted-foreground">Overdue</p>
                 <p className="text-2xl font-bold">{overdueInvoices}</p>
-                <p className="text-xs text-muted-foreground">{formatCurrency(overdueAmount)}</p>
+                <p className="text-xs text-muted-foreground">
+                  {formatCurrency(overdueAmount)}
+                </p>
               </div>
             </div>
           </CardContent>
@@ -390,11 +414,15 @@ export default function InvoiceManagement() {
                   const StatusIcon = getStatusIcon(invoice.status);
                   return (
                     <TableRow key={invoice.id} className="hover:bg-accent/50">
-                      <TableCell className="font-medium">{invoice.id}</TableCell>
+                      <TableCell className="font-medium">
+                        {invoice.id}
+                      </TableCell>
                       <TableCell>
                         <div>
                           <p className="font-medium">{invoice.customerName}</p>
-                          <p className="text-sm text-muted-foreground">{invoice.customerType}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {invoice.customerType}
+                          </p>
                         </div>
                       </TableCell>
                       <TableCell>{invoice.orderId}</TableCell>
@@ -412,7 +440,9 @@ export default function InvoiceManagement() {
                       </TableCell>
                       <TableCell>
                         <div>
-                          <p className="font-medium">{formatCurrency(invoice.total)}</p>
+                          <p className="font-medium">
+                            {formatCurrency(invoice.total)}
+                          </p>
                           <p className="text-sm text-muted-foreground">
                             +{formatCurrency(invoice.tax)} tax
                           </p>
@@ -428,8 +458,8 @@ export default function InvoiceManagement() {
                         <div className="flex gap-1">
                           <Dialog>
                             <DialogTrigger asChild>
-                              <Button 
-                                variant="ghost" 
+                              <Button
+                                variant="ghost"
                                 size="sm"
                                 onClick={() => setSelectedInvoice(invoice)}
                               >
@@ -438,7 +468,9 @@ export default function InvoiceManagement() {
                             </DialogTrigger>
                             <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
                               <DialogHeader>
-                                <DialogTitle>Invoice Details - {invoice.id}</DialogTitle>
+                                <DialogTitle>
+                                  Invoice Details - {invoice.id}
+                                </DialogTitle>
                                 <DialogDescription>
                                   Complete invoice information and line items
                                 </DialogDescription>
@@ -448,18 +480,39 @@ export default function InvoiceManagement() {
                                   {/* Invoice Header */}
                                   <div className="grid gap-4 md:grid-cols-2">
                                     <div>
-                                      <h4 className="font-medium mb-2">Customer Information</h4>
-                                      <p className="text-sm"><strong>Name:</strong> {selectedInvoice.customerName}</p>
-                                      <p className="text-sm"><strong>Type:</strong> {selectedInvoice.customerType}</p>
-                                      <p className="text-sm"><strong>Order ID:</strong> {selectedInvoice.orderId}</p>
+                                      <h4 className="font-medium mb-2">
+                                        Customer Information
+                                      </h4>
+                                      <p className="text-sm">
+                                        <strong>Name:</strong>{" "}
+                                        {selectedInvoice.customerName}
+                                      </p>
+                                      <p className="text-sm">
+                                        <strong>Type:</strong>{" "}
+                                        {selectedInvoice.customerType}
+                                      </p>
+                                      <p className="text-sm">
+                                        <strong>Order ID:</strong>{" "}
+                                        {selectedInvoice.orderId}
+                                      </p>
                                     </div>
                                     <div>
-                                      <h4 className="font-medium mb-2">Invoice Information</h4>
-                                      <p className="text-sm"><strong>Date:</strong> {selectedInvoice.date}</p>
-                                      <p className="text-sm"><strong>Due Date:</strong> {selectedInvoice.dueDate}</p>
+                                      <h4 className="font-medium mb-2">
+                                        Invoice Information
+                                      </h4>
                                       <p className="text-sm">
-                                        <strong>Status:</strong> 
-                                        <Badge className={`ml-2 ${getStatusColor(selectedInvoice.status)}`}>
+                                        <strong>Date:</strong>{" "}
+                                        {selectedInvoice.date}
+                                      </p>
+                                      <p className="text-sm">
+                                        <strong>Due Date:</strong>{" "}
+                                        {selectedInvoice.dueDate}
+                                      </p>
+                                      <p className="text-sm">
+                                        <strong>Status:</strong>
+                                        <Badge
+                                          className={`ml-2 ${getStatusColor(selectedInvoice.status)}`}
+                                        >
                                           {selectedInvoice.status}
                                         </Badge>
                                       </p>
@@ -468,7 +521,9 @@ export default function InvoiceManagement() {
 
                                   {/* Invoice Items */}
                                   <div>
-                                    <h4 className="font-medium mb-3">Invoice Items</h4>
+                                    <h4 className="font-medium mb-3">
+                                      Invoice Items
+                                    </h4>
                                     <Table>
                                       <TableHeader>
                                         <TableRow>
@@ -482,15 +537,23 @@ export default function InvoiceManagement() {
                                       <TableBody>
                                         {selectedInvoice.items.map((item) => (
                                           <TableRow key={item.id}>
-                                            <TableCell>{item.description}</TableCell>
+                                            <TableCell>
+                                              {item.description}
+                                            </TableCell>
                                             <TableCell>
                                               <Badge variant="outline">
                                                 {item.type}
                                               </Badge>
                                             </TableCell>
-                                            <TableCell>{item.quantity}</TableCell>
-                                            <TableCell>{formatCurrency(item.unitPrice)}</TableCell>
-                                            <TableCell>{formatCurrency(item.total)}</TableCell>
+                                            <TableCell>
+                                              {item.quantity}
+                                            </TableCell>
+                                            <TableCell>
+                                              {formatCurrency(item.unitPrice)}
+                                            </TableCell>
+                                            <TableCell>
+                                              {formatCurrency(item.total)}
+                                            </TableCell>
                                           </TableRow>
                                         ))}
                                       </TableBody>
@@ -503,15 +566,27 @@ export default function InvoiceManagement() {
                                       <div className="w-64 space-y-2">
                                         <div className="flex justify-between">
                                           <span>Subtotal:</span>
-                                          <span>{formatCurrency(selectedInvoice.amount)}</span>
+                                          <span>
+                                            {formatCurrency(
+                                              selectedInvoice.amount,
+                                            )}
+                                          </span>
                                         </div>
                                         <div className="flex justify-between">
                                           <span>Tax (18%):</span>
-                                          <span>{formatCurrency(selectedInvoice.tax)}</span>
+                                          <span>
+                                            {formatCurrency(
+                                              selectedInvoice.tax,
+                                            )}
+                                          </span>
                                         </div>
                                         <div className="flex justify-between font-bold text-lg border-t pt-2">
                                           <span>Total:</span>
-                                          <span>{formatCurrency(selectedInvoice.total)}</span>
+                                          <span>
+                                            {formatCurrency(
+                                              selectedInvoice.total,
+                                            )}
+                                          </span>
                                         </div>
                                       </div>
                                     </div>
@@ -520,8 +595,12 @@ export default function InvoiceManagement() {
                                   {/* Notes */}
                                   {selectedInvoice.notes && (
                                     <div>
-                                      <h4 className="font-medium mb-2">Notes</h4>
-                                      <p className="text-sm text-muted-foreground">{selectedInvoice.notes}</p>
+                                      <h4 className="font-medium mb-2">
+                                        Notes
+                                      </h4>
+                                      <p className="text-sm text-muted-foreground">
+                                        {selectedInvoice.notes}
+                                      </p>
                                     </div>
                                   )}
                                 </div>

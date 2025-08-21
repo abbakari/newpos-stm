@@ -1,17 +1,23 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import React, { useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -19,7 +25,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from "@/components/ui/table";
 import {
   Dialog,
   DialogContent,
@@ -28,8 +34,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
-import { Progress } from '@/components/ui/progress';
+} from "@/components/ui/dialog";
+import { Progress } from "@/components/ui/progress";
 import {
   Search,
   Filter,
@@ -44,16 +50,16 @@ import {
   Truck,
   BarChart3,
   RefreshCw,
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
+} from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface TireProduct {
   id: string;
   brand: string;
   model: string;
   size: string;
-  type: 'Summer' | 'Winter' | 'All-Season' | 'Performance' | 'Off-Road';
-  category: 'Passenger' | 'SUV' | 'Truck' | 'Motorcycle' | 'Commercial';
+  type: "Summer" | "Winter" | "All-Season" | "Performance" | "Off-Road";
+  category: "Passenger" | "SUV" | "Truck" | "Motorcycle" | "Commercial";
   currentStock: number;
   minStock: number;
   maxStock: number;
@@ -64,14 +70,14 @@ interface TireProduct {
   lastRestock: string;
   soldThisMonth: number;
   totalSold: number;
-  status: 'In Stock' | 'Low Stock' | 'Out of Stock' | 'Discontinued';
+  status: "In Stock" | "Low Stock" | "Out of Stock" | "Discontinued";
 }
 
 interface StockMovement {
   id: string;
   productId: string;
   productName: string;
-  type: 'IN' | 'OUT' | 'ADJUSTMENT';
+  type: "IN" | "OUT" | "ADJUSTMENT";
   quantity: number;
   reason: string;
   date: string;
@@ -81,150 +87,150 @@ interface StockMovement {
 
 const mockTireInventory: TireProduct[] = [
   {
-    id: 'TIRE-001',
-    brand: 'Michelin',
-    model: 'Energy XM2',
-    size: '185/65R15',
-    type: 'All-Season',
-    category: 'Passenger',
+    id: "TIRE-001",
+    brand: "Michelin",
+    model: "Energy XM2",
+    size: "185/65R15",
+    type: "All-Season",
+    category: "Passenger",
     currentStock: 24,
     minStock: 10,
     maxStock: 50,
     unitCost: 180000,
     sellingPrice: 220000,
-    location: 'A1-15',
-    supplier: 'Michelin Uganda',
-    lastRestock: '2024-01-15',
+    location: "A1-15",
+    supplier: "Michelin Uganda",
+    lastRestock: "2024-01-15",
     soldThisMonth: 8,
     totalSold: 45,
-    status: 'In Stock',
+    status: "In Stock",
   },
   {
-    id: 'TIRE-002',
-    brand: 'Bridgestone',
-    model: 'Turanza T005',
-    size: '215/60R16',
-    type: 'All-Season',
-    category: 'SUV',
+    id: "TIRE-002",
+    brand: "Bridgestone",
+    model: "Turanza T005",
+    size: "215/60R16",
+    type: "All-Season",
+    category: "SUV",
     currentStock: 6,
     minStock: 8,
     maxStock: 40,
     unitCost: 250000,
     sellingPrice: 310000,
-    location: 'B2-08',
-    supplier: 'Bridgestone East Africa',
-    lastRestock: '2024-01-10',
+    location: "B2-08",
+    supplier: "Bridgestone East Africa",
+    lastRestock: "2024-01-10",
     soldThisMonth: 12,
     totalSold: 68,
-    status: 'Low Stock',
+    status: "Low Stock",
   },
   {
-    id: 'TIRE-003',
-    brand: 'Continental',
-    model: 'CrossContact LX2',
-    size: '265/70R16',
-    type: 'All-Season',
-    category: 'SUV',
+    id: "TIRE-003",
+    brand: "Continental",
+    model: "CrossContact LX2",
+    size: "265/70R16",
+    type: "All-Season",
+    category: "SUV",
     currentStock: 0,
     minStock: 6,
     maxStock: 30,
     unitCost: 320000,
     sellingPrice: 400000,
-    location: 'C1-12',
-    supplier: 'Continental Africa',
-    lastRestock: '2024-01-05',
+    location: "C1-12",
+    supplier: "Continental Africa",
+    lastRestock: "2024-01-05",
     soldThisMonth: 6,
     totalSold: 23,
-    status: 'Out of Stock',
+    status: "Out of Stock",
   },
   {
-    id: 'TIRE-004',
-    brand: 'Yokohama',
-    model: 'BluEarth AE-01',
-    size: '195/65R15',
-    type: 'All-Season',
-    category: 'Passenger',
+    id: "TIRE-004",
+    brand: "Yokohama",
+    model: "BluEarth AE-01",
+    size: "195/65R15",
+    type: "All-Season",
+    category: "Passenger",
     currentStock: 35,
     minStock: 15,
     maxStock: 60,
     unitCost: 165000,
     sellingPrice: 205000,
-    location: 'A2-20',
-    supplier: 'Yokohama Uganda',
-    lastRestock: '2024-01-18',
+    location: "A2-20",
+    supplier: "Yokohama Uganda",
+    lastRestock: "2024-01-18",
     soldThisMonth: 15,
     totalSold: 89,
-    status: 'In Stock',
+    status: "In Stock",
   },
   {
-    id: 'TIRE-005',
-    brand: 'Pirelli',
-    model: 'Cinturato P7',
-    size: '225/45R17',
-    type: 'Performance',
-    category: 'Passenger',
+    id: "TIRE-005",
+    brand: "Pirelli",
+    model: "Cinturato P7",
+    size: "225/45R17",
+    type: "Performance",
+    category: "Passenger",
     currentStock: 18,
     minStock: 8,
     maxStock: 35,
     unitCost: 380000,
     sellingPrice: 470000,
-    location: 'D1-05',
-    supplier: 'Pirelli East Africa',
-    lastRestock: '2024-01-12',
+    location: "D1-05",
+    supplier: "Pirelli East Africa",
+    lastRestock: "2024-01-12",
     soldThisMonth: 4,
     totalSold: 18,
-    status: 'In Stock',
+    status: "In Stock",
   },
 ];
 
 const mockStockMovements: StockMovement[] = [
   {
-    id: 'MOV-001',
-    productId: 'TIRE-001',
-    productName: 'Michelin Energy XM2 185/65R15',
-    type: 'OUT',
+    id: "MOV-001",
+    productId: "TIRE-001",
+    productName: "Michelin Energy XM2 185/65R15",
+    type: "OUT",
     quantity: -4,
-    reason: 'Sale to Customer',
-    date: '2024-01-20',
-    user: 'John Doe',
-    reference: 'ORD-1234',
+    reason: "Sale to Customer",
+    date: "2024-01-20",
+    user: "John Doe",
+    reference: "ORD-1234",
   },
   {
-    id: 'MOV-002',
-    productId: 'TIRE-002',
-    productName: 'Bridgestone Turanza T005 215/60R16',
-    type: 'OUT',
+    id: "MOV-002",
+    productId: "TIRE-002",
+    productName: "Bridgestone Turanza T005 215/60R16",
+    type: "OUT",
     quantity: -2,
-    reason: 'Sale to Customer',
-    date: '2024-01-19',
-    user: 'Jane Smith',
-    reference: 'ORD-1235',
+    reason: "Sale to Customer",
+    date: "2024-01-19",
+    user: "Jane Smith",
+    reference: "ORD-1235",
   },
   {
-    id: 'MOV-003',
-    productId: 'TIRE-001',
-    productName: 'Michelin Energy XM2 185/65R15',
-    type: 'IN',
+    id: "MOV-003",
+    productId: "TIRE-001",
+    productName: "Michelin Energy XM2 185/65R15",
+    type: "IN",
     quantity: 20,
-    reason: 'Supplier Delivery',
-    date: '2024-01-15',
-    user: 'Admin',
-    reference: 'PO-001',
+    reason: "Supplier Delivery",
+    date: "2024-01-15",
+    user: "Admin",
+    reference: "PO-001",
   },
 ];
 
 const getStockStatusColor = (status: string) => {
   switch (status) {
-    case 'In Stock':
-      return 'bg-success text-success-foreground';
-    case 'Low Stock':
-      return 'bg-warning text-warning-foreground';
-    case 'Out of Stock':
-      return 'bg-destructive text-destructive-foreground';
-    case 'Discontinued':
-      return 'bg-muted text-muted-foreground';
+    case "In Stock":
+      return "bg-success text-success-foreground";
+    case "Low Stock":
+      return "bg-warning text-warning-foreground";
+    case "Out of Stock":
+      return "bg-destructive text-destructive-foreground";
+    case "Discontinued":
+      return "bg-muted text-muted-foreground";
     default:
-      return 'bg-muted text-muted-foreground';
+      return "bg-muted text-muted-foreground";
   }
 };
 
@@ -235,43 +241,58 @@ const getStockLevel = (current: number, min: number, max: number) => {
 export default function TireInventory() {
   const [inventory] = useState(mockTireInventory);
   const [movements] = useState(mockStockMovements);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all');
-  const [selectedStatus, setSelectedStatus] = useState('all');
-  const [selectedProduct, setSelectedProduct] = useState<TireProduct | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [selectedStatus, setSelectedStatus] = useState("all");
+  const [selectedProduct, setSelectedProduct] = useState<TireProduct | null>(
+    null,
+  );
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-UG', {
-      style: 'currency',
-      currency: 'UGX',
+    return new Intl.NumberFormat("en-UG", {
+      style: "currency",
+      currency: "UGX",
       minimumFractionDigits: 0,
     }).format(amount);
   };
 
-  const filteredInventory = inventory.filter(product => {
-    const matchesSearch = product.brand.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         product.model.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         product.size.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === 'all' || product.category === selectedCategory;
-    const matchesStatus = selectedStatus === 'all' || product.status === selectedStatus;
-    
+  const filteredInventory = inventory.filter((product) => {
+    const matchesSearch =
+      product.brand.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.model.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.size.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory =
+      selectedCategory === "all" || product.category === selectedCategory;
+    const matchesStatus =
+      selectedStatus === "all" || product.status === selectedStatus;
+
     return matchesSearch && matchesCategory && matchesStatus;
   });
 
   // Calculate summary statistics
   const totalProducts = inventory.length;
-  const totalValue = inventory.reduce((sum, product) => sum + (product.currentStock * product.unitCost), 0);
-  const lowStockItems = inventory.filter(product => product.status === 'Low Stock').length;
-  const outOfStockItems = inventory.filter(product => product.status === 'Out of Stock').length;
+  const totalValue = inventory.reduce(
+    (sum, product) => sum + product.currentStock * product.unitCost,
+    0,
+  );
+  const lowStockItems = inventory.filter(
+    (product) => product.status === "Low Stock",
+  ).length;
+  const outOfStockItems = inventory.filter(
+    (product) => product.status === "Out of Stock",
+  ).length;
 
   return (
     <div className="space-y-6">
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Tire Inventory Management</h1>
+          <h1 className="text-3xl font-bold text-foreground">
+            Tire Inventory Management
+          </h1>
           <p className="text-muted-foreground">
-            Track tire stock levels, manage inventory, and monitor sales performance
+            Track tire stock levels, manage inventory, and monitor sales
+            performance
           </p>
         </div>
         <div className="flex gap-2">
@@ -309,7 +330,9 @@ export default function TireInventory() {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Inventory Value</p>
-                <p className="text-2xl font-bold">{formatCurrency(totalValue)}</p>
+                <p className="text-2xl font-bold">
+                  {formatCurrency(totalValue)}
+                </p>
               </div>
             </div>
           </CardContent>
@@ -354,7 +377,9 @@ export default function TireInventory() {
           {/* Search and Filters */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Search & Filter Products</CardTitle>
+              <CardTitle className="text-lg">
+                Search & Filter Products
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex flex-col md:flex-row gap-4">
@@ -369,7 +394,10 @@ export default function TireInventory() {
                     />
                   </div>
                 </div>
-                <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                <Select
+                  value={selectedCategory}
+                  onValueChange={setSelectedCategory}
+                >
                   <SelectTrigger className="w-full md:w-48">
                     <SelectValue placeholder="Category" />
                   </SelectTrigger>
@@ -382,7 +410,10 @@ export default function TireInventory() {
                     <SelectItem value="Commercial">Commercial</SelectItem>
                   </SelectContent>
                 </Select>
-                <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+                <Select
+                  value={selectedStatus}
+                  onValueChange={setSelectedStatus}
+                >
                   <SelectTrigger className="w-full md:w-48">
                     <SelectValue placeholder="Stock Status" />
                   </SelectTrigger>
@@ -439,14 +470,27 @@ export default function TireInventory() {
                   </TableHeader>
                   <TableBody>
                     {filteredInventory.map((product) => {
-                      const stockLevel = getStockLevel(product.currentStock, product.minStock, product.maxStock);
+                      const stockLevel = getStockLevel(
+                        product.currentStock,
+                        product.minStock,
+                        product.maxStock,
+                      );
                       return (
-                        <TableRow key={product.id} className="hover:bg-accent/50">
+                        <TableRow
+                          key={product.id}
+                          className="hover:bg-accent/50"
+                        >
                           <TableCell>
                             <div>
-                              <p className="font-medium">{product.brand} {product.model}</p>
-                              <p className="text-sm text-muted-foreground">{product.size}</p>
-                              <p className="text-xs text-muted-foreground">{product.type}</p>
+                              <p className="font-medium">
+                                {product.brand} {product.model}
+                              </p>
+                              <p className="text-sm text-muted-foreground">
+                                {product.size}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                {product.type}
+                              </p>
                             </div>
                           </TableCell>
                           <TableCell>
@@ -456,13 +500,16 @@ export default function TireInventory() {
                             <div className="space-y-1">
                               <Progress value={stockLevel} className="h-2" />
                               <p className="text-xs text-muted-foreground">
-                                {stockLevel}% ({product.currentStock}/{product.maxStock})
+                                {stockLevel}% ({product.currentStock}/
+                                {product.maxStock})
                               </p>
                             </div>
                           </TableCell>
                           <TableCell>
                             <div className="text-center">
-                              <p className="font-medium text-lg">{product.currentStock}</p>
+                              <p className="font-medium text-lg">
+                                {product.currentStock}
+                              </p>
                               <p className="text-xs text-muted-foreground">
                                 Min: {product.minStock}
                               </p>
@@ -471,25 +518,39 @@ export default function TireInventory() {
                               </p>
                             </div>
                           </TableCell>
-                          <TableCell>{formatCurrency(product.unitCost)}</TableCell>
+                          <TableCell>
+                            {formatCurrency(product.unitCost)}
+                          </TableCell>
                           <TableCell>
                             <div>
-                              <p className="font-medium">{formatCurrency(product.sellingPrice)}</p>
+                              <p className="font-medium">
+                                {formatCurrency(product.sellingPrice)}
+                              </p>
                               <p className="text-xs text-muted-foreground">
-                                Margin: {Math.round(((product.sellingPrice - product.unitCost) / product.sellingPrice) * 100)}%
+                                Margin:{" "}
+                                {Math.round(
+                                  ((product.sellingPrice - product.unitCost) /
+                                    product.sellingPrice) *
+                                    100,
+                                )}
+                                %
                               </p>
                             </div>
                           </TableCell>
                           <TableCell>
                             <div className="text-center">
-                              <p className="font-medium">{product.soldThisMonth}</p>
+                              <p className="font-medium">
+                                {product.soldThisMonth}
+                              </p>
                               <p className="text-xs text-muted-foreground">
                                 Total: {product.totalSold}
                               </p>
                             </div>
                           </TableCell>
                           <TableCell>
-                            <Badge className={getStockStatusColor(product.status)}>
+                            <Badge
+                              className={getStockStatusColor(product.status)}
+                            >
                               {product.status}
                             </Badge>
                           </TableCell>
@@ -497,8 +558,8 @@ export default function TireInventory() {
                             <div className="flex gap-1">
                               <Dialog>
                                 <DialogTrigger asChild>
-                                  <Button 
-                                    variant="ghost" 
+                                  <Button
+                                    variant="ghost"
                                     size="sm"
                                     onClick={() => setSelectedProduct(product)}
                                   >
@@ -507,36 +568,79 @@ export default function TireInventory() {
                                 </DialogTrigger>
                                 <DialogContent className="max-w-2xl">
                                   <DialogHeader>
-                                    <DialogTitle>Product Details - {product.brand} {product.model}</DialogTitle>
+                                    <DialogTitle>
+                                      Product Details - {product.brand}{" "}
+                                      {product.model}
+                                    </DialogTitle>
                                     <DialogDescription>
-                                      Complete product information and stock details
+                                      Complete product information and stock
+                                      details
                                     </DialogDescription>
                                   </DialogHeader>
                                   {selectedProduct && (
                                     <div className="space-y-4">
                                       <div className="grid gap-4 md:grid-cols-2">
                                         <div>
-                                          <h4 className="font-medium mb-2">Product Information</h4>
+                                          <h4 className="font-medium mb-2">
+                                            Product Information
+                                          </h4>
                                           <div className="space-y-2 text-sm">
-                                            <p><strong>Brand:</strong> {selectedProduct.brand}</p>
-                                            <p><strong>Model:</strong> {selectedProduct.model}</p>
-                                            <p><strong>Size:</strong> {selectedProduct.size}</p>
-                                            <p><strong>Type:</strong> {selectedProduct.type}</p>
-                                            <p><strong>Category:</strong> {selectedProduct.category}</p>
-                                            <p><strong>Supplier:</strong> {selectedProduct.supplier}</p>
+                                            <p>
+                                              <strong>Brand:</strong>{" "}
+                                              {selectedProduct.brand}
+                                            </p>
+                                            <p>
+                                              <strong>Model:</strong>{" "}
+                                              {selectedProduct.model}
+                                            </p>
+                                            <p>
+                                              <strong>Size:</strong>{" "}
+                                              {selectedProduct.size}
+                                            </p>
+                                            <p>
+                                              <strong>Type:</strong>{" "}
+                                              {selectedProduct.type}
+                                            </p>
+                                            <p>
+                                              <strong>Category:</strong>{" "}
+                                              {selectedProduct.category}
+                                            </p>
+                                            <p>
+                                              <strong>Supplier:</strong>{" "}
+                                              {selectedProduct.supplier}
+                                            </p>
                                           </div>
                                         </div>
                                         <div>
-                                          <h4 className="font-medium mb-2">Stock Information</h4>
+                                          <h4 className="font-medium mb-2">
+                                            Stock Information
+                                          </h4>
                                           <div className="space-y-2 text-sm">
-                                            <p><strong>Current Stock:</strong> {selectedProduct.currentStock}</p>
-                                            <p><strong>Min Stock:</strong> {selectedProduct.minStock}</p>
-                                            <p><strong>Max Stock:</strong> {selectedProduct.maxStock}</p>
-                                            <p><strong>Location:</strong> {selectedProduct.location}</p>
-                                            <p><strong>Last Restock:</strong> {selectedProduct.lastRestock}</p>
                                             <p>
-                                              <strong>Status:</strong> 
-                                              <Badge className={`ml-2 ${getStockStatusColor(selectedProduct.status)}`}>
+                                              <strong>Current Stock:</strong>{" "}
+                                              {selectedProduct.currentStock}
+                                            </p>
+                                            <p>
+                                              <strong>Min Stock:</strong>{" "}
+                                              {selectedProduct.minStock}
+                                            </p>
+                                            <p>
+                                              <strong>Max Stock:</strong>{" "}
+                                              {selectedProduct.maxStock}
+                                            </p>
+                                            <p>
+                                              <strong>Location:</strong>{" "}
+                                              {selectedProduct.location}
+                                            </p>
+                                            <p>
+                                              <strong>Last Restock:</strong>{" "}
+                                              {selectedProduct.lastRestock}
+                                            </p>
+                                            <p>
+                                              <strong>Status:</strong>
+                                              <Badge
+                                                className={`ml-2 ${getStockStatusColor(selectedProduct.status)}`}
+                                              >
                                                 {selectedProduct.status}
                                               </Badge>
                                             </p>
@@ -545,19 +649,58 @@ export default function TireInventory() {
                                       </div>
                                       <div className="grid gap-4 md:grid-cols-2">
                                         <div>
-                                          <h4 className="font-medium mb-2">Pricing</h4>
+                                          <h4 className="font-medium mb-2">
+                                            Pricing
+                                          </h4>
                                           <div className="space-y-2 text-sm">
-                                            <p><strong>Unit Cost:</strong> {formatCurrency(selectedProduct.unitCost)}</p>
-                                            <p><strong>Selling Price:</strong> {formatCurrency(selectedProduct.sellingPrice)}</p>
-                                            <p><strong>Profit Margin:</strong> {Math.round(((selectedProduct.sellingPrice - selectedProduct.unitCost) / selectedProduct.sellingPrice) * 100)}%</p>
+                                            <p>
+                                              <strong>Unit Cost:</strong>{" "}
+                                              {formatCurrency(
+                                                selectedProduct.unitCost,
+                                              )}
+                                            </p>
+                                            <p>
+                                              <strong>Selling Price:</strong>{" "}
+                                              {formatCurrency(
+                                                selectedProduct.sellingPrice,
+                                              )}
+                                            </p>
+                                            <p>
+                                              <strong>Profit Margin:</strong>{" "}
+                                              {Math.round(
+                                                ((selectedProduct.sellingPrice -
+                                                  selectedProduct.unitCost) /
+                                                  selectedProduct.sellingPrice) *
+                                                  100,
+                                              )}
+                                              %
+                                            </p>
                                           </div>
                                         </div>
                                         <div>
-                                          <h4 className="font-medium mb-2">Sales Performance</h4>
+                                          <h4 className="font-medium mb-2">
+                                            Sales Performance
+                                          </h4>
                                           <div className="space-y-2 text-sm">
-                                            <p><strong>Sold This Month:</strong> {selectedProduct.soldThisMonth}</p>
-                                            <p><strong>Total Sold:</strong> {selectedProduct.totalSold}</p>
-                                            <p><strong>Stock Turnover:</strong> {selectedProduct.totalSold > 0 ? Math.round(selectedProduct.currentStock / (selectedProduct.totalSold / 12)) : 0} months</p>
+                                            <p>
+                                              <strong>Sold This Month:</strong>{" "}
+                                              {selectedProduct.soldThisMonth}
+                                            </p>
+                                            <p>
+                                              <strong>Total Sold:</strong>{" "}
+                                              {selectedProduct.totalSold}
+                                            </p>
+                                            <p>
+                                              <strong>Stock Turnover:</strong>{" "}
+                                              {selectedProduct.totalSold > 0
+                                                ? Math.round(
+                                                    selectedProduct.currentStock /
+                                                      (selectedProduct.totalSold /
+                                                        12),
+                                                  )
+                                                : 0}{" "}
+                                              months
+                                            </p>
                                           </div>
                                         </div>
                                       </div>
@@ -624,20 +767,39 @@ export default function TireInventory() {
                           <p className="truncate">{movement.productName}</p>
                         </TableCell>
                         <TableCell>
-                          <Badge variant={movement.type === 'IN' ? 'default' : movement.type === 'OUT' ? 'destructive' : 'secondary'}>
-                            {movement.type === 'IN' && <TrendingUp className="h-3 w-3 mr-1" />}
-                            {movement.type === 'OUT' && <TrendingDown className="h-3 w-3 mr-1" />}
+                          <Badge
+                            variant={
+                              movement.type === "IN"
+                                ? "default"
+                                : movement.type === "OUT"
+                                  ? "destructive"
+                                  : "secondary"
+                            }
+                          >
+                            {movement.type === "IN" && (
+                              <TrendingUp className="h-3 w-3 mr-1" />
+                            )}
+                            {movement.type === "OUT" && (
+                              <TrendingDown className="h-3 w-3 mr-1" />
+                            )}
                             {movement.type}
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          <span className={movement.quantity > 0 ? 'text-success' : 'text-destructive'}>
-                            {movement.quantity > 0 ? '+' : ''}{movement.quantity}
+                          <span
+                            className={
+                              movement.quantity > 0
+                                ? "text-success"
+                                : "text-destructive"
+                            }
+                          >
+                            {movement.quantity > 0 ? "+" : ""}
+                            {movement.quantity}
                           </span>
                         </TableCell>
                         <TableCell>{movement.reason}</TableCell>
                         <TableCell>{movement.user}</TableCell>
-                        <TableCell>{movement.reference || '-'}</TableCell>
+                        <TableCell>{movement.reference || "-"}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -663,26 +825,34 @@ export default function TireInventory() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {inventory.filter(product => product.status === 'Low Stock').map((product) => (
-                    <div key={product.id} className="flex items-center justify-between p-3 border border-warning rounded-lg bg-warning/5">
-                      <div>
-                        <p className="font-medium">{product.brand} {product.model} - {product.size}</p>
-                        <p className="text-sm text-muted-foreground">
-                          Current: {product.currentStock} | Minimum: {product.minStock}
-                        </p>
+                  {inventory
+                    .filter((product) => product.status === "Low Stock")
+                    .map((product) => (
+                      <div
+                        key={product.id}
+                        className="flex items-center justify-between p-3 border border-warning rounded-lg bg-warning/5"
+                      >
+                        <div>
+                          <p className="font-medium">
+                            {product.brand} {product.model} - {product.size}
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            Current: {product.currentStock} | Minimum:{" "}
+                            {product.minStock}
+                          </p>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button size="sm" variant="outline">
+                            <Truck className="h-4 w-4 mr-2" />
+                            Reorder
+                          </Button>
+                          <Button size="sm">
+                            <Eye className="h-4 w-4 mr-2" />
+                            View
+                          </Button>
+                        </div>
                       </div>
-                      <div className="flex gap-2">
-                        <Button size="sm" variant="outline">
-                          <Truck className="h-4 w-4 mr-2" />
-                          Reorder
-                        </Button>
-                        <Button size="sm">
-                          <Eye className="h-4 w-4 mr-2" />
-                          View
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
+                    ))}
                 </div>
               </CardContent>
             </Card>
@@ -700,26 +870,33 @@ export default function TireInventory() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {inventory.filter(product => product.status === 'Out of Stock').map((product) => (
-                    <div key={product.id} className="flex items-center justify-between p-3 border border-destructive rounded-lg bg-destructive/5">
-                      <div>
-                        <p className="font-medium">{product.brand} {product.model} - {product.size}</p>
-                        <p className="text-sm text-muted-foreground">
-                          Last sold: {product.soldThisMonth} this month
-                        </p>
+                  {inventory
+                    .filter((product) => product.status === "Out of Stock")
+                    .map((product) => (
+                      <div
+                        key={product.id}
+                        className="flex items-center justify-between p-3 border border-destructive rounded-lg bg-destructive/5"
+                      >
+                        <div>
+                          <p className="font-medium">
+                            {product.brand} {product.model} - {product.size}
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            Last sold: {product.soldThisMonth} this month
+                          </p>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button size="sm" variant="outline">
+                            <Truck className="h-4 w-4 mr-2" />
+                            Emergency Order
+                          </Button>
+                          <Button size="sm">
+                            <Eye className="h-4 w-4 mr-2" />
+                            View
+                          </Button>
+                        </div>
                       </div>
-                      <div className="flex gap-2">
-                        <Button size="sm" variant="outline">
-                          <Truck className="h-4 w-4 mr-2" />
-                          Emergency Order
-                        </Button>
-                        <Button size="sm">
-                          <Eye className="h-4 w-4 mr-2" />
-                          View
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
+                    ))}
                 </div>
               </CardContent>
             </Card>

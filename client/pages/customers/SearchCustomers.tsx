@@ -1,16 +1,22 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import React, { useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -18,7 +24,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from "@/components/ui/table";
 import {
   Search,
   Filter,
@@ -33,122 +39,125 @@ import {
   Users,
   Building2,
   UserCheck,
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
+} from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const mockCustomers = [
   {
-    id: 'CUST-001',
-    name: 'John Doe',
-    type: 'Personal',
-    subType: 'Car Owner',
-    phone: '+256 700 123 456',
-    email: 'john.doe@email.com',
-    location: 'Kampala, Uganda',
-    registeredDate: '2024-01-15',
-    lastVisit: '2024-01-20',
+    id: "CUST-001",
+    name: "John Doe",
+    type: "Personal",
+    subType: "Car Owner",
+    phone: "+256 700 123 456",
+    email: "john.doe@email.com",
+    location: "Kampala, Uganda",
+    registeredDate: "2024-01-15",
+    lastVisit: "2024-01-20",
     totalOrders: 5,
-    status: 'Active',
-    vehicles: ['Toyota Camry 2020', 'Honda Civic 2019'],
+    status: "Active",
+    vehicles: ["Toyota Camry 2020", "Honda Civic 2019"],
   },
   {
-    id: 'CUST-002',
-    name: 'Uganda Revenue Authority',
-    type: 'Government',
-    subType: 'Fleet Management',
-    phone: '+256 414 123 456',
-    email: 'fleet@ura.go.ug',
-    location: 'Nakawa, Kampala',
-    registeredDate: '2023-12-01',
-    lastVisit: '2024-01-19',
+    id: "CUST-002",
+    name: "Uganda Revenue Authority",
+    type: "Government",
+    subType: "Fleet Management",
+    phone: "+256 414 123 456",
+    email: "fleet@ura.go.ug",
+    location: "Nakawa, Kampala",
+    registeredDate: "2023-12-01",
+    lastVisit: "2024-01-19",
     totalOrders: 23,
-    status: 'Active',
-    vehicles: ['Multiple Fleet Vehicles'],
+    status: "Active",
+    vehicles: ["Multiple Fleet Vehicles"],
   },
   {
-    id: 'CUST-003',
-    name: 'Express Taxi Services',
-    type: 'Private',
-    subType: 'Taxi Company',
-    phone: '+256 702 987 654',
-    email: 'info@expresstaxi.ug',
-    location: 'Entebbe Road',
-    registeredDate: '2023-11-20',
-    lastVisit: '2024-01-18',
+    id: "CUST-003",
+    name: "Express Taxi Services",
+    type: "Private",
+    subType: "Taxi Company",
+    phone: "+256 702 987 654",
+    email: "info@expresstaxi.ug",
+    location: "Entebbe Road",
+    registeredDate: "2023-11-20",
+    lastVisit: "2024-01-18",
     totalOrders: 15,
-    status: 'Active',
-    vehicles: ['Fleet of 12 vehicles'],
+    status: "Active",
+    vehicles: ["Fleet of 12 vehicles"],
   },
   {
-    id: 'CUST-004',
-    name: 'World Vision Uganda',
-    type: 'NGO',
-    subType: 'Humanitarian',
-    phone: '+256 414 567 890',
-    email: 'logistics@worldvision.ug',
-    location: 'Ntinda, Kampala',
-    registeredDate: '2023-10-10',
-    lastVisit: '2024-01-17',
+    id: "CUST-004",
+    name: "World Vision Uganda",
+    type: "NGO",
+    subType: "Humanitarian",
+    phone: "+256 414 567 890",
+    email: "logistics@worldvision.ug",
+    location: "Ntinda, Kampala",
+    registeredDate: "2023-10-10",
+    lastVisit: "2024-01-17",
     totalOrders: 8,
-    status: 'Active',
-    vehicles: ['4x4 Land Cruisers', 'Pickup Trucks'],
+    status: "Active",
+    vehicles: ["4x4 Land Cruisers", "Pickup Trucks"],
   },
   {
-    id: 'CUST-005',
-    name: 'Michael Okello',
-    type: 'Personal',
-    subType: 'Driver',
-    phone: '+256 703 456 789',
-    email: 'mike.okello@email.com',
-    location: 'Nansana',
-    registeredDate: '2024-01-05',
-    lastVisit: '2024-01-16',
+    id: "CUST-005",
+    name: "Michael Okello",
+    type: "Personal",
+    subType: "Driver",
+    phone: "+256 703 456 789",
+    email: "mike.okello@email.com",
+    location: "Nansana",
+    registeredDate: "2024-01-05",
+    lastVisit: "2024-01-16",
     totalOrders: 2,
-    status: 'Active',
-    vehicles: ['Client Vehicle Services'],
+    status: "Active",
+    vehicles: ["Client Vehicle Services"],
   },
 ];
 
 const getCustomerTypeColor = (type: string) => {
   switch (type) {
-    case 'Government':
-      return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300';
-    case 'NGO':
-      return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
-    case 'Private':
-      return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300';
-    case 'Personal':
-      return 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300';
+    case "Government":
+      return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300";
+    case "NGO":
+      return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300";
+    case "Private":
+      return "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300";
+    case "Personal":
+      return "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300";
     default:
-      return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300';
+      return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300";
   }
 };
 
 const getStatusColor = (status: string) => {
   switch (status) {
-    case 'Active':
-      return 'bg-success text-success-foreground';
-    case 'Inactive':
-      return 'bg-muted text-muted-foreground';
-    case 'Suspended':
-      return 'bg-destructive text-destructive-foreground';
+    case "Active":
+      return "bg-success text-success-foreground";
+    case "Inactive":
+      return "bg-muted text-muted-foreground";
+    case "Suspended":
+      return "bg-destructive text-destructive-foreground";
     default:
-      return 'bg-muted text-muted-foreground';
+      return "bg-muted text-muted-foreground";
   }
 };
 
 export default function SearchCustomers() {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedType, setSelectedType] = useState('all');
-  const [selectedStatus, setSelectedStatus] = useState('all');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedType, setSelectedType] = useState("all");
+  const [selectedStatus, setSelectedStatus] = useState("all");
 
-  const filteredCustomers = mockCustomers.filter(customer => {
-    const matchesSearch = customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         customer.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         customer.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesType = selectedType === 'all' || customer.type === selectedType;
-    const matchesStatus = selectedStatus === 'all' || customer.status === selectedStatus;
-    
+  const filteredCustomers = mockCustomers.filter((customer) => {
+    const matchesSearch =
+      customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      customer.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      customer.email.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesType =
+      selectedType === "all" || customer.type === selectedType;
+    const matchesStatus =
+      selectedStatus === "all" || customer.status === selectedStatus;
+
     return matchesSearch && matchesType && matchesStatus;
   });
 
@@ -157,9 +166,12 @@ export default function SearchCustomers() {
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Customer Management</h1>
+          <h1 className="text-3xl font-bold text-foreground">
+            Customer Management
+          </h1>
           <p className="text-muted-foreground">
-            Search, manage, and track your customers across all service categories
+            Search, manage, and track your customers across all service
+            categories
           </p>
         </div>
         <Button>
@@ -238,7 +250,9 @@ export default function SearchCustomers() {
                 <UserCheck className="h-5 w-5 text-green-600 dark:text-green-400" />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Active This Month</p>
+                <p className="text-sm text-muted-foreground">
+                  Active This Month
+                </p>
                 <p className="text-2xl font-bold">1,234</p>
               </div>
             </div>
@@ -251,7 +265,9 @@ export default function SearchCustomers() {
                 <Building2 className="h-5 w-5 text-purple-600 dark:text-purple-400" />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Corporate Clients</p>
+                <p className="text-sm text-muted-foreground">
+                  Corporate Clients
+                </p>
                 <p className="text-2xl font-bold">156</p>
               </div>
             </div>
@@ -264,7 +280,9 @@ export default function SearchCustomers() {
                 <Car className="h-5 w-5 text-orange-600 dark:text-orange-400" />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Personal Customers</p>
+                <p className="text-sm text-muted-foreground">
+                  Personal Customers
+                </p>
                 <p className="text-2xl font-bold">2,691</p>
               </div>
             </div>
@@ -312,13 +330,22 @@ export default function SearchCustomers() {
                   <TableRow key={customer.id} className="hover:bg-accent/50">
                     <TableCell>
                       <div>
-                        <p className="font-medium text-foreground">{customer.name}</p>
-                        <p className="text-sm text-muted-foreground">{customer.id}</p>
-                        <p className="text-xs text-muted-foreground">{customer.subType}</p>
+                        <p className="font-medium text-foreground">
+                          {customer.name}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          {customer.id}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {customer.subType}
+                        </p>
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant="outline" className={getCustomerTypeColor(customer.type)}>
+                      <Badge
+                        variant="outline"
+                        className={getCustomerTypeColor(customer.type)}
+                      >
                         {customer.type}
                       </Badge>
                     </TableCell>
@@ -347,7 +374,9 @@ export default function SearchCustomers() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <span className="font-medium">{customer.totalOrders}</span>
+                      <span className="font-medium">
+                        {customer.totalOrders}
+                      </span>
                     </TableCell>
                     <TableCell>
                       <Badge className={getStatusColor(customer.status)}>
