@@ -207,11 +207,9 @@ const App = () => (
           <Route
             path="/orders/job-cards"
             element={
-              <WrappedPlaceholder
-                title="Job Cards"
-                description="Manage work orders and job card assignments"
-                icon={FileText}
-              />
+              <DashboardLayout>
+                <JobCards />
+              </DashboardLayout>
             }
           />
 
