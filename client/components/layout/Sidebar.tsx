@@ -374,7 +374,7 @@ export function Sidebar({ isCollapsed }: SidebarProps) {
 
       {/* Navigation */}
       <nav className="p-4 space-y-2 flex-1">
-        {sidebarItems.map((item) => renderSidebarItem(item))}
+        {sidebarItems.filter(hasItemAccess).map((item) => renderSidebarItem(item))}
       </nav>
 
       {/* Footer */}
