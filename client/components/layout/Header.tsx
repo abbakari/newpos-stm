@@ -32,6 +32,7 @@ interface HeaderProps {
 
 export function Header({ onToggleSidebar, isCollapsed }: HeaderProps) {
   const { alerts, updateExpectedLeave, markLeft, activeVisits } = useVisitTracking();
+  const { logout, user } = useAuth();
   return (
     <header className="bg-card border-b border-border px-6 py-4">
       <div className="flex items-center justify-between">
