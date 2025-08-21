@@ -57,13 +57,18 @@ function WrappedPlaceholder({
   );
 }
 
+import { VisitTrackingProvider } from "./context/VisitTrackingContext";
+import { CustomerStoreProvider } from "./context/CustomerStoreContext";
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter>
-        <Routes>
+      <CustomerStoreProvider>
+        <VisitTrackingProvider>
+          <BrowserRouter>
+          <Routes>
           <Route
             path="/"
             element={
@@ -295,8 +300,10 @@ const App = () => (
 
           {/* 404 Route */}
           <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
+          </Routes>
+        </BrowserRouter>
+        </VisitTrackingProvider>
+      </CustomerStoreProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );

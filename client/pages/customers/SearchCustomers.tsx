@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import { useCustomerStore } from "@/context/CustomerStoreContext";
 import {
   Card,
   CardContent,
@@ -314,22 +315,34 @@ function synthesizeDetailsFromDirectory(c: any) {
 
 export default function SearchCustomers() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [customers, setCustomers] = useState(initialCustomers);
+  const { customers: storedCustomers } = useCustomerStore();
+  const [customers, setCustomers] = useState([...storedCustomers, ...initialCustomers]);
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(
     null,
   );
   const [isEditing, setIsEditing] = useState(false);
   const [details, setDetails] = useState<any | null>(null);
 
+  // Keep customers in sync when store changes
+  React.useEffect(() => {
+    setCustomers((prev) => {
+      const byId = new Map<string, any>();
+      [...storedCustomers, ...initialCustomers].forEach((c) => byId.set(c.id, c));
+      return Array.from(byId.values());
+    });
+  }, [storedCustomers]);
+
   const filteredCustomers = useMemo(() => {
-    if (!searchTerm.trim()) return [];
-    return customers.filter((customer) => {
+    const list = customers;
+    if (!searchTerm.trim()) return list;
+    return list.filter((customer) => {
       const st = searchTerm.toLowerCase();
+      const name = (customer.name || "").toLowerCase();
+      const id = (customer.id || "").toLowerCase();
+      const email = (customer.email || "").toLowerCase();
+      const phone = customer.phone || "";
       return (
-        customer.name.toLowerCase().includes(st) ||
-        customer.id.toLowerCase().includes(st) ||
-        customer.email.toLowerCase().includes(st) ||
-        customer.phone.includes(searchTerm)
+        name.includes(st) || id.includes(st) || email.includes(st) || phone.includes(searchTerm)
       );
     });
   }, [customers, searchTerm]);
@@ -394,21 +407,7 @@ export default function SearchCustomers() {
       </Card>
 
       {/* Content */}
-      {!searchTerm.trim() ? (
-        <Card>
-          <CardContent className="p-12 flex flex-col items-center justify-center text-center gap-3">
-            <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
-              <Search className="h-6 w-6 text-muted-foreground" />
-            </div>
-            <h3 className="text-xl font-semibold">Waiting for a search</h3>
-            <p className="text-sm text-muted-foreground">
-              Start typing a customer name, ID, phone, or email to view their
-              information.
-            </p>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid gap-6 lg:grid-cols-3">
           {/* Results list */}
           <Card className="lg:col-span-1">
             <CardHeader>
@@ -1273,7 +1272,6 @@ export default function SearchCustomers() {
             )}
           </div>
         </div>
-      )}
     </div>
   );
 }
