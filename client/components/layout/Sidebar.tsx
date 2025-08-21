@@ -258,6 +258,21 @@ export function Sidebar({ isCollapsed }: SidebarProps) {
     );
   };
 
+  const hasItemAccess = (item: SidebarItem): boolean => {
+    // Check role-based access
+    if (item.requiredRoles && !canAccess(item.requiredRoles)) {
+      return false;
+    }
+
+    // Check permission-based access
+    if (item.requiredPermission &&
+        !hasPermission(item.requiredPermission.module, item.requiredPermission.action)) {
+      return false;
+    }
+
+    return true;
+  };
+
   const renderSidebarItem = (item: SidebarItem, level: number = 0) => {
     const hasChildren = item.children && item.children.length > 0;
     const isExpanded = expandedItems.includes(item.id);
