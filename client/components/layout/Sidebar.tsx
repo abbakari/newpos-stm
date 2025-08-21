@@ -36,6 +36,8 @@ interface SidebarItem {
   icon: React.ComponentType<any>;
   href?: string;
   children?: SidebarItem[];
+  requiredRoles?: UserRole[];
+  requiredPermission?: { module: string; action: string };
 }
 
 const sidebarItems: SidebarItem[] = [
