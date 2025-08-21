@@ -241,6 +241,7 @@ interface SidebarProps {
 export function Sidebar({ isCollapsed }: SidebarProps) {
   const [expandedItems, setExpandedItems] = useState<string[]>(["dashboard"]);
   const location = useLocation();
+  const { user, canAccess, hasPermission } = useAuth();
 
   const toggleExpanded = (itemId: string) => {
     setExpandedItems((prev) =>
