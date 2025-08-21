@@ -72,11 +72,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     // Simulate loading user from localStorage or API
     const storedUser = localStorage.getItem('currentUser');
     if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    } else {
-      // Default to admin user for demo
-      setUser(demoUsers[0]);
-      localStorage.setItem('currentUser', JSON.stringify(demoUsers[0]));
+      try {
+        setUser(JSON.parse(storedUser));
+      } catch (error) {
+        localStorage.removeItem('currentUser');
+      }
     }
     setIsLoading(false);
   }, []);
