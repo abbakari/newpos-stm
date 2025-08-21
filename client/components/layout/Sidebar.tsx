@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/context/AuthContext";
+import { UserRole } from "@shared/types";
 import {
   LayoutDashboard,
   Users,
