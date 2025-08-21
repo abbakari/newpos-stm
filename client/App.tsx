@@ -14,6 +14,7 @@ import AddCustomer from "./pages/customers/AddCustomer";
 import CustomerDetails from "./pages/customers/CustomerDetails";
 import CustomerTypes from "./pages/customers/CustomerTypes";
 import TireServices from "./pages/services/TireServices";
+import CarServices from "./pages/services/CarServices";
 import TireInventory from "./pages/inventory/TireInventory";
 import InvoiceManagement from "./pages/invoices/InvoiceManagement";
 import NotFound from "./pages/NotFound";
@@ -82,11 +83,9 @@ const App = () => (
           
           {/* Service Management Routes */}
           <Route path="/services/car" element={
-            <WrappedPlaceholder 
-              title="Car Services" 
-              description="Manage car service offerings and scheduling" 
-              icon={Car} 
-            />
+            <DashboardLayout>
+              <CarServices />
+            </DashboardLayout>
           } />
           <Route path="/services/tires" element={
             <DashboardLayout>
