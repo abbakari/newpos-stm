@@ -106,12 +106,14 @@ const sidebarItems: SidebarItem[] = [
     id: "inventory",
     label: "Inventory Management",
     icon: Package,
+    requiredRoles: [UserRole.ADMIN, UserRole.OFFICE_MANAGER],
     children: [
       {
         id: "tire-inventory",
         label: "Tire Inventory",
         icon: Package,
         href: "/inventory/tires",
+        requiredRoles: [UserRole.ADMIN, UserRole.OFFICE_MANAGER],
       },
     ],
   },
@@ -126,6 +128,7 @@ const sidebarItems: SidebarItem[] = [
     label: "Invoice Management",
     icon: Receipt,
     href: "/invoices",
+    requiredRoles: [UserRole.ADMIN, UserRole.OFFICE_MANAGER],
   },
   {
     id: "orders",
