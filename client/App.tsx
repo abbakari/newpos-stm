@@ -23,6 +23,7 @@ import SalesAnalytics from "./pages/sales/SalesAnalytics";
 import NotFound from "./pages/NotFound";
 import JobCards from "./pages/orders/JobCards";
 import Login from "./pages/Login";
+import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import {
   Users,
   Search,
