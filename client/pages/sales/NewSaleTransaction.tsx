@@ -174,8 +174,11 @@ const paymentMethods = [
 
 export default function NewSaleTransaction() {
   const [transactionType, setTransactionType] = useState<string>("");
-  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
-  const [selectedServiceOrder, setSelectedServiceOrder] = useState<ServiceOrder | null>(null);
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
+    null,
+  );
+  const [selectedServiceOrder, setSelectedServiceOrder] =
+    useState<ServiceOrder | null>(null);
   const [customerSearch, setCustomerSearch] = useState("");
   const [productSearch, setProductSearch] = useState("");
   const [selectedLocation, setSelectedLocation] = useState("");
@@ -195,22 +198,24 @@ export default function NewSaleTransaction() {
   const filteredCustomers = mockCustomers.filter(
     (customer) =>
       customer.name.toLowerCase().includes(customerSearch.toLowerCase()) ||
-      customer.phone.includes(customerSearch)
+      customer.phone.includes(customerSearch),
   );
 
   const filteredProducts = mockProducts.filter((product) =>
-    product.name.toLowerCase().includes(productSearch.toLowerCase())
+    product.name.toLowerCase().includes(productSearch.toLowerCase()),
   );
 
   const customerServiceOrders = selectedCustomer
     ? mockActiveServiceOrders.filter(
-        (order) => order.customerId === selectedCustomer.id
+        (order) => order.customerId === selectedCustomer.id,
       )
     : [];
 
   const addSaleItem = (product: Product) => {
-    const existingItem = saleItems.find((item) => item.productId === product.id);
-    
+    const existingItem = saleItems.find(
+      (item) => item.productId === product.id,
+    );
+
     if (existingItem) {
       setSaleItems(
         saleItems.map((item) =>
@@ -220,8 +225,8 @@ export default function NewSaleTransaction() {
                 quantity: item.quantity + 1,
                 total: (item.quantity + 1) * item.unitPrice,
               }
-            : item
-        )
+            : item,
+        ),
       );
     } else {
       const newItem: SaleItem = {
@@ -250,7 +255,7 @@ export default function NewSaleTransaction() {
           return updatedItem;
         }
         return item;
-      })
+      }),
     );
   };
 
@@ -276,7 +281,13 @@ export default function NewSaleTransaction() {
   const totals = calculateTotals();
 
   const handleSubmit = () => {
-    if (!selectedCustomer || !transactionType || !selectedLocation || !paymentMethod || saleItems.length === 0) {
+    if (
+      !selectedCustomer ||
+      !transactionType ||
+      !selectedLocation ||
+      !paymentMethod ||
+      saleItems.length === 0
+    ) {
       alert("Please fill in all required fields and add at least one item.");
       return;
     }
@@ -310,7 +321,9 @@ export default function NewSaleTransaction() {
             </Button>
           </Link>
           <div>
-            <h1 className="text-3xl font-bold text-foreground">New Sale Transaction</h1>
+            <h1 className="text-3xl font-bold text-foreground">
+              New Sale Transaction
+            </h1>
             <p className="text-muted-foreground">
               Create a new sales transaction with comprehensive tracking
             </p>
@@ -343,7 +356,10 @@ export default function NewSaleTransaction() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <RadioGroup value={transactionType} onValueChange={setTransactionType}>
+              <RadioGroup
+                value={transactionType}
+                onValueChange={setTransactionType}
+              >
                 <div className="grid gap-4 md:grid-cols-3">
                   <div className="flex items-center space-x-2 p-4 border rounded-lg">
                     <RadioGroupItem value="Sales Only" id="sales-only" />
@@ -358,7 +374,10 @@ export default function NewSaleTransaction() {
                     <ShoppingCart className="h-5 w-5 text-blue-500" />
                   </div>
                   <div className="flex items-center space-x-2 p-4 border rounded-lg">
-                    <RadioGroupItem value="Service + Sales" id="service-sales" />
+                    <RadioGroupItem
+                      value="Service + Sales"
+                      id="service-sales"
+                    />
                     <div className="flex-1">
                       <Label htmlFor="service-sales" className="font-medium">
                         Service + Sales
@@ -416,7 +435,7 @@ export default function NewSaleTransaction() {
                       key={customer.id}
                       className={cn(
                         "p-3 cursor-pointer hover:bg-accent border-b last:border-b-0",
-                        selectedCustomer?.id === customer.id && "bg-accent"
+                        selectedCustomer?.id === customer.id && "bg-accent",
                       )}
                       onClick={() => {
                         setSelectedCustomer(customer);
@@ -427,7 +446,9 @@ export default function NewSaleTransaction() {
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="font-medium">{customer.name}</p>
-                          <p className="text-sm text-muted-foreground">{customer.phone}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {customer.phone}
+                          </p>
                         </div>
                         <Badge variant="outline">{customer.customerType}</Badge>
                       </div>
@@ -442,7 +463,8 @@ export default function NewSaleTransaction() {
                     <div>
                       <p className="font-medium">{selectedCustomer.name}</p>
                       <p className="text-sm text-muted-foreground">
-                        {selectedCustomer.customerType} • {selectedCustomer.phone}
+                        {selectedCustomer.customerType} •{" "}
+                        {selectedCustomer.phone}
                       </p>
                     </div>
                     <Button
@@ -459,36 +481,39 @@ export default function NewSaleTransaction() {
           </Card>
 
           {/* Service Order Selection (only for Service + Sales) */}
-          {transactionType === "Service + Sales" && customerServiceOrders.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Car className="h-5 w-5" />
-                  Related Service Order
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Select
-                  value={selectedServiceOrder?.id || ""}
-                  onValueChange={(value) => {
-                    const order = customerServiceOrders.find(o => o.id === value);
-                    setSelectedServiceOrder(order || null);
-                  }}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select related service order" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {customerServiceOrders.map((order) => (
-                      <SelectItem key={order.id} value={order.id}>
-                        {order.id} - {order.vehicleInfo} ({order.status})
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </CardContent>
-            </Card>
-          )}
+          {transactionType === "Service + Sales" &&
+            customerServiceOrders.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Car className="h-5 w-5" />
+                    Related Service Order
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Select
+                    value={selectedServiceOrder?.id || ""}
+                    onValueChange={(value) => {
+                      const order = customerServiceOrders.find(
+                        (o) => o.id === value,
+                      );
+                      setSelectedServiceOrder(order || null);
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select related service order" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {customerServiceOrders.map((order) => (
+                        <SelectItem key={order.id} value={order.id}>
+                          {order.id} - {order.vehicleInfo} ({order.status})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </CardContent>
+              </Card>
+            )}
 
           {/* Location and Payment */}
           <Card>
@@ -502,7 +527,10 @@ export default function NewSaleTransaction() {
               <div className="grid gap-4 md:grid-cols-2">
                 <div>
                   <Label htmlFor="location">Transaction Location</Label>
-                  <Select value={selectedLocation} onValueChange={setSelectedLocation}>
+                  <Select
+                    value={selectedLocation}
+                    onValueChange={setSelectedLocation}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select location" />
                     </SelectTrigger>
@@ -517,7 +545,10 @@ export default function NewSaleTransaction() {
                 </div>
                 <div>
                   <Label htmlFor="payment">Payment Method</Label>
-                  <Select value={paymentMethod} onValueChange={setPaymentMethod}>
+                  <Select
+                    value={paymentMethod}
+                    onValueChange={setPaymentMethod}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select payment method" />
                     </SelectTrigger>
@@ -575,7 +606,9 @@ export default function NewSaleTransaction() {
                             <span>Stock: {product.stockQuantity}</span>
                           </div>
                         </div>
-                        <p className="font-medium">{formatCurrency(product.price)}</p>
+                        <p className="font-medium">
+                          {formatCurrency(product.price)}
+                        </p>
                       </div>
                     </div>
                   ))}
@@ -624,7 +657,11 @@ export default function NewSaleTransaction() {
                             min="1"
                             value={item.quantity}
                             onChange={(e) =>
-                              updateSaleItem(item.id, "quantity", parseInt(e.target.value) || 1)
+                              updateSaleItem(
+                                item.id,
+                                "quantity",
+                                parseInt(e.target.value) || 1,
+                              )
                             }
                             className="w-20"
                           />
@@ -634,7 +671,11 @@ export default function NewSaleTransaction() {
                             type="number"
                             value={item.unitPrice}
                             onChange={(e) =>
-                              updateSaleItem(item.id, "unitPrice", parseFloat(e.target.value) || 0)
+                              updateSaleItem(
+                                item.id,
+                                "unitPrice",
+                                parseFloat(e.target.value) || 0,
+                              )
                             }
                             className="w-32"
                           />
@@ -696,7 +737,9 @@ export default function NewSaleTransaction() {
 
               {transactionType && (
                 <div>
-                  <p className="text-sm text-muted-foreground">Transaction Type:</p>
+                  <p className="text-sm text-muted-foreground">
+                    Transaction Type:
+                  </p>
                   <Badge variant="outline">{transactionType}</Badge>
                 </div>
               )}
@@ -717,32 +760,36 @@ export default function NewSaleTransaction() {
                   <span>Subtotal:</span>
                   <span>{formatCurrency(totals.subtotal)}</span>
                 </div>
-                
+
                 <div className="flex items-center gap-2">
-                  <Label htmlFor="discount" className="text-sm">Discount (%):</Label>
+                  <Label htmlFor="discount" className="text-sm">
+                    Discount (%):
+                  </Label>
                   <Input
                     id="discount"
                     type="number"
                     min="0"
                     max="100"
                     value={discount}
-                    onChange={(e) => setDiscount(parseFloat(e.target.value) || 0)}
+                    onChange={(e) =>
+                      setDiscount(parseFloat(e.target.value) || 0)
+                    }
                     className="w-20"
                   />
                 </div>
-                
+
                 {discount > 0 && (
                   <div className="flex justify-between text-warning">
                     <span>Discount:</span>
                     <span>-{formatCurrency(totals.discountAmount)}</span>
                   </div>
                 )}
-                
+
                 <div className="flex justify-between">
                   <span>Tax (18%):</span>
                   <span>{formatCurrency(totals.tax)}</span>
                 </div>
-                
+
                 <div className="flex justify-between font-bold text-lg border-t pt-2">
                   <span>Total:</span>
                   <span>{formatCurrency(totals.total)}</span>
@@ -751,7 +798,9 @@ export default function NewSaleTransaction() {
 
               {paymentMethod && (
                 <div className="pt-4 border-t">
-                  <p className="text-sm text-muted-foreground">Payment Method:</p>
+                  <p className="text-sm text-muted-foreground">
+                    Payment Method:
+                  </p>
                   <Badge variant="outline">{paymentMethod}</Badge>
                 </div>
               )}

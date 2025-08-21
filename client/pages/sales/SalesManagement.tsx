@@ -69,7 +69,12 @@ interface SalesTransaction {
   customerType: string;
   customerPhone: string;
   saleDate: string;
-  location: "Shop Front" | "Service Bay 1" | "Service Bay 2" | "Service Bay 3" | "Mobile Unit";
+  location:
+    | "Shop Front"
+    | "Service Bay 1"
+    | "Service Bay 2"
+    | "Service Bay 3"
+    | "Mobile Unit";
   serviceOrderId?: string; // Only if related to service
   items: SalesItem[];
   subtotal: number;
@@ -387,7 +392,8 @@ export default function SalesManagement() {
   const [transactions] = useState(mockSalesTransactions);
   const [customerHistory] = useState(mockCustomerSalesHistory);
   const [locationData] = useState(mockLocationSalesData);
-  const [selectedTransaction, setSelectedTransaction] = useState<SalesTransaction | null>(null);
+  const [selectedTransaction, setSelectedTransaction] =
+    useState<SalesTransaction | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedTransactionType, setSelectedTransactionType] = useState("all");
   const [selectedLocation, setSelectedLocation] = useState("all");
@@ -404,25 +410,39 @@ export default function SalesManagement() {
   const filteredTransactions = transactions.filter((transaction) => {
     const matchesSearch =
       transaction.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      transaction.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      transaction.customerName
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
       transaction.salesPerson.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesType =
-      selectedTransactionType === "all" || transaction.transactionType === selectedTransactionType;
+      selectedTransactionType === "all" ||
+      transaction.transactionType === selectedTransactionType;
     const matchesLocation =
       selectedLocation === "all" || transaction.location === selectedLocation;
     const matchesPaymentStatus =
-      selectedPaymentStatus === "all" || transaction.paymentStatus === selectedPaymentStatus;
+      selectedPaymentStatus === "all" ||
+      transaction.paymentStatus === selectedPaymentStatus;
 
-    return matchesSearch && matchesType && matchesLocation && matchesPaymentStatus;
+    return (
+      matchesSearch && matchesType && matchesLocation && matchesPaymentStatus
+    );
   });
 
   // Calculate summary statistics
   const totalTransactions = transactions.length;
   const totalRevenue = transactions.reduce((sum, t) => sum + t.total, 0);
-  const salesOnlyTransactions = transactions.filter(t => t.transactionType === "Sales Only").length;
-  const serviceWithSalesTransactions = transactions.filter(t => t.transactionType === "Service + Sales").length;
+  const salesOnlyTransactions = transactions.filter(
+    (t) => t.transactionType === "Sales Only",
+  ).length;
+  const serviceWithSalesTransactions = transactions.filter(
+    (t) => t.transactionType === "Service + Sales",
+  ).length;
   const averageTransactionValue = totalRevenue / totalTransactions;
-  const totalItemsSold = transactions.reduce((sum, t) => sum + t.items.reduce((itemSum, item) => itemSum + item.quantity, 0), 0);
+  const totalItemsSold = transactions.reduce(
+    (sum, t) =>
+      sum + t.items.reduce((itemSum, item) => itemSum + item.quantity, 0),
+    0,
+  );
 
   return (
     <div className="space-y-6">
@@ -433,7 +453,8 @@ export default function SalesManagement() {
             Sales Management
           </h1>
           <p className="text-muted-foreground">
-            Track sales transactions, customer purchase behavior, and location performance
+            Track sales transactions, customer purchase behavior, and location
+            performance
           </p>
         </div>
         <div className="flex gap-2">
@@ -475,7 +496,9 @@ export default function SalesManagement() {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Total Revenue</p>
-                <p className="text-2xl font-bold">{formatCurrency(totalRevenue)}</p>
+                <p className="text-2xl font-bold">
+                  {formatCurrency(totalRevenue)}
+                </p>
               </div>
             </div>
           </CardContent>
@@ -490,7 +513,10 @@ export default function SalesManagement() {
                 <p className="text-sm text-muted-foreground">Sales Only</p>
                 <p className="text-2xl font-bold">{salesOnlyTransactions}</p>
                 <p className="text-xs text-muted-foreground">
-                  {Math.round((salesOnlyTransactions / totalTransactions) * 100)}% of total
+                  {Math.round(
+                    (salesOnlyTransactions / totalTransactions) * 100,
+                  )}
+                  % of total
                 </p>
               </div>
             </div>
@@ -504,9 +530,14 @@ export default function SalesManagement() {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Service + Sales</p>
-                <p className="text-2xl font-bold">{serviceWithSalesTransactions}</p>
+                <p className="text-2xl font-bold">
+                  {serviceWithSalesTransactions}
+                </p>
                 <p className="text-xs text-muted-foreground">
-                  {Math.round((serviceWithSalesTransactions / totalTransactions) * 100)}% of total
+                  {Math.round(
+                    (serviceWithSalesTransactions / totalTransactions) * 100,
+                  )}
+                  % of total
                 </p>
               </div>
             </div>
@@ -520,7 +551,9 @@ export default function SalesManagement() {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Avg Transaction</p>
-                <p className="text-2xl font-bold">{formatCurrency(averageTransactionValue)}</p>
+                <p className="text-2xl font-bold">
+                  {formatCurrency(averageTransactionValue)}
+                </p>
               </div>
             </div>
           </CardContent>
@@ -553,7 +586,9 @@ export default function SalesManagement() {
           {/* Search and Filters */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Search & Filter Transactions</CardTitle>
+              <CardTitle className="text-lg">
+                Search & Filter Transactions
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex flex-col md:flex-row gap-4">
@@ -578,7 +613,9 @@ export default function SalesManagement() {
                   <SelectContent>
                     <SelectItem value="all">All Types</SelectItem>
                     <SelectItem value="Sales Only">Sales Only</SelectItem>
-                    <SelectItem value="Service + Sales">Service + Sales</SelectItem>
+                    <SelectItem value="Service + Sales">
+                      Service + Sales
+                    </SelectItem>
                     <SelectItem value="Service Only">Service Only</SelectItem>
                   </SelectContent>
                 </Select>
@@ -652,7 +689,10 @@ export default function SalesManagement() {
                   </TableHeader>
                   <TableBody>
                     {filteredTransactions.map((transaction) => (
-                      <TableRow key={transaction.id} className="hover:bg-accent/50">
+                      <TableRow
+                        key={transaction.id}
+                        className="hover:bg-accent/50"
+                      >
                         <TableCell>
                           <div>
                             <p className="font-medium">{transaction.id}</p>
@@ -669,7 +709,9 @@ export default function SalesManagement() {
                         </TableCell>
                         <TableCell>
                           <div>
-                            <p className="font-medium">{transaction.customerName}</p>
+                            <p className="font-medium">
+                              {transaction.customerName}
+                            </p>
                             <p className="text-sm text-muted-foreground">
                               {transaction.customerType}
                             </p>
@@ -681,7 +723,11 @@ export default function SalesManagement() {
                         </TableCell>
                         <TableCell>
                           <div className="space-y-1">
-                            <Badge className={getTransactionTypeColor(transaction.transactionType)}>
+                            <Badge
+                              className={getTransactionTypeColor(
+                                transaction.transactionType,
+                              )}
+                            >
                               {transaction.transactionType}
                             </Badge>
                             <div className="flex items-center gap-1 text-sm text-muted-foreground">
@@ -696,17 +742,46 @@ export default function SalesManagement() {
                               {transaction.items.length} items
                             </p>
                             <p className="text-sm text-muted-foreground">
-                              {transaction.items.reduce((sum, item) => sum + item.quantity, 0)} qty
+                              {transaction.items.reduce(
+                                (sum, item) => sum + item.quantity,
+                                0,
+                              )}{" "}
+                              qty
                             </p>
                             <div className="flex flex-wrap gap-1 mt-1">
-                              {Array.from(new Set(transaction.items.map(item => item.category))).slice(0, 2).map(category => (
-                                <Badge key={category} variant="outline" className="text-xs">
-                                  {category}
-                                </Badge>
-                              ))}
-                              {Array.from(new Set(transaction.items.map(item => item.category))).length > 2 && (
+                              {Array.from(
+                                new Set(
+                                  transaction.items.map(
+                                    (item) => item.category,
+                                  ),
+                                ),
+                              )
+                                .slice(0, 2)
+                                .map((category) => (
+                                  <Badge
+                                    key={category}
+                                    variant="outline"
+                                    className="text-xs"
+                                  >
+                                    {category}
+                                  </Badge>
+                                ))}
+                              {Array.from(
+                                new Set(
+                                  transaction.items.map(
+                                    (item) => item.category,
+                                  ),
+                                ),
+                              ).length > 2 && (
                                 <Badge variant="outline" className="text-xs">
-                                  +{Array.from(new Set(transaction.items.map(item => item.category))).length - 2}
+                                  +
+                                  {Array.from(
+                                    new Set(
+                                      transaction.items.map(
+                                        (item) => item.category,
+                                      ),
+                                    ),
+                                  ).length - 2}
                                 </Badge>
                               )}
                             </div>
@@ -722,14 +797,19 @@ export default function SalesManagement() {
                             </p>
                             {transaction.discount > 0 && (
                               <p className="text-sm text-warning">
-                                Discount: -{formatCurrency(transaction.discount)}
+                                Discount: -
+                                {formatCurrency(transaction.discount)}
                               </p>
                             )}
                           </div>
                         </TableCell>
                         <TableCell>
                           <div className="space-y-1">
-                            <Badge className={getPaymentStatusColor(transaction.paymentStatus)}>
+                            <Badge
+                              className={getPaymentStatusColor(
+                                transaction.paymentStatus,
+                              )}
+                            >
                               {transaction.paymentStatus}
                             </Badge>
                             <p className="text-sm text-muted-foreground">
@@ -740,7 +820,9 @@ export default function SalesManagement() {
                         <TableCell>
                           <div className="flex items-center gap-1">
                             <User className="h-3 w-3" />
-                            <span className="text-sm">{transaction.salesPerson}</span>
+                            <span className="text-sm">
+                              {transaction.salesPerson}
+                            </span>
                           </div>
                         </TableCell>
                         <TableCell>
@@ -750,7 +832,9 @@ export default function SalesManagement() {
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  onClick={() => setSelectedTransaction(transaction)}
+                                  onClick={() =>
+                                    setSelectedTransaction(transaction)
+                                  }
                                 >
                                   <Eye className="h-4 w-4" />
                                 </Button>
@@ -761,7 +845,8 @@ export default function SalesManagement() {
                                     Sales Transaction Details - {transaction.id}
                                   </DialogTitle>
                                   <DialogDescription>
-                                    Complete transaction information and line items
+                                    Complete transaction information and line
+                                    items
                                   </DialogDescription>
                                 </DialogHeader>
                                 {selectedTransaction && (
@@ -776,13 +861,21 @@ export default function SalesManagement() {
                                         </CardHeader>
                                         <CardContent className="space-y-2">
                                           <p className="text-sm">
-                                            <strong>ID:</strong> {selectedTransaction.id}
+                                            <strong>ID:</strong>{" "}
+                                            {selectedTransaction.id}
                                           </p>
                                           <p className="text-sm">
-                                            <strong>Date:</strong> {selectedTransaction.saleDate}
+                                            <strong>Date:</strong>{" "}
+                                            {selectedTransaction.saleDate}
                                           </p>
-                                          <Badge className={getTransactionTypeColor(selectedTransaction.transactionType)}>
-                                            {selectedTransaction.transactionType}
+                                          <Badge
+                                            className={getTransactionTypeColor(
+                                              selectedTransaction.transactionType,
+                                            )}
+                                          >
+                                            {
+                                              selectedTransaction.transactionType
+                                            }
                                           </Badge>
                                           <div className="flex items-center gap-1 text-sm">
                                             <MapPin className="h-3 w-3" />
@@ -790,7 +883,10 @@ export default function SalesManagement() {
                                           </div>
                                           {selectedTransaction.serviceOrderId && (
                                             <p className="text-sm">
-                                              <strong>Service Order:</strong> {selectedTransaction.serviceOrderId}
+                                              <strong>Service Order:</strong>{" "}
+                                              {
+                                                selectedTransaction.serviceOrderId
+                                              }
                                             </p>
                                           )}
                                         </CardContent>
@@ -803,14 +899,19 @@ export default function SalesManagement() {
                                           </CardTitle>
                                         </CardHeader>
                                         <CardContent className="space-y-2">
-                                          <p className="font-medium">{selectedTransaction.customerName}</p>
-                                          <p className="text-sm">{selectedTransaction.customerType}</p>
+                                          <p className="font-medium">
+                                            {selectedTransaction.customerName}
+                                          </p>
+                                          <p className="text-sm">
+                                            {selectedTransaction.customerType}
+                                          </p>
                                           <div className="flex items-center gap-1 text-sm">
                                             <Phone className="h-3 w-3" />
                                             {selectedTransaction.customerPhone}
                                           </div>
                                           <p className="text-sm">
-                                            <strong>ID:</strong> {selectedTransaction.customerId}
+                                            <strong>ID:</strong>{" "}
+                                            {selectedTransaction.customerId}
                                           </p>
                                         </CardContent>
                                       </Card>
@@ -822,18 +923,25 @@ export default function SalesManagement() {
                                           </CardTitle>
                                         </CardHeader>
                                         <CardContent className="space-y-2">
-                                          <Badge className={getPaymentStatusColor(selectedTransaction.paymentStatus)}>
+                                          <Badge
+                                            className={getPaymentStatusColor(
+                                              selectedTransaction.paymentStatus,
+                                            )}
+                                          >
                                             {selectedTransaction.paymentStatus}
                                           </Badge>
                                           <p className="text-sm">
-                                            <strong>Method:</strong> {selectedTransaction.paymentMethod}
+                                            <strong>Method:</strong>{" "}
+                                            {selectedTransaction.paymentMethod}
                                           </p>
                                           <p className="text-sm">
-                                            <strong>Salesperson:</strong> {selectedTransaction.salesPerson}
+                                            <strong>Salesperson:</strong>{" "}
+                                            {selectedTransaction.salesPerson}
                                           </p>
                                           {selectedTransaction.invoiceId && (
                                             <p className="text-sm">
-                                              <strong>Invoice:</strong> {selectedTransaction.invoiceId}
+                                              <strong>Invoice:</strong>{" "}
+                                              {selectedTransaction.invoiceId}
                                             </p>
                                           )}
                                         </CardContent>
@@ -843,7 +951,9 @@ export default function SalesManagement() {
                                     {/* Transaction Items */}
                                     <Card>
                                       <CardHeader>
-                                        <CardTitle className="text-base">Transaction Items</CardTitle>
+                                        <CardTitle className="text-base">
+                                          Transaction Items
+                                        </CardTitle>
                                       </CardHeader>
                                       <CardContent>
                                         <Table>
@@ -858,22 +968,44 @@ export default function SalesManagement() {
                                             </TableRow>
                                           </TableHeader>
                                           <TableBody>
-                                            {selectedTransaction.items.map((item) => (
-                                              <TableRow key={item.id}>
-                                                <TableCell>{item.productName}</TableCell>
-                                                <TableCell>
-                                                  <Badge variant="outline">{item.category}</Badge>
-                                                </TableCell>
-                                                <TableCell>{item.quantity}</TableCell>
-                                                <TableCell>{formatCurrency(item.unitPrice)}</TableCell>
-                                                <TableCell>{formatCurrency(item.total)}</TableCell>
-                                                <TableCell>
-                                                  <Badge variant={item.isServiceRelated ? "default" : "secondary"}>
-                                                    {item.isServiceRelated ? "Service Related" : "Sales Only"}
-                                                  </Badge>
-                                                </TableCell>
-                                              </TableRow>
-                                            ))}
+                                            {selectedTransaction.items.map(
+                                              (item) => (
+                                                <TableRow key={item.id}>
+                                                  <TableCell>
+                                                    {item.productName}
+                                                  </TableCell>
+                                                  <TableCell>
+                                                    <Badge variant="outline">
+                                                      {item.category}
+                                                    </Badge>
+                                                  </TableCell>
+                                                  <TableCell>
+                                                    {item.quantity}
+                                                  </TableCell>
+                                                  <TableCell>
+                                                    {formatCurrency(
+                                                      item.unitPrice,
+                                                    )}
+                                                  </TableCell>
+                                                  <TableCell>
+                                                    {formatCurrency(item.total)}
+                                                  </TableCell>
+                                                  <TableCell>
+                                                    <Badge
+                                                      variant={
+                                                        item.isServiceRelated
+                                                          ? "default"
+                                                          : "secondary"
+                                                      }
+                                                    >
+                                                      {item.isServiceRelated
+                                                        ? "Service Related"
+                                                        : "Sales Only"}
+                                                    </Badge>
+                                                  </TableCell>
+                                                </TableRow>
+                                              ),
+                                            )}
                                           </TableBody>
                                         </Table>
                                       </CardContent>
@@ -886,21 +1018,39 @@ export default function SalesManagement() {
                                           <div className="w-64 space-y-2">
                                             <div className="flex justify-between">
                                               <span>Subtotal:</span>
-                                              <span>{formatCurrency(selectedTransaction.subtotal)}</span>
+                                              <span>
+                                                {formatCurrency(
+                                                  selectedTransaction.subtotal,
+                                                )}
+                                              </span>
                                             </div>
-                                            {selectedTransaction.discount > 0 && (
+                                            {selectedTransaction.discount >
+                                              0 && (
                                               <div className="flex justify-between text-warning">
                                                 <span>Discount:</span>
-                                                <span>-{formatCurrency(selectedTransaction.discount)}</span>
+                                                <span>
+                                                  -
+                                                  {formatCurrency(
+                                                    selectedTransaction.discount,
+                                                  )}
+                                                </span>
                                               </div>
                                             )}
                                             <div className="flex justify-between">
                                               <span>Tax (18%):</span>
-                                              <span>{formatCurrency(selectedTransaction.tax)}</span>
+                                              <span>
+                                                {formatCurrency(
+                                                  selectedTransaction.tax,
+                                                )}
+                                              </span>
                                             </div>
                                             <div className="flex justify-between font-bold text-lg border-t pt-2">
                                               <span>Total:</span>
-                                              <span>{formatCurrency(selectedTransaction.total)}</span>
+                                              <span>
+                                                {formatCurrency(
+                                                  selectedTransaction.total,
+                                                )}
+                                              </span>
                                             </div>
                                           </div>
                                         </div>
@@ -911,10 +1061,14 @@ export default function SalesManagement() {
                                     {selectedTransaction.notes && (
                                       <Card>
                                         <CardHeader>
-                                          <CardTitle className="text-base">Notes</CardTitle>
+                                          <CardTitle className="text-base">
+                                            Notes
+                                          </CardTitle>
                                         </CardHeader>
                                         <CardContent>
-                                          <p className="text-sm">{selectedTransaction.notes}</p>
+                                          <p className="text-sm">
+                                            {selectedTransaction.notes}
+                                          </p>
                                         </CardContent>
                                       </Card>
                                     )}
@@ -950,7 +1104,9 @@ export default function SalesManagement() {
         <TabsContent value="customers">
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Customer Sales Analytics</CardTitle>
+              <CardTitle className="text-lg">
+                Customer Sales Analytics
+              </CardTitle>
               <CardDescription>
                 Analyze customer purchase behavior and loyalty patterns
               </CardDescription>
@@ -975,32 +1131,53 @@ export default function SalesManagement() {
                       <TableRow key={customer.customerId}>
                         <TableCell>
                           <div>
-                            <p className="font-medium">{customer.customerName}</p>
-                            <p className="text-sm text-muted-foreground">{customer.customerType}</p>
+                            <p className="font-medium">
+                              {customer.customerName}
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                              {customer.customerType}
+                            </p>
                           </div>
                         </TableCell>
                         <TableCell className="text-center">
-                          <p className="font-medium text-lg">{customer.totalTransactions}</p>
+                          <p className="font-medium text-lg">
+                            {customer.totalTransactions}
+                          </p>
                         </TableCell>
                         <TableCell>
-                          <p className="font-medium">{formatCurrency(customer.totalSpent)}</p>
+                          <p className="font-medium">
+                            {formatCurrency(customer.totalSpent)}
+                          </p>
                         </TableCell>
                         <TableCell>
                           <div className="space-y-1">
                             <div className="flex items-center justify-between text-sm">
                               <span>Sales Only:</span>
-                              <span className="font-medium">{customer.salesOnlyVisits}</span>
+                              <span className="font-medium">
+                                {customer.salesOnlyVisits}
+                              </span>
                             </div>
                             <div className="flex items-center justify-between text-sm">
                               <span>Service + Sales:</span>
-                              <span className="font-medium">{customer.serviceWithSalesVisits}</span>
+                              <span className="font-medium">
+                                {customer.serviceWithSalesVisits}
+                              </span>
                             </div>
-                            <Progress 
-                              value={(customer.salesOnlyVisits / customer.totalTransactions) * 100} 
+                            <Progress
+                              value={
+                                (customer.salesOnlyVisits /
+                                  customer.totalTransactions) *
+                                100
+                              }
                               className="h-2"
                             />
                             <p className="text-xs text-muted-foreground">
-                              {Math.round((customer.salesOnlyVisits / customer.totalTransactions) * 100)}% sales only
+                              {Math.round(
+                                (customer.salesOnlyVisits /
+                                  customer.totalTransactions) *
+                                  100,
+                              )}
+                              % sales only
                             </p>
                           </div>
                         </TableCell>
@@ -1010,18 +1187,26 @@ export default function SalesManagement() {
                         <TableCell>
                           <div className="flex items-center gap-1">
                             <MapPin className="h-3 w-3" />
-                            <span className="text-sm">{customer.preferredLocation}</span>
+                            <span className="text-sm">
+                              {customer.preferredLocation}
+                            </span>
                           </div>
                         </TableCell>
                         <TableCell>
-                          <Badge className={getLoyaltyLevelColor(customer.loyaltyLevel)}>
+                          <Badge
+                            className={getLoyaltyLevelColor(
+                              customer.loyaltyLevel,
+                            )}
+                          >
                             {customer.loyaltyLevel}
                           </Badge>
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-1">
                             <Calendar className="h-3 w-3" />
-                            <span className="text-sm">{customer.lastPurchase}</span>
+                            <span className="text-sm">
+                              {customer.lastPurchase}
+                            </span>
                           </div>
                         </TableCell>
                       </TableRow>
@@ -1038,7 +1223,10 @@ export default function SalesManagement() {
           <div className="space-y-6">
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               {locationData.map((location) => (
-                <Card key={location.location} className="hover:shadow-lg transition-shadow">
+                <Card
+                  key={location.location}
+                  className="hover:shadow-lg transition-shadow"
+                >
                   <CardHeader className="pb-3">
                     <CardTitle className="text-lg flex items-center gap-2">
                       <MapPin className="h-5 w-5" />
@@ -1049,24 +1237,36 @@ export default function SalesManagement() {
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>
                         <p className="text-muted-foreground">Total Sales:</p>
-                        <p className="font-medium text-lg">{location.totalSales}</p>
+                        <p className="font-medium text-lg">
+                          {location.totalSales}
+                        </p>
                       </div>
                       <div>
                         <p className="text-muted-foreground">Transactions:</p>
-                        <p className="font-medium text-lg">{location.transactionCount}</p>
+                        <p className="font-medium text-lg">
+                          {location.transactionCount}
+                        </p>
                       </div>
                       <div>
                         <p className="text-muted-foreground">Avg Value:</p>
-                        <p className="font-medium">{formatCurrency(location.averageTransactionValue)}</p>
+                        <p className="font-medium">
+                          {formatCurrency(location.averageTransactionValue)}
+                        </p>
                       </div>
                       <div>
                         <p className="text-muted-foreground">Revenue:</p>
-                        <p className="font-medium">{formatCurrency(location.revenue)}</p>
+                        <p className="font-medium">
+                          {formatCurrency(location.revenue)}
+                        </p>
                       </div>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Top Category:</p>
-                      <Badge variant="outline">{location.topSellingCategory}</Badge>
+                      <p className="text-sm text-muted-foreground">
+                        Top Category:
+                      </p>
+                      <Badge variant="outline">
+                        {location.topSellingCategory}
+                      </Badge>
                     </div>
                   </CardContent>
                 </Card>
@@ -1097,7 +1297,7 @@ export default function SalesManagement() {
                       <Button size="sm">Generate Report</Button>
                     </CardContent>
                   </Card>
-                  
+
                   <Card className="hover:shadow-lg transition-shadow cursor-pointer">
                     <CardContent className="p-6 text-center">
                       <TrendingUp className="h-12 w-12 mx-auto mb-4 text-green-600" />
@@ -1108,7 +1308,7 @@ export default function SalesManagement() {
                       <Button size="sm">Generate Report</Button>
                     </CardContent>
                   </Card>
-                  
+
                   <Card className="hover:shadow-lg transition-shadow cursor-pointer">
                     <CardContent className="p-6 text-center">
                       <MapPin className="h-12 w-12 mx-auto mb-4 text-purple-600" />

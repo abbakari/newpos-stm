@@ -277,10 +277,12 @@ export default function SalesAnalytics() {
   };
 
   const formatPercentage = (value: number) => {
-    return `${value > 0 ? '+' : ''}${value.toFixed(1)}%`;
+    return `${value > 0 ? "+" : ""}${value.toFixed(1)}%`;
   };
 
-  const currentMetrics = mockSalesMetrics.find(m => m.period === selectedPeriod) || mockSalesMetrics[0];
+  const currentMetrics =
+    mockSalesMetrics.find((m) => m.period === selectedPeriod) ||
+    mockSalesMetrics[0];
 
   return (
     <div className="space-y-6">
@@ -294,7 +296,9 @@ export default function SalesAnalytics() {
             </Button>
           </Link>
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Sales Analytics</h1>
+            <h1 className="text-3xl font-bold text-foreground">
+              Sales Analytics
+            </h1>
             <p className="text-muted-foreground">
               Comprehensive sales performance analysis and insights
             </p>
@@ -328,10 +332,14 @@ export default function SalesAnalytics() {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Total Sales</p>
-                <p className="text-2xl font-bold">{currentMetrics.totalSales}</p>
+                <p className="text-2xl font-bold">
+                  {currentMetrics.totalSales}
+                </p>
                 <div className="flex items-center gap-1 text-xs">
                   <TrendingUp className="h-3 w-3 text-success" />
-                  <span className="text-success">{formatPercentage(currentMetrics.growthRate)}</span>
+                  <span className="text-success">
+                    {formatPercentage(currentMetrics.growthRate)}
+                  </span>
                 </div>
               </div>
             </div>
@@ -345,10 +353,14 @@ export default function SalesAnalytics() {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Total Revenue</p>
-                <p className="text-2xl font-bold">{formatCurrency(currentMetrics.totalRevenue)}</p>
+                <p className="text-2xl font-bold">
+                  {formatCurrency(currentMetrics.totalRevenue)}
+                </p>
                 <div className="flex items-center gap-1 text-xs">
                   <TrendingUp className="h-3 w-3 text-success" />
-                  <span className="text-success">{formatPercentage(currentMetrics.growthRate)}</span>
+                  <span className="text-success">
+                    {formatPercentage(currentMetrics.growthRate)}
+                  </span>
                 </div>
               </div>
             </div>
@@ -362,9 +374,16 @@ export default function SalesAnalytics() {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Sales Only</p>
-                <p className="text-2xl font-bold">{currentMetrics.salesOnlyTransactions}</p>
+                <p className="text-2xl font-bold">
+                  {currentMetrics.salesOnlyTransactions}
+                </p>
                 <p className="text-xs text-muted-foreground">
-                  {Math.round((currentMetrics.salesOnlyTransactions / currentMetrics.totalSales) * 100)}% of total
+                  {Math.round(
+                    (currentMetrics.salesOnlyTransactions /
+                      currentMetrics.totalSales) *
+                      100,
+                  )}
+                  % of total
                 </p>
               </div>
             </div>
@@ -378,10 +397,10 @@ export default function SalesAnalytics() {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Avg Transaction</p>
-                <p className="text-2xl font-bold">{formatCurrency(currentMetrics.averageTransactionValue)}</p>
-                <p className="text-xs text-muted-foreground">
-                  Per transaction
+                <p className="text-2xl font-bold">
+                  {formatCurrency(currentMetrics.averageTransactionValue)}
                 </p>
+                <p className="text-xs text-muted-foreground">Per transaction</p>
               </div>
             </div>
           </CardContent>
@@ -411,27 +430,51 @@ export default function SalesAnalytics() {
                 <div>
                   <div className="flex items-center justify-between text-sm mb-2">
                     <span>Sales Only Transactions</span>
-                    <span>{currentMetrics.salesOnlyTransactions}/{currentMetrics.totalSales}</span>
+                    <span>
+                      {currentMetrics.salesOnlyTransactions}/
+                      {currentMetrics.totalSales}
+                    </span>
                   </div>
-                  <Progress 
-                    value={(currentMetrics.salesOnlyTransactions / currentMetrics.totalSales) * 100} 
+                  <Progress
+                    value={
+                      (currentMetrics.salesOnlyTransactions /
+                        currentMetrics.totalSales) *
+                      100
+                    }
                     className="h-2"
                   />
                   <p className="text-xs text-muted-foreground mt-1">
-                    {Math.round((currentMetrics.salesOnlyTransactions / currentMetrics.totalSales) * 100)}% of total sales
+                    {Math.round(
+                      (currentMetrics.salesOnlyTransactions /
+                        currentMetrics.totalSales) *
+                        100,
+                    )}
+                    % of total sales
                   </p>
                 </div>
                 <div>
                   <div className="flex items-center justify-between text-sm mb-2">
                     <span>Service + Sales Transactions</span>
-                    <span>{currentMetrics.serviceWithSalesTransactions}/{currentMetrics.totalSales}</span>
+                    <span>
+                      {currentMetrics.serviceWithSalesTransactions}/
+                      {currentMetrics.totalSales}
+                    </span>
                   </div>
-                  <Progress 
-                    value={(currentMetrics.serviceWithSalesTransactions / currentMetrics.totalSales) * 100} 
+                  <Progress
+                    value={
+                      (currentMetrics.serviceWithSalesTransactions /
+                        currentMetrics.totalSales) *
+                      100
+                    }
                     className="h-2"
                   />
                   <p className="text-xs text-muted-foreground mt-1">
-                    {Math.round((currentMetrics.serviceWithSalesTransactions / currentMetrics.totalSales) * 100)}% of total sales
+                    {Math.round(
+                      (currentMetrics.serviceWithSalesTransactions /
+                        currentMetrics.totalSales) *
+                        100,
+                    )}
+                    % of total sales
                   </p>
                 </div>
               </CardContent>
@@ -458,16 +501,39 @@ export default function SalesAnalytics() {
                   </div>
                   <div>
                     <p className="text-muted-foreground">Top Product:</p>
-                    <p className="font-medium">{currentMetrics.topSellingProduct}</p>
+                    <p className="font-medium">
+                      {currentMetrics.topSellingProduct}
+                    </p>
                   </div>
                 </div>
-                
+
                 <div className="p-3 bg-muted/50 rounded-lg">
-                  <p className="text-sm font-medium mb-2">Sales Pattern Analysis:</p>
+                  <p className="text-sm font-medium mb-2">
+                    Sales Pattern Analysis:
+                  </p>
                   <ul className="text-sm text-muted-foreground space-y-1">
-                    <li>• {Math.round((currentMetrics.salesOnlyTransactions / currentMetrics.totalSales) * 100)}% of customers come specifically for purchases</li>
-                    <li>• Service appointments generate additional sales {Math.round((currentMetrics.serviceWithSalesTransactions / currentMetrics.totalSales) * 100)}% of the time</li>
-                    <li>• Average transaction value: {formatCurrency(currentMetrics.averageTransactionValue)}</li>
+                    <li>
+                      •{" "}
+                      {Math.round(
+                        (currentMetrics.salesOnlyTransactions /
+                          currentMetrics.totalSales) *
+                          100,
+                      )}
+                      % of customers come specifically for purchases
+                    </li>
+                    <li>
+                      • Service appointments generate additional sales{" "}
+                      {Math.round(
+                        (currentMetrics.serviceWithSalesTransactions /
+                          currentMetrics.totalSales) *
+                          100,
+                      )}
+                      % of the time
+                    </li>
+                    <li>
+                      • Average transaction value:{" "}
+                      {formatCurrency(currentMetrics.averageTransactionValue)}
+                    </li>
                   </ul>
                 </div>
               </CardContent>
@@ -503,14 +569,20 @@ export default function SalesAnalytics() {
                         <TableCell>
                           <div className="flex items-center gap-2">
                             <MapPin className="h-4 w-4" />
-                            <span className="font-medium">{location.location}</span>
+                            <span className="font-medium">
+                              {location.location}
+                            </span>
                           </div>
                         </TableCell>
                         <TableCell className="text-center">
-                          <span className="font-medium text-lg">{location.totalSales}</span>
+                          <span className="font-medium text-lg">
+                            {location.totalSales}
+                          </span>
                         </TableCell>
                         <TableCell>
-                          <span className="font-medium">{formatCurrency(location.revenue)}</span>
+                          <span className="font-medium">
+                            {formatCurrency(location.revenue)}
+                          </span>
                         </TableCell>
                         <TableCell>
                           <div className="space-y-1">
@@ -518,16 +590,24 @@ export default function SalesAnalytics() {
                               <span>Sales Only:</span>
                               <span>{location.salesOnlyRatio}%</span>
                             </div>
-                            <Progress value={location.salesOnlyRatio} className="h-1" />
+                            <Progress
+                              value={location.salesOnlyRatio}
+                              className="h-1"
+                            />
                             <div className="flex items-center justify-between text-sm">
                               <span>Service + Sales:</span>
                               <span>{location.serviceWithSalesRatio}%</span>
                             </div>
-                            <Progress value={location.serviceWithSalesRatio} className="h-1" />
+                            <Progress
+                              value={location.serviceWithSalesRatio}
+                              className="h-1"
+                            />
                           </div>
                         </TableCell>
                         <TableCell>
-                          <Badge variant="outline">{location.topCategory}</Badge>
+                          <Badge variant="outline">
+                            {location.topCategory}
+                          </Badge>
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-1">
@@ -536,7 +616,13 @@ export default function SalesAnalytics() {
                             ) : (
                               <TrendingDown className="h-4 w-4 text-destructive" />
                             )}
-                            <span className={location.growthRate > 0 ? "text-success" : "text-destructive"}>
+                            <span
+                              className={
+                                location.growthRate > 0
+                                  ? "text-success"
+                                  : "text-destructive"
+                              }
+                            >
                               {formatPercentage(location.growthRate)}
                             </span>
                           </div>
@@ -582,13 +668,19 @@ export default function SalesAnalytics() {
                           <Badge variant="outline">{product.category}</Badge>
                         </TableCell>
                         <TableCell className="text-center">
-                          <span className="font-medium text-lg">{product.unitsSold}</span>
+                          <span className="font-medium text-lg">
+                            {product.unitsSold}
+                          </span>
                         </TableCell>
                         <TableCell>
-                          <span className="font-medium">{formatCurrency(product.revenue)}</span>
+                          <span className="font-medium">
+                            {formatCurrency(product.revenue)}
+                          </span>
                         </TableCell>
                         <TableCell>
-                          <span className="font-medium">{product.profitMargin}%</span>
+                          <span className="font-medium">
+                            {product.profitMargin}%
+                          </span>
                         </TableCell>
                         <TableCell>
                           <div className="space-y-1">
@@ -600,8 +692,11 @@ export default function SalesAnalytics() {
                               <span>Service Related:</span>
                               <span>{product.serviceRelatedCount}</span>
                             </div>
-                            <Progress 
-                              value={(product.salesOnlyCount / product.unitsSold) * 100} 
+                            <Progress
+                              value={
+                                (product.salesOnlyCount / product.unitsSold) *
+                                100
+                              }
                               className="h-1"
                             />
                           </div>
@@ -626,47 +721,84 @@ export default function SalesAnalytics() {
                     {behavior.customerType} Customers
                   </CardTitle>
                   <CardDescription>
-                    Sales behavior analysis for {behavior.customerType.toLowerCase()} customer segment
+                    Sales behavior analysis for{" "}
+                    {behavior.customerType.toLowerCase()} customer segment
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
                     <div>
-                      <p className="text-sm text-muted-foreground">Total Customers</p>
-                      <p className="text-2xl font-bold">{behavior.totalCustomers}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Sales Only</p>
-                      <p className="text-2xl font-bold">{behavior.salesOnlyCustomers}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {Math.round((behavior.salesOnlyCustomers / behavior.totalCustomers) * 100)}% of segment
+                      <p className="text-sm text-muted-foreground">
+                        Total Customers
+                      </p>
+                      <p className="text-2xl font-bold">
+                        {behavior.totalCustomers}
                       </p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Service + Sales</p>
-                      <p className="text-2xl font-bold">{behavior.serviceWithSalesCustomers}</p>
+                      <p className="text-sm text-muted-foreground">
+                        Sales Only
+                      </p>
+                      <p className="text-2xl font-bold">
+                        {behavior.salesOnlyCustomers}
+                      </p>
                       <p className="text-xs text-muted-foreground">
-                        {Math.round((behavior.serviceWithSalesCustomers / behavior.totalCustomers) * 100)}% of segment
+                        {Math.round(
+                          (behavior.salesOnlyCustomers /
+                            behavior.totalCustomers) *
+                            100,
+                        )}
+                        % of segment
                       </p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Avg Transaction</p>
-                      <p className="text-2xl font-bold">{formatCurrency(behavior.averageTransactionValue)}</p>
+                      <p className="text-sm text-muted-foreground">
+                        Service + Sales
+                      </p>
+                      <p className="text-2xl font-bold">
+                        {behavior.serviceWithSalesCustomers}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {Math.round(
+                          (behavior.serviceWithSalesCustomers /
+                            behavior.totalCustomers) *
+                            100,
+                        )}
+                        % of segment
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">
+                        Avg Transaction
+                      </p>
+                      <p className="text-2xl font-bold">
+                        {formatCurrency(behavior.averageTransactionValue)}
+                      </p>
                     </div>
                   </div>
-                  
+
                   <div className="mt-6">
-                    <p className="text-sm font-medium mb-3">Loyalty Level Distribution:</p>
+                    <p className="text-sm font-medium mb-3">
+                      Loyalty Level Distribution:
+                    </p>
                     <div className="grid gap-4 md:grid-cols-4">
-                      {Object.entries(behavior.loyaltyDistribution).map(([level, count]) => (
-                        <div key={level} className="text-center p-3 border rounded-lg">
-                          <p className="font-medium capitalize">{level}</p>
-                          <p className="text-xl font-bold">{count}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {Math.round((count / behavior.totalCustomers) * 100)}%
-                          </p>
-                        </div>
-                      ))}
+                      {Object.entries(behavior.loyaltyDistribution).map(
+                        ([level, count]) => (
+                          <div
+                            key={level}
+                            className="text-center p-3 border rounded-lg"
+                          >
+                            <p className="font-medium capitalize">{level}</p>
+                            <p className="text-xl font-bold">{count}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {Math.round(
+                                (count / behavior.totalCustomers) * 100,
+                              )}
+                              %
+                            </p>
+                          </div>
+                        ),
+                      )}
                     </div>
                   </div>
                 </CardContent>

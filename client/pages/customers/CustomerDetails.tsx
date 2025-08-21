@@ -701,9 +701,7 @@ export default function CustomerDetails() {
                   <TableBody>
                     {customer.salesHistory.map((sale) => (
                       <TableRow key={sale.id}>
-                        <TableCell className="font-medium">
-                          {sale.id}
-                        </TableCell>
+                        <TableCell className="font-medium">{sale.id}</TableCell>
                         <TableCell>{sale.date}</TableCell>
                         <TableCell>
                           <div className="flex items-center gap-1">
@@ -713,10 +711,13 @@ export default function CustomerDetails() {
                         </TableCell>
                         <TableCell>
                           <div>
-                            <p className="font-medium">{sale.items.length} items</p>
+                            <p className="font-medium">
+                              {sale.items.length} items
+                            </p>
                             <p className="text-sm text-muted-foreground">
                               {sale.items.slice(0, 2).join(", ")}
-                              {sale.items.length > 2 && ` +${sale.items.length - 2} more`}
+                              {sale.items.length > 2 &&
+                                ` +${sale.items.length - 2} more`}
                             </p>
                           </div>
                         </TableCell>
@@ -724,9 +725,7 @@ export default function CustomerDetails() {
                           {formatCurrency(sale.amount)}
                         </TableCell>
                         <TableCell>
-                          <Badge variant="outline">
-                            {sale.paymentMethod}
-                          </Badge>
+                          <Badge variant="outline">{sale.paymentMethod}</Badge>
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-1">
@@ -765,8 +764,12 @@ export default function CustomerDetails() {
                       <Activity className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Total Visits</p>
-                      <p className="text-2xl font-bold">{customer.visitAnalytics.totalVisits}</p>
+                      <p className="text-sm text-muted-foreground">
+                        Total Visits
+                      </p>
+                      <p className="text-2xl font-bold">
+                        {customer.visitAnalytics.totalVisits}
+                      </p>
                     </div>
                   </div>
                 </CardContent>
@@ -778,10 +781,19 @@ export default function CustomerDetails() {
                       <DollarSign className="h-5 w-5 text-orange-600 dark:text-orange-400" />
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Sales Only</p>
-                      <p className="text-2xl font-bold">{customer.visitAnalytics.salesOnlyVisits}</p>
+                      <p className="text-sm text-muted-foreground">
+                        Sales Only
+                      </p>
+                      <p className="text-2xl font-bold">
+                        {customer.visitAnalytics.salesOnlyVisits}
+                      </p>
                       <p className="text-xs text-muted-foreground">
-                        {Math.round((customer.visitAnalytics.salesOnlyVisits / customer.visitAnalytics.totalVisits) * 100)}% of visits
+                        {Math.round(
+                          (customer.visitAnalytics.salesOnlyVisits /
+                            customer.visitAnalytics.totalVisits) *
+                            100,
+                        )}
+                        % of visits
                       </p>
                     </div>
                   </div>
@@ -794,10 +806,19 @@ export default function CustomerDetails() {
                       <Car className="h-5 w-5 text-purple-600 dark:text-purple-400" />
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Service + Sales</p>
-                      <p className="text-2xl font-bold">{customer.visitAnalytics.serviceWithSalesVisits}</p>
+                      <p className="text-sm text-muted-foreground">
+                        Service + Sales
+                      </p>
+                      <p className="text-2xl font-bold">
+                        {customer.visitAnalytics.serviceWithSalesVisits}
+                      </p>
                       <p className="text-xs text-muted-foreground">
-                        {Math.round((customer.visitAnalytics.serviceWithSalesVisits / customer.visitAnalytics.totalVisits) * 100)}% of visits
+                        {Math.round(
+                          (customer.visitAnalytics.serviceWithSalesVisits /
+                            customer.visitAnalytics.totalVisits) *
+                            100,
+                        )}
+                        % of visits
                       </p>
                     </div>
                   </div>
@@ -810,10 +831,19 @@ export default function CustomerDetails() {
                       <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Service Only</p>
-                      <p className="text-2xl font-bold">{customer.visitAnalytics.serviceOnlyVisits}</p>
+                      <p className="text-sm text-muted-foreground">
+                        Service Only
+                      </p>
+                      <p className="text-2xl font-bold">
+                        {customer.visitAnalytics.serviceOnlyVisits}
+                      </p>
                       <p className="text-xs text-muted-foreground">
-                        {Math.round((customer.visitAnalytics.serviceOnlyVisits / customer.visitAnalytics.totalVisits) * 100)}% of visits
+                        {Math.round(
+                          (customer.visitAnalytics.serviceOnlyVisits /
+                            customer.visitAnalytics.totalVisits) *
+                            100,
+                        )}
+                        % of visits
                       </p>
                     </div>
                   </div>
@@ -837,13 +867,16 @@ export default function CustomerDetails() {
                   <div>
                     <div className="flex items-center justify-between text-sm mb-2">
                       <span>Sales-Only Visits</span>
-                      <span>{customer.visitAnalytics.salesOnlyVisits}/{customer.visitAnalytics.totalVisits}</span>
+                      <span>
+                        {customer.visitAnalytics.salesOnlyVisits}/
+                        {customer.visitAnalytics.totalVisits}
+                      </span>
                     </div>
                     <div className="w-full bg-muted rounded-full h-2">
                       <div
                         className="bg-orange-500 h-2 rounded-full"
                         style={{
-                          width: `${(customer.visitAnalytics.salesOnlyVisits / customer.visitAnalytics.totalVisits) * 100}%`
+                          width: `${(customer.visitAnalytics.salesOnlyVisits / customer.visitAnalytics.totalVisits) * 100}%`,
                         }}
                       ></div>
                     </div>
@@ -851,13 +884,16 @@ export default function CustomerDetails() {
                   <div>
                     <div className="flex items-center justify-between text-sm mb-2">
                       <span>Service + Sales Visits</span>
-                      <span>{customer.visitAnalytics.serviceWithSalesVisits}/{customer.visitAnalytics.totalVisits}</span>
+                      <span>
+                        {customer.visitAnalytics.serviceWithSalesVisits}/
+                        {customer.visitAnalytics.totalVisits}
+                      </span>
                     </div>
                     <div className="w-full bg-muted rounded-full h-2">
                       <div
                         className="bg-purple-500 h-2 rounded-full"
                         style={{
-                          width: `${(customer.visitAnalytics.serviceWithSalesVisits / customer.visitAnalytics.totalVisits) * 100}%`
+                          width: `${(customer.visitAnalytics.serviceWithSalesVisits / customer.visitAnalytics.totalVisits) * 100}%`,
                         }}
                       ></div>
                     </div>
@@ -865,13 +901,16 @@ export default function CustomerDetails() {
                   <div>
                     <div className="flex items-center justify-between text-sm mb-2">
                       <span>Service-Only Visits</span>
-                      <span>{customer.visitAnalytics.serviceOnlyVisits}/{customer.visitAnalytics.totalVisits}</span>
+                      <span>
+                        {customer.visitAnalytics.serviceOnlyVisits}/
+                        {customer.visitAnalytics.totalVisits}
+                      </span>
                     </div>
                     <div className="w-full bg-muted rounded-full h-2">
                       <div
                         className="bg-green-500 h-2 rounded-full"
                         style={{
-                          width: `${(customer.visitAnalytics.serviceOnlyVisits / customer.visitAnalytics.totalVisits) * 100}%`
+                          width: `${(customer.visitAnalytics.serviceOnlyVisits / customer.visitAnalytics.totalVisits) * 100}%`,
                         }}
                       ></div>
                     </div>
@@ -893,17 +932,32 @@ export default function CustomerDetails() {
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
                       <p className="text-muted-foreground">Avg Transaction:</p>
-                      <p className="font-medium text-lg">{formatCurrency(customer.visitAnalytics.averageTransactionValue)}</p>
+                      <p className="font-medium text-lg">
+                        {formatCurrency(
+                          customer.visitAnalytics.averageTransactionValue,
+                        )}
+                      </p>
                     </div>
                     <div>
                       <p className="text-muted-foreground">Loyalty Level:</p>
-                      <Badge className="mt-1" variant={customer.visitAnalytics.loyaltyLevel === 'Gold' ? 'default' : 'secondary'}>
+                      <Badge
+                        className="mt-1"
+                        variant={
+                          customer.visitAnalytics.loyaltyLevel === "Gold"
+                            ? "default"
+                            : "secondary"
+                        }
+                      >
                         {customer.visitAnalytics.loyaltyLevel}
                       </Badge>
                     </div>
                     <div>
-                      <p className="text-muted-foreground">Preferred Location:</p>
-                      <p className="font-medium">{customer.visitAnalytics.preferredLocation}</p>
+                      <p className="text-muted-foreground">
+                        Preferred Location:
+                      </p>
+                      <p className="font-medium">
+                        {customer.visitAnalytics.preferredLocation}
+                      </p>
                     </div>
                     <div>
                       <p className="text-muted-foreground">Customer Type:</p>
@@ -913,11 +967,15 @@ export default function CustomerDetails() {
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
                       <span>Last Sales Visit:</span>
-                      <span className="font-medium">{customer.visitAnalytics.lastSalesOnlyVisit}</span>
+                      <span className="font-medium">
+                        {customer.visitAnalytics.lastSalesOnlyVisit}
+                      </span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span>Last Service Visit:</span>
-                      <span className="font-medium">{customer.visitAnalytics.lastServiceVisit}</span>
+                      <span className="font-medium">
+                        {customer.visitAnalytics.lastServiceVisit}
+                      </span>
                     </div>
                   </div>
 
@@ -925,13 +983,25 @@ export default function CustomerDetails() {
                   <div className="mt-4 p-3 bg-muted/50 rounded-lg">
                     <p className="text-sm font-medium mb-2">Recommendations:</p>
                     <ul className="text-sm text-muted-foreground space-y-1">
-                      {customer.visitAnalytics.salesOnlyVisits > customer.visitAnalytics.serviceWithSalesVisits ? (
-                        <li>• High sales-only customer - offer service package deals</li>
+                      {customer.visitAnalytics.salesOnlyVisits >
+                      customer.visitAnalytics.serviceWithSalesVisits ? (
+                        <li>
+                          • High sales-only customer - offer service package
+                          deals
+                        </li>
                       ) : (
-                        <li>• Service-focused customer - promote premium services</li>
+                        <li>
+                          • Service-focused customer - promote premium services
+                        </li>
                       )}
-                      <li>• Prefers {customer.visitAnalytics.preferredLocation} - schedule accordingly</li>
-                      <li>• {customer.visitAnalytics.loyaltyLevel} customer - eligible for loyalty rewards</li>
+                      <li>
+                        • Prefers {customer.visitAnalytics.preferredLocation} -
+                        schedule accordingly
+                      </li>
+                      <li>
+                        • {customer.visitAnalytics.loyaltyLevel} customer -
+                        eligible for loyalty rewards
+                      </li>
                     </ul>
                   </div>
                 </CardContent>
