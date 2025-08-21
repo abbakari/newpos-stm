@@ -69,15 +69,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate loading user from localStorage or API
-    const storedUser = localStorage.getItem('currentUser');
-    if (storedUser) {
-      try {
-        setUser(JSON.parse(storedUser));
-      } catch (error) {
-        localStorage.removeItem('currentUser');
-      }
-    }
+    // Clear any existing user data on app start to ensure we start from login
+    localStorage.removeItem('currentUser');
+    setUser(null);
     setIsLoading(false);
   }, []);
 
