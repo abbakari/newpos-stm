@@ -437,10 +437,12 @@ export default function SalesManagement() {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline">
-            <FileText className="h-4 w-4 mr-2" />
-            Sales Report
-          </Button>
+          <Link to="/sales/analytics">
+            <Button variant="outline">
+              <FileText className="h-4 w-4 mr-2" />
+              Sales Analytics
+            </Button>
+          </Link>
           <Link to="/sales/new">
             <Button>
               <Plus className="h-4 w-4 mr-2" />
