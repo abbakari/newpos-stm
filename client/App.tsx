@@ -19,6 +19,7 @@ import TireInventory from "./pages/inventory/TireInventory";
 import InvoiceManagement from "./pages/invoices/InvoiceManagement";
 import SalesManagement from "./pages/sales/SalesManagement";
 import NewSaleTransaction from "./pages/sales/NewSaleTransaction";
+import SalesAnalytics from "./pages/sales/SalesAnalytics";
 import NotFound from "./pages/NotFound";
 import {
   Users,
