@@ -9,6 +9,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { DashboardLayout } from "./components/layout/DashboardLayout";
 import Dashboard from "./pages/Dashboard";
 import PlaceholderPage from "./pages/PlaceholderPage";
+import SearchCustomers from "./pages/customers/SearchCustomers";
 import NotFound from "./pages/NotFound";
 import { 
   Users, 
@@ -53,11 +54,9 @@ const App = () => (
           
           {/* Customer Management Routes */}
           <Route path="/customers/search" element={
-            <WrappedPlaceholder 
-              title="Customer Search" 
-              description="Search and manage existing customers in the system" 
-              icon={Search} 
-            />
+            <DashboardLayout>
+              <SearchCustomers />
+            </DashboardLayout>
           } />
           <Route path="/customers/add" element={
             <WrappedPlaceholder 
