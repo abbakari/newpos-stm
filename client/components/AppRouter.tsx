@@ -83,7 +83,7 @@ export const AppRouter: React.FC = () => {
       {/* Public routes */}
       <Route path="/login" element={<Login />} />
 
-      {/* Protected routes */}
+      {/* Protected routes - ProtectedRoute will show Login if no user */}
       <Route
         path="/"
         element={
