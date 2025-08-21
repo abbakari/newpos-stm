@@ -18,6 +18,7 @@ import CarServices from "./pages/services/CarServices";
 import TireInventory from "./pages/inventory/TireInventory";
 import InvoiceManagement from "./pages/invoices/InvoiceManagement";
 import SalesManagement from "./pages/sales/SalesManagement";
+import NewSaleTransaction from "./pages/sales/NewSaleTransaction";
 import NotFound from "./pages/NotFound";
 import {
   Users,
