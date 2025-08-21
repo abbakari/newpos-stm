@@ -441,10 +441,12 @@ export default function SalesManagement() {
             <FileText className="h-4 w-4 mr-2" />
             Sales Report
           </Button>
-          <Button>
-            <Plus className="h-4 w-4 mr-2" />
-            New Sale
-          </Button>
+          <Link to="/sales/new">
+            <Button>
+              <Plus className="h-4 w-4 mr-2" />
+              New Sale
+            </Button>
+          </Link>
         </div>
       </div>
 
