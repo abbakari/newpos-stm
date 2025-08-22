@@ -209,6 +209,14 @@ export const AppRouter: React.FC = () => {
         }
       />
       <Route
+        path="/orders/create"
+        element={
+          <ProtectedPage requiredRole={[UserRole.ADMIN, UserRole.OFFICE_MANAGER]}>
+            <ActiveOrderCreation />
+          </ProtectedPage>
+        }
+      />
+      <Route
         path="/orders/completed"
         element={
           <ProtectedPage requiredRole={[UserRole.ADMIN, UserRole.OFFICE_MANAGER]}>
