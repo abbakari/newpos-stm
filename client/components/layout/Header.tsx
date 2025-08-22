@@ -22,6 +22,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { useVisitTracking } from "@/context/VisitTrackingContext";
+import { RoleSwitcher } from "@/components/ui/role-switcher";
+import { useAuth } from "@/context/AuthContext";
 
 interface HeaderProps {
   onToggleSidebar: () => void;
@@ -30,6 +32,7 @@ interface HeaderProps {
 
 export function Header({ onToggleSidebar, isCollapsed }: HeaderProps) {
   const { alerts, updateExpectedLeave, markLeft, activeVisits } = useVisitTracking();
+  const { logout, user } = useAuth();
   return (
     <header className="bg-card border-b border-border px-6 py-4">
       <div className="flex items-center justify-between">
@@ -67,6 +70,9 @@ export function Header({ onToggleSidebar, isCollapsed }: HeaderProps) {
 
         {/* Right Section */}
         <div className="flex items-center gap-2">
+          {/* Role Switcher */}
+          <RoleSwitcher />
+
           {/* Quick Actions */}
        
 
@@ -193,14 +199,19 @@ export function Header({ onToggleSidebar, isCollapsed }: HeaderProps) {
                 <User className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuLabel>
+                <div>
+                  <p className="font-medium">{user?.name}</p>
+                  <p className="text-xs text-muted-foreground">{user?.email}</p>
+                </div>
+              </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem>Profile</DropdownMenuItem>
               <DropdownMenuItem>Settings</DropdownMenuItem>
               <DropdownMenuItem>Help & Support</DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="text-destructive">
+              <DropdownMenuItem onClick={logout} className="text-destructive">
                 Sign Out
               </DropdownMenuItem>
             </DropdownMenuContent>

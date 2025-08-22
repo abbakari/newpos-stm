@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import {
   Card,
   CardContent,
@@ -344,6 +345,12 @@ export default function TireServices() {
           <Button variant="outline">
             <Package className="h-4 w-4 mr-2" />
             View Inventory
+          </Button>
+          <Button variant="outline" asChild>
+            <Link to="/orders/job-cards">
+              <Plus className="h-4 w-4 mr-2" />
+              New Service Order
+            </Link>
           </Button>
           <Button onClick={() => setIsCreatingSale(true)}>
             <Plus className="h-4 w-4 mr-2" />

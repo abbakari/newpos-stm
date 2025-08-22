@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/context/AuthContext";
+import { UserRole } from "@shared/types";
 import {
   LayoutDashboard,
   Users,
@@ -34,6 +36,8 @@ interface SidebarItem {
   icon: React.ComponentType<any>;
   href?: string;
   children?: SidebarItem[];
+  requiredRoles?: UserRole[];
+  requiredPermission?: { module: string; action: string };
 }
 
 const sidebarItems: SidebarItem[] = [
@@ -47,24 +51,28 @@ const sidebarItems: SidebarItem[] = [
     id: "customers",
     label: "Customer Management",
     icon: Users,
+    requiredRoles: [UserRole.ADMIN, UserRole.OFFICE_MANAGER],
     children: [
       {
         id: "customer-search",
         label: "Search Customers",
         icon: Search,
         href: "/customers/search",
+        requiredRoles: [UserRole.ADMIN, UserRole.OFFICE_MANAGER],
       },
       {
         id: "customer-add",
         label: "Add New Customer",
         icon: UserPlus,
         href: "/customers/add",
+        requiredRoles: [UserRole.ADMIN, UserRole.OFFICE_MANAGER],
       },
       {
         id: "customer-types",
         label: "Customer Types",
         icon: Building2,
         href: "/customers/types",
+        requiredRoles: [UserRole.ADMIN, UserRole.OFFICE_MANAGER],
       },
     ],
   },
@@ -90,6 +98,7 @@ const sidebarItems: SidebarItem[] = [
         label: "Consultations",
         icon: HelpCircle,
         href: "/services/consultations",
+        requiredRoles: [UserRole.ADMIN, UserRole.OFFICE_MANAGER],
       },
     ],
   },
@@ -97,12 +106,14 @@ const sidebarItems: SidebarItem[] = [
     id: "inventory",
     label: "Inventory Management",
     icon: Package,
+    requiredRoles: [UserRole.ADMIN, UserRole.OFFICE_MANAGER],
     children: [
       {
         id: "tire-inventory",
         label: "Tire Inventory",
         icon: Package,
         href: "/inventory/tires",
+        requiredRoles: [UserRole.ADMIN, UserRole.OFFICE_MANAGER],
       },
     ],
   },
@@ -117,6 +128,7 @@ const sidebarItems: SidebarItem[] = [
     label: "Invoice Management",
     icon: Receipt,
     href: "/invoices",
+    requiredRoles: [UserRole.ADMIN, UserRole.OFFICE_MANAGER],
   },
   {
     id: "orders",
@@ -166,30 +178,35 @@ const sidebarItems: SidebarItem[] = [
     id: "reports",
     label: "Reports & Analytics",
     icon: BarChart3,
+    requiredRoles: [UserRole.ADMIN, UserRole.OFFICE_MANAGER],
     children: [
       {
         id: "daily-reports",
         label: "Daily Reports",
         icon: Calendar,
         href: "/reports/daily",
+        requiredRoles: [UserRole.ADMIN, UserRole.OFFICE_MANAGER],
       },
       {
         id: "weekly-reports",
         label: "Weekly Reports",
         icon: TrendingUp,
         href: "/reports/weekly",
+        requiredRoles: [UserRole.ADMIN, UserRole.OFFICE_MANAGER],
       },
       {
         id: "monthly-reports",
         label: "Monthly Reports",
         icon: BarChart3,
         href: "/reports/monthly",
+        requiredRoles: [UserRole.ADMIN, UserRole.OFFICE_MANAGER],
       },
       {
         id: "yearly-reports",
         label: "Yearly Reports",
         icon: TrendingUp,
         href: "/reports/yearly",
+        requiredRoles: [UserRole.ADMIN, UserRole.OFFICE_MANAGER],
       },
     ],
   },
@@ -197,18 +214,21 @@ const sidebarItems: SidebarItem[] = [
     id: "admin",
     label: "Administration",
     icon: Shield,
+    requiredRoles: [UserRole.ADMIN],
     children: [
       {
         id: "user-access",
         label: "User Access Control",
         icon: Shield,
         href: "/admin/users",
+        requiredRoles: [UserRole.ADMIN],
       },
       {
         id: "settings",
         label: "System Settings",
         icon: Settings,
         href: "/admin/settings",
+        requiredRoles: [UserRole.ADMIN],
       },
     ],
   },
@@ -218,9 +238,173 @@ interface SidebarProps {
   isCollapsed: boolean;
 }
 
+// Function to get role-specific sidebar items
+const getRoleSpecificItems = (userRole: UserRole): SidebarItem[] => {
+  const commonItems: SidebarItem[] = [
+    {
+      id: "dashboard",
+      label: "Dashboard",
+      icon: LayoutDashboard,
+      href: "/",
+    },
+  ];
+
+  if (userRole === UserRole.ADMIN) {
+    return [
+      ...commonItems,
+      ...sidebarItems.slice(1), // All items except dashboard
+    ];
+  }
+
+  if (userRole === UserRole.OFFICE_MANAGER) {
+    return [
+      ...commonItems,
+      {
+        id: "customers",
+        label: "Customer Management",
+        icon: Users,
+        children: [
+          {
+            id: "customer-search",
+            label: "Search Customers",
+            icon: Search,
+            href: "/customers/search",
+          },
+          {
+            id: "customer-add",
+            label: "Add New Customer",
+            icon: UserPlus,
+            href: "/customers/add",
+          },
+          {
+            id: "customer-types",
+            label: "Customer Types",
+            icon: Building2,
+            href: "/customers/types",
+          },
+        ],
+      },
+      {
+        id: "orders",
+        label: "Order Management",
+        icon: ClipboardList,
+        children: [
+          {
+            id: "active-orders",
+            label: "Active Orders",
+            icon: Clock,
+            href: "/orders/active",
+          },
+          {
+            id: "completed-orders",
+            label: "Completed Orders",
+            icon: UserCheck,
+            href: "/orders/completed",
+          },
+          {
+            id: "job-cards",
+            label: "Job Cards",
+            icon: FileText,
+            href: "/orders/job-cards",
+          },
+        ],
+      },
+      {
+        id: "services",
+        label: "Service Management",
+        icon: Wrench,
+        children: [
+          {
+            id: "car-services",
+            label: "Car Services",
+            icon: Car,
+            href: "/services/car",
+          },
+          {
+            id: "tire-services",
+            label: "Tire Services",
+            icon: ShoppingCart,
+            href: "/services/tires",
+          },
+          {
+            id: "consultations",
+            label: "Consultations",
+            icon: HelpCircle,
+            href: "/services/consultations",
+          },
+        ],
+      },
+      {
+        id: "invoices",
+        label: "Invoice Management",
+        icon: Receipt,
+        href: "/invoices",
+      },
+      {
+        id: "inventory",
+        label: "Inventory",
+        icon: Package,
+        href: "/inventory/tires",
+      },
+      {
+        id: "reports",
+        label: "Reports",
+        icon: BarChart3,
+        children: [
+          {
+            id: "daily-reports",
+            label: "Daily Reports",
+            icon: Calendar,
+            href: "/reports/daily",
+          },
+          {
+            id: "weekly-reports",
+            label: "Weekly Reports",
+            icon: TrendingUp,
+            href: "/reports/weekly",
+          },
+          {
+            id: "monthly-reports",
+            label: "Monthly Reports",
+            icon: BarChart3,
+            href: "/reports/monthly",
+          },
+        ],
+      },
+    ];
+  }
+
+  if (userRole === UserRole.TECHNICIAN) {
+    return [
+      ...commonItems,
+      {
+        id: "my-jobs",
+        label: "My Job Cards",
+        icon: FileText,
+        href: "/orders/job-cards",
+      },
+      {
+        id: "time-tracking",
+        label: "Time Tracking",
+        icon: Clock,
+        href: "/tracking/daily",
+      },
+      {
+        id: "sales",
+        label: "Sales Items",
+        icon: ShoppingCart,
+        href: "/sales/new",
+      },
+    ];
+  }
+
+  return commonItems;
+};
+
 export function Sidebar({ isCollapsed }: SidebarProps) {
   const [expandedItems, setExpandedItems] = useState<string[]>(["dashboard"]);
   const location = useLocation();
+  const { user, canAccess, hasPermission } = useAuth();
 
   const toggleExpanded = (itemId: string) => {
     setExpandedItems((prev) =>
@@ -237,12 +421,34 @@ export function Sidebar({ isCollapsed }: SidebarProps) {
     );
   };
 
+  const hasItemAccess = (item: SidebarItem): boolean => {
+    // Check role-based access
+    if (item.requiredRoles && !canAccess(item.requiredRoles)) {
+      return false;
+    }
+
+    // Check permission-based access
+    if (item.requiredPermission &&
+        !hasPermission(item.requiredPermission.module, item.requiredPermission.action)) {
+      return false;
+    }
+
+    return true;
+  };
+
   const renderSidebarItem = (item: SidebarItem, level: number = 0) => {
+    // Check if user has access to this item
+    if (!hasItemAccess(item)) {
+      return null;
+    }
+
     const hasChildren = item.children && item.children.length > 0;
+    const visibleChildren = hasChildren ? item.children!.filter(hasItemAccess) : [];
+    const hasVisibleChildren = visibleChildren.length > 0;
     const isExpanded = expandedItems.includes(item.id);
     const isItemActive = item.href ? isActive(item.href) : false;
 
-    if (hasChildren) {
+    if (hasVisibleChildren) {
       return (
         <div key={item.id} className="space-y-1">
           <button
@@ -269,7 +475,7 @@ export function Sidebar({ isCollapsed }: SidebarProps) {
           </button>
           {!isCollapsed && isExpanded && (
             <div className="space-y-1 ml-4">
-              {item.children?.map((child) =>
+              {visibleChildren.map((child) =>
                 renderSidebarItem(child, level + 1),
               )}
             </div>
@@ -331,7 +537,7 @@ export function Sidebar({ isCollapsed }: SidebarProps) {
 
       {/* Navigation */}
       <nav className="p-4 space-y-2 flex-1">
-        {sidebarItems.map((item) => renderSidebarItem(item))}
+        {user && getRoleSpecificItems(user.role).map((item) => renderSidebarItem(item))}
       </nav>
 
       {/* Footer */}
@@ -345,13 +551,13 @@ export function Sidebar({ isCollapsed }: SidebarProps) {
           <div className="h-8 w-8 bg-sidebar-accent rounded-full flex items-center justify-center">
             <Users className="h-4 w-4 text-sidebar-accent-foreground" />
           </div>
-          {!isCollapsed && (
+          {!isCollapsed && user && (
             <div className="flex-1">
               <p className="text-sm font-medium text-sidebar-foreground">
-                Admin User
+                {user.name}
               </p>
               <p className="text-xs text-sidebar-foreground/70">
-                admin@trackpro.com
+                {user.role.replace('_', ' ').toLowerCase().replace(/\b\w/g, l => l.toUpperCase())}
               </p>
             </div>
           )}
