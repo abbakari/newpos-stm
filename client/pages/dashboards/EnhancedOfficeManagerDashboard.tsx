@@ -41,6 +41,7 @@ import {
 import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
 import { useTechnicianStatus, TechnicianStatusIndicator } from '@/context/TechnicianStatusContext';
+import { CommunicationCenter } from '@/components/communication/CommunicationCenter';
 import { JobCard, JobStatus, JobPriority } from '@shared/types';
 
 // Mock data for active orders and technician activities
