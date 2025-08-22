@@ -19,6 +19,7 @@ import SalesManagement from "../pages/sales/SalesManagement";
 import NewSaleTransaction from "../pages/sales/NewSaleTransaction";
 import SalesAnalytics from "../pages/sales/SalesAnalytics";
 import JobCards from "../pages/orders/JobCards";
+import ActiveOrders from "../pages/orders/ActiveOrders";
 import NotFound from "../pages/NotFound";
 import Login from "../pages/Login";
 
