@@ -210,11 +210,9 @@ export const AppRouter: React.FC = () => {
       <Route
         path="/orders/completed"
         element={
-          <WrappedPlaceholder
-            title="Completed Orders"
-            description="Review completed orders and customer feedback"
-            icon={UserCheck}
-          />
+          <ProtectedPage requiredRole={[UserRole.ADMIN, UserRole.OFFICE_MANAGER]}>
+            <CompletedOrders />
+          </ProtectedPage>
         }
       />
       <Route
