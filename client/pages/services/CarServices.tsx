@@ -461,9 +461,11 @@ export default function CarServices() {
             <Calendar className="h-4 w-4 mr-2" />
             Service Calendar
           </Button>
-          <Button>
-            <Plus className="h-4 w-4 mr-2" />
-            New Service Order
+          <Button asChild>
+            <Link to="/orders/job-cards">
+              <Plus className="h-4 w-4 mr-2" />
+              New Service Order
+            </Link>
           </Button>
         </div>
       </div>
