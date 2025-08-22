@@ -34,6 +34,7 @@ import {
   FileText,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { JobCardWorkflow } from './JobCardWorkflow';
 
 interface JobCardDisplayProps {
   jobCard: JobCard;
