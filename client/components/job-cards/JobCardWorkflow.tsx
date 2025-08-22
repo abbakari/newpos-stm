@@ -40,6 +40,7 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { generateInvoiceFromJobCard, validateJobCardForInvoicing } from '@/services/invoiceService';
+import { JobCardGeneration } from './JobCardGeneration';
 
 interface JobCardWorkflowProps {
   jobCard: JobCard;
