@@ -238,6 +238,169 @@ interface SidebarProps {
   isCollapsed: boolean;
 }
 
+// Function to get role-specific sidebar items
+const getRoleSpecificItems = (userRole: UserRole): SidebarItem[] => {
+  const commonItems: SidebarItem[] = [
+    {
+      id: "dashboard",
+      label: "Dashboard",
+      icon: LayoutDashboard,
+      href: "/",
+    },
+  ];
+
+  if (userRole === UserRole.ADMIN) {
+    return [
+      ...commonItems,
+      ...sidebarItems.slice(1), // All items except dashboard
+    ];
+  }
+
+  if (userRole === UserRole.OFFICE_MANAGER) {
+    return [
+      ...commonItems,
+      {
+        id: "customers",
+        label: "Customer Management",
+        icon: Users,
+        children: [
+          {
+            id: "customer-search",
+            label: "Search Customers",
+            icon: Search,
+            href: "/customers/search",
+          },
+          {
+            id: "customer-add",
+            label: "Add New Customer",
+            icon: UserPlus,
+            href: "/customers/add",
+          },
+          {
+            id: "customer-types",
+            label: "Customer Types",
+            icon: Building2,
+            href: "/customers/types",
+          },
+        ],
+      },
+      {
+        id: "orders",
+        label: "Order Management",
+        icon: ClipboardList,
+        children: [
+          {
+            id: "active-orders",
+            label: "Active Orders",
+            icon: Clock,
+            href: "/orders/active",
+          },
+          {
+            id: "completed-orders",
+            label: "Completed Orders",
+            icon: UserCheck,
+            href: "/orders/completed",
+          },
+          {
+            id: "job-cards",
+            label: "Job Cards",
+            icon: FileText,
+            href: "/orders/job-cards",
+          },
+        ],
+      },
+      {
+        id: "services",
+        label: "Service Management",
+        icon: Wrench,
+        children: [
+          {
+            id: "car-services",
+            label: "Car Services",
+            icon: Car,
+            href: "/services/car",
+          },
+          {
+            id: "tire-services",
+            label: "Tire Services",
+            icon: ShoppingCart,
+            href: "/services/tires",
+          },
+          {
+            id: "consultations",
+            label: "Consultations",
+            icon: HelpCircle,
+            href: "/services/consultations",
+          },
+        ],
+      },
+      {
+        id: "invoices",
+        label: "Invoice Management",
+        icon: Receipt,
+        href: "/invoices",
+      },
+      {
+        id: "inventory",
+        label: "Inventory",
+        icon: Package,
+        href: "/inventory/tires",
+      },
+      {
+        id: "reports",
+        label: "Reports",
+        icon: BarChart3,
+        children: [
+          {
+            id: "daily-reports",
+            label: "Daily Reports",
+            icon: Calendar,
+            href: "/reports/daily",
+          },
+          {
+            id: "weekly-reports",
+            label: "Weekly Reports",
+            icon: TrendingUp,
+            href: "/reports/weekly",
+          },
+          {
+            id: "monthly-reports",
+            label: "Monthly Reports",
+            icon: BarChart3,
+            href: "/reports/monthly",
+          },
+        ],
+      },
+    ];
+  }
+
+  if (userRole === UserRole.TECHNICIAN) {
+    return [
+      ...commonItems,
+      {
+        id: "my-jobs",
+        label: "My Job Cards",
+        icon: FileText,
+        href: "/orders/job-cards",
+      },
+      {
+        id: "time-tracking",
+        label: "Time Tracking",
+        icon: Clock,
+        href: "/tracking/daily",
+      },
+      {
+        id: "sales",
+        label: "Sales Items",
+        icon: ShoppingCart,
+        href: "/sales/new",
+      },
+    ];
+  }
+
+  return commonItems;
+};
+
 export function Sidebar({ isCollapsed }: SidebarProps) {
   const [expandedItems, setExpandedItems] = useState<string[]>(["dashboard"]);
   const location = useLocation();
