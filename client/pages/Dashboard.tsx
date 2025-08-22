@@ -22,7 +22,7 @@ export default function Dashboard() {
     case UserRole.ADMIN:
       return <AdminDashboard />;
     case UserRole.OFFICE_MANAGER:
-      return <OfficeManagerDashboard />;
+      return <EnhancedOfficeManagerDashboard />;
     case UserRole.TECHNICIAN:
       return <TechnicianDashboard />;
     default:
