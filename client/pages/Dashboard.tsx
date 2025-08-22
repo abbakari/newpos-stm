@@ -3,6 +3,7 @@ import { useAuth } from "@/context/AuthContext";
 import { UserRole } from "@shared/types";
 import AdminDashboard from "./dashboards/AdminDashboard";
 import OfficeManagerDashboard from "./dashboards/OfficeManagerDashboard";
+import EnhancedOfficeManagerDashboard from "./dashboards/EnhancedOfficeManagerDashboard";
 import TechnicianDashboard from "./dashboards/TechnicianDashboard";
 
 export default function Dashboard() {
