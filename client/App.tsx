@@ -20,13 +20,15 @@ const App = () => (
       <Toaster />
       <Sonner />
       <AuthProvider>
-        <CustomerStoreProvider>
-          <VisitTrackingProvider>
-            <BrowserRouter>
-              <AppRouter />
-            </BrowserRouter>
-          </VisitTrackingProvider>
-        </CustomerStoreProvider>
+        <TechnicianStatusProvider>
+          <CustomerStoreProvider>
+            <VisitTrackingProvider>
+              <BrowserRouter>
+                <AppRouter />
+              </BrowserRouter>
+            </VisitTrackingProvider>
+          </CustomerStoreProvider>
+        </TechnicianStatusProvider>
       </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
