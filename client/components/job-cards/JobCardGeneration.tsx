@@ -1,37 +1,29 @@
-import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import React, { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from '@/components/ui/dialog';
-import {
-  Alert,
-  AlertDescription,
-} from '@/components/ui/alert';
+} from "@/components/ui/dialog";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { useAuth } from '@/context/AuthContext';
-import {
-  JobCard,
-  JobStatus,
-  UserRole,
-  Approval,
-} from '@shared/types';
+} from "@/components/ui/select";
+import { useAuth } from "@/context/AuthContext";
+import { JobCard, JobStatus, UserRole, Approval } from "@shared/types";
 import {
   FileText,
   CheckCircle,
@@ -50,8 +42,8 @@ import {
   Edit,
   Eye,
   Printer,
-} from 'lucide-react';
-import { format } from 'date-fns';
+} from "lucide-react";
+import { format } from "date-fns";
 
 interface JobCardGenerationProps {
   jobCard: JobCard;
@@ -67,34 +59,58 @@ export const JobCardGeneration: React.FC<JobCardGenerationProps> = ({
   isReadOnly = false,
 }) => {
   const { user } = useAuth();
-  
+
   // State for approval process
   const [showApprovalDialog, setShowApprovalDialog] = useState(false);
-  const [approvalNotes, setApprovalNotes] = useState('');
-  const [customerSatisfactionRating, setCustomerSatisfactionRating] = useState<number>(5);
-  const [qualityCheckNotes, setQualityCheckNotes] = useState('');
+  const [approvalNotes, setApprovalNotes] = useState("");
+  const [customerSatisfactionRating, setCustomerSatisfactionRating] =
+    useState<number>(5);
+  const [qualityCheckNotes, setQualityCheckNotes] = useState("");
   const [finalAdjustments, setFinalAdjustments] = useState({
     laborCost: jobCard.estimatedCost?.laborCost || 0,
     materialsCost: jobCard.estimatedCost?.materialsCost || 0,
     additionalCosts: jobCard.estimatedCost?.additionalCosts || 0,
   });
 
-  const isOfficeManager = user?.role === UserRole.OFFICE_MANAGER || user?.role === UserRole.ADMIN;
-  const canApprove = isOfficeManager && jobCard.status === JobStatus.WAITING_APPROVAL && !isReadOnly;
-  
+  const isOfficeManager =
+    user?.role === UserRole.OFFICE_MANAGER || user?.role === UserRole.ADMIN;
+  const canApprove =
+    isOfficeManager &&
+    jobCard.status === JobStatus.WAITING_APPROVAL &&
+    !isReadOnly;
+
   // Calculate totals
-  const actualLaborCost = jobCard.laborEntries.reduce((sum, entry) => sum + (entry.hours * entry.hourlyRate), 0);
-  const actualMaterialsCost = jobCard.materialsUsed.reduce((sum, material) => sum + material.totalPrice, 0);
-  const totalTimeWorked = jobCard.laborEntries.reduce((sum, entry) => sum + entry.hours, 0);
-  
-  const estimatedTotal = jobCard.estimatedCost ? 
-    jobCard.estimatedCost.laborCost + jobCard.estimatedCost.materialsCost + jobCard.estimatedCost.additionalCosts : 0;
-  const actualTotal = actualLaborCost + actualMaterialsCost + (jobCard.estimatedCost?.additionalCosts || 0);
+  const actualLaborCost = jobCard.laborEntries.reduce(
+    (sum, entry) => sum + entry.hours * entry.hourlyRate,
+    0,
+  );
+  const actualMaterialsCost = jobCard.materialsUsed.reduce(
+    (sum, material) => sum + material.totalPrice,
+    0,
+  );
+  const totalTimeWorked = jobCard.laborEntries.reduce(
+    (sum, entry) => sum + entry.hours,
+    0,
+  );
+
+  const estimatedTotal = jobCard.estimatedCost
+    ? jobCard.estimatedCost.laborCost +
+      jobCard.estimatedCost.materialsCost +
+      jobCard.estimatedCost.additionalCosts
+    : 0;
+  const actualTotal =
+    actualLaborCost +
+    actualMaterialsCost +
+    (jobCard.estimatedCost?.additionalCosts || 0);
   const variance = actualTotal - estimatedTotal;
-  const variancePercentage = estimatedTotal > 0 ? (variance / estimatedTotal) * 100 : 0;
+  const variancePercentage =
+    estimatedTotal > 0 ? (variance / estimatedTotal) * 100 : 0;
 
   const getFinalTotal = () => {
-    const subtotal = finalAdjustments.laborCost + finalAdjustments.materialsCost + finalAdjustments.additionalCosts;
+    const subtotal =
+      finalAdjustments.laborCost +
+      finalAdjustments.materialsCost +
+      finalAdjustments.additionalCosts;
     const tax = subtotal * 0.08; // 8% tax
     return subtotal + tax;
   };
@@ -108,19 +124,26 @@ export const JobCardGeneration: React.FC<JobCardGenerationProps> = ({
           laborCost: finalAdjustments.laborCost,
           materialsCost: finalAdjustments.materialsCost,
           additionalCosts: finalAdjustments.additionalCosts,
-          subtotal: finalAdjustments.laborCost + finalAdjustments.materialsCost + finalAdjustments.additionalCosts,
-          tax: (finalAdjustments.laborCost + finalAdjustments.materialsCost + finalAdjustments.additionalCosts) * 0.08,
+          subtotal:
+            finalAdjustments.laborCost +
+            finalAdjustments.materialsCost +
+            finalAdjustments.additionalCosts,
+          tax:
+            (finalAdjustments.laborCost +
+              finalAdjustments.materialsCost +
+              finalAdjustments.additionalCosts) *
+            0.08,
           total: getFinalTotal(),
           profitMargin: 0, // This would be calculated based on business logic
         },
         notes: [
           ...jobCard.notes,
           `Quality check rating: ${customerSatisfactionRating}/5`,
-          qualityCheckNotes ? `Quality notes: ${qualityCheckNotes}` : '',
-          approvalNotes ? `Approval notes: ${approvalNotes}` : '',
+          qualityCheckNotes ? `Quality notes: ${qualityCheckNotes}` : "",
+          approvalNotes ? `Approval notes: ${approvalNotes}` : "",
         ].filter(Boolean),
       };
-      
+
       if (onUpdateJobCard) {
         onUpdateJobCard(updatedJobCard);
       }
@@ -128,8 +151,8 @@ export const JobCardGeneration: React.FC<JobCardGenerationProps> = ({
 
     onApprove(jobCard, approved, approvalNotes);
     setShowApprovalDialog(false);
-    setApprovalNotes('');
-    setQualityCheckNotes('');
+    setApprovalNotes("");
+    setQualityCheckNotes("");
   };
 
   const getStatusIcon = () => {
@@ -144,18 +167,20 @@ export const JobCardGeneration: React.FC<JobCardGenerationProps> = ({
   };
 
   const getVarianceColor = () => {
-    if (Math.abs(variancePercentage) <= 5) return 'text-green-600';
-    if (Math.abs(variancePercentage) <= 15) return 'text-orange-600';
-    return 'text-red-600';
+    if (Math.abs(variancePercentage) <= 5) return "text-green-600";
+    if (Math.abs(variancePercentage) <= 15) return "text-orange-600";
+    return "text-red-600";
   };
 
   const generateJobCardSummary = () => {
     return {
       jobNumber: jobCard.jobNumber,
       customer: jobCard.customer.name,
-      vehicle: jobCard.asset ? `${jobCard.asset.make} ${jobCard.asset.model} (${jobCard.asset.licensePlate})` : 'N/A',
-      technician: jobCard.assignedTechnician?.name || 'Unassigned',
-      workPerformed: jobCard.tasks.join(', '),
+      vehicle: jobCard.asset
+        ? `${jobCard.asset.make} ${jobCard.asset.model} (${jobCard.asset.licensePlate})`
+        : "N/A",
+      technician: jobCard.assignedTechnician?.name || "Unassigned",
+      workPerformed: jobCard.tasks.join(", "),
       timeWorked: `${totalTimeWorked.toFixed(1)} hours`,
       materialsUsed: jobCard.materialsUsed.length,
       totalCost: `$${actualTotal.toFixed(2)}`,
@@ -181,8 +206,14 @@ export const JobCardGeneration: React.FC<JobCardGenerationProps> = ({
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <Badge variant={jobCard.status === JobStatus.COMPLETED ? 'default' : 'secondary'}>
-                {jobCard.status.replace('_', ' ')}
+              <Badge
+                variant={
+                  jobCard.status === JobStatus.COMPLETED
+                    ? "default"
+                    : "secondary"
+                }
+              >
+                {jobCard.status.replace("_", " ")}
               </Badge>
               {jobCard.status === JobStatus.WAITING_APPROVAL && (
                 <Badge className="bg-orange-100 text-orange-800">
@@ -216,7 +247,10 @@ export const JobCardGeneration: React.FC<JobCardGenerationProps> = ({
                 <div className="flex items-center gap-2">
                   <Car className="h-4 w-4 text-muted-foreground" />
                   <span className="font-medium">Vehicle:</span>
-                  <span>{jobCard.asset.make} {jobCard.asset.model} ({jobCard.asset.licensePlate})</span>
+                  <span>
+                    {jobCard.asset.make} {jobCard.asset.model} (
+                    {jobCard.asset.licensePlate})
+                  </span>
                 </div>
               )}
               <div className="flex items-center gap-2">
@@ -249,17 +283,28 @@ export const JobCardGeneration: React.FC<JobCardGenerationProps> = ({
               </h4>
               <div className="space-y-2">
                 {jobCard.laborEntries.map((entry) => (
-                  <div key={entry.id} className="flex justify-between items-center p-2 bg-muted/50 rounded">
+                  <div
+                    key={entry.id}
+                    className="flex justify-between items-center p-2 bg-muted/50 rounded"
+                  >
                     <div>
-                      <span className="text-sm font-medium">{entry.description}</span>
+                      <span className="text-sm font-medium">
+                        {entry.description}
+                      </span>
                       <p className="text-xs text-muted-foreground">
-                        {format(new Date(entry.startTime), 'MMM dd, HH:mm')} - 
-                        {entry.endTime ? format(new Date(entry.endTime), 'HH:mm') : 'In Progress'}
+                        {format(new Date(entry.startTime), "MMM dd, HH:mm")} -
+                        {entry.endTime
+                          ? format(new Date(entry.endTime), "HH:mm")
+                          : "In Progress"}
                       </p>
                     </div>
                     <div className="text-right">
-                      <span className="font-bold">{entry.hours.toFixed(1)}h</span>
-                      <p className="text-xs text-muted-foreground">${(entry.hours * entry.hourlyRate).toFixed(2)}</p>
+                      <span className="font-bold">
+                        {entry.hours.toFixed(1)}h
+                      </span>
+                      <p className="text-xs text-muted-foreground">
+                        ${(entry.hours * entry.hourlyRate).toFixed(2)}
+                      </p>
                     </div>
                   </div>
                 ))}
@@ -279,14 +324,22 @@ export const JobCardGeneration: React.FC<JobCardGenerationProps> = ({
                 </h4>
                 <div className="space-y-2">
                   {jobCard.materialsUsed.map((material) => (
-                    <div key={material.id} className="flex justify-between items-center p-2 bg-muted/50 rounded">
+                    <div
+                      key={material.id}
+                      className="flex justify-between items-center p-2 bg-muted/50 rounded"
+                    >
                       <div>
-                        <span className="text-sm font-medium">{material.name}</span>
+                        <span className="text-sm font-medium">
+                          {material.name}
+                        </span>
                         <p className="text-xs text-muted-foreground">
-                          Qty: {material.quantity} × ${material.unitPrice.toFixed(2)}
+                          Qty: {material.quantity} × $
+                          {material.unitPrice.toFixed(2)}
                         </p>
                       </div>
-                      <span className="font-bold">${material.totalPrice.toFixed(2)}</span>
+                      <span className="font-bold">
+                        ${material.totalPrice.toFixed(2)}
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -308,24 +361,31 @@ export const JobCardGeneration: React.FC<JobCardGenerationProps> = ({
             <div className="grid grid-cols-2 gap-4">
               <div className="p-3 bg-blue-50 rounded-lg">
                 <h4 className="font-medium text-blue-700 mb-1">Estimated</h4>
-                <p className="text-2xl font-bold text-blue-700">${estimatedTotal.toFixed(2)}</p>
+                <p className="text-2xl font-bold text-blue-700">
+                  ${estimatedTotal.toFixed(2)}
+                </p>
               </div>
               <div className="p-3 bg-green-50 rounded-lg">
                 <h4 className="font-medium text-green-700 mb-1">Actual</h4>
-                <p className="text-2xl font-bold text-green-700">${actualTotal.toFixed(2)}</p>
+                <p className="text-2xl font-bold text-green-700">
+                  ${actualTotal.toFixed(2)}
+                </p>
               </div>
             </div>
 
             {/* Variance Analysis */}
-            <div className={`p-3 rounded-lg ${variance >= 0 ? 'bg-orange-50' : 'bg-green-50'}`}>
+            <div
+              className={`p-3 rounded-lg ${variance >= 0 ? "bg-orange-50" : "bg-green-50"}`}
+            >
               <div className="flex justify-between items-center">
                 <span className="font-medium">Variance:</span>
                 <div className="text-right">
                   <span className={`font-bold ${getVarianceColor()}`}>
-                    {variance >= 0 ? '+' : ''}${variance.toFixed(2)}
+                    {variance >= 0 ? "+" : ""}${variance.toFixed(2)}
                   </span>
                   <p className={`text-sm ${getVarianceColor()}`}>
-                    ({variancePercentage >= 0 ? '+' : ''}{variancePercentage.toFixed(1)}%)
+                    ({variancePercentage >= 0 ? "+" : ""}
+                    {variancePercentage.toFixed(1)}%)
                   </p>
                 </div>
               </div>
@@ -334,7 +394,7 @@ export const JobCardGeneration: React.FC<JobCardGenerationProps> = ({
             {/* Cost Breakdown */}
             <div className="space-y-3">
               <h4 className="font-medium">Cost Breakdown:</h4>
-              
+
               <div className="space-y-2">
                 <div className="flex justify-between">
                   <span>Labor ({totalTimeWorked.toFixed(1)}h):</span>
@@ -346,7 +406,9 @@ export const JobCardGeneration: React.FC<JobCardGenerationProps> = ({
                 </div>
                 <div className="flex justify-between">
                   <span>Additional Costs:</span>
-                  <span>${(jobCard.estimatedCost?.additionalCosts || 0).toFixed(2)}</span>
+                  <span>
+                    ${(jobCard.estimatedCost?.additionalCosts || 0).toFixed(2)}
+                  </span>
                 </div>
                 <Separator />
                 <div className="flex justify-between">
@@ -376,10 +438,12 @@ export const JobCardGeneration: React.FC<JobCardGenerationProps> = ({
                       type="number"
                       step="0.01"
                       value={finalAdjustments.laborCost}
-                      onChange={(e) => setFinalAdjustments(prev => ({
-                        ...prev,
-                        laborCost: parseFloat(e.target.value) || 0
-                      }))}
+                      onChange={(e) =>
+                        setFinalAdjustments((prev) => ({
+                          ...prev,
+                          laborCost: parseFloat(e.target.value) || 0,
+                        }))
+                      }
                     />
                   </div>
                   <div>
@@ -388,10 +452,12 @@ export const JobCardGeneration: React.FC<JobCardGenerationProps> = ({
                       type="number"
                       step="0.01"
                       value={finalAdjustments.materialsCost}
-                      onChange={(e) => setFinalAdjustments(prev => ({
-                        ...prev,
-                        materialsCost: parseFloat(e.target.value) || 0
-                      }))}
+                      onChange={(e) =>
+                        setFinalAdjustments((prev) => ({
+                          ...prev,
+                          materialsCost: parseFloat(e.target.value) || 0,
+                        }))
+                      }
                     />
                   </div>
                   <div>
@@ -400,10 +466,12 @@ export const JobCardGeneration: React.FC<JobCardGenerationProps> = ({
                       type="number"
                       step="0.01"
                       value={finalAdjustments.additionalCosts}
-                      onChange={(e) => setFinalAdjustments(prev => ({
-                        ...prev,
-                        additionalCosts: parseFloat(e.target.value) || 0
-                      }))}
+                      onChange={(e) =>
+                        setFinalAdjustments((prev) => ({
+                          ...prev,
+                          additionalCosts: parseFloat(e.target.value) || 0,
+                        }))
+                      }
                     />
                   </div>
                 </div>
@@ -428,11 +496,14 @@ export const JobCardGeneration: React.FC<JobCardGenerationProps> = ({
           </CardHeader>
           <CardContent>
             <div className="space-y-2 max-h-48 overflow-y-auto">
-              {jobCard.notes.slice(-10).reverse().map((note, index) => (
-                <div key={index} className="p-2 bg-muted rounded text-sm">
-                  {note}
-                </div>
-              ))}
+              {jobCard.notes
+                .slice(-10)
+                .reverse()
+                .map((note, index) => (
+                  <div key={index} className="p-2 bg-muted rounded text-sm">
+                    {note}
+                  </div>
+                ))}
             </div>
           </CardContent>
         </Card>
@@ -450,7 +521,7 @@ export const JobCardGeneration: React.FC<JobCardGenerationProps> = ({
             Export PDF
           </Button>
         </div>
-        
+
         {canApprove && (
           <div className="flex gap-2">
             <Button
@@ -470,14 +541,17 @@ export const JobCardGeneration: React.FC<JobCardGenerationProps> = ({
           <DialogHeader>
             <DialogTitle>Review & Approve Job Card</DialogTitle>
           </DialogHeader>
-          
+
           <div className="space-y-4">
             <Alert>
               <CheckCircle className="h-4 w-4" />
               <AlertDescription>
-                <strong>Work Summary:</strong> {jobCard.title}<br />
-                <strong>Technician:</strong> {jobCard.assignedTechnician?.name}<br />
-                <strong>Time Worked:</strong> {totalTimeWorked.toFixed(1)} hours<br />
+                <strong>Work Summary:</strong> {jobCard.title}
+                <br />
+                <strong>Technician:</strong> {jobCard.assignedTechnician?.name}
+                <br />
+                <strong>Time Worked:</strong> {totalTimeWorked.toFixed(1)} hours
+                <br />
                 <strong>Final Cost:</strong> ${getFinalTotal().toFixed(2)}
               </AlertDescription>
             </Alert>
@@ -485,9 +559,11 @@ export const JobCardGeneration: React.FC<JobCardGenerationProps> = ({
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label>Customer Satisfaction Rating (1-5)</Label>
-                <Select 
-                  value={customerSatisfactionRating.toString()} 
-                  onValueChange={(value) => setCustomerSatisfactionRating(parseInt(value))}
+                <Select
+                  value={customerSatisfactionRating.toString()}
+                  onValueChange={(value) =>
+                    setCustomerSatisfactionRating(parseInt(value))
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -523,13 +599,16 @@ export const JobCardGeneration: React.FC<JobCardGenerationProps> = ({
               />
             </div>
           </div>
-          
+
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowApprovalDialog(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setShowApprovalDialog(false)}
+            >
               Cancel
             </Button>
-            <Button 
-              variant="destructive" 
+            <Button
+              variant="destructive"
               onClick={() => handleApproval(false)}
               disabled={!approvalNotes}
             >

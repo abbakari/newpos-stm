@@ -1,30 +1,27 @@
-import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
+import React, { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from '@/components/ui/dialog';
-import {
-  Alert,
-  AlertDescription,
-} from '@/components/ui/alert';
-import { useAuth } from '@/context/AuthContext';
+} from "@/components/ui/dialog";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useAuth } from "@/context/AuthContext";
 import {
   JobCard,
   JobStatus,
   UserRole,
   LaborEntry,
   Approval,
-} from '@shared/types';
+} from "@shared/types";
 import {
   Clock,
   Play,
@@ -37,10 +34,13 @@ import {
   Users,
   Calendar,
   MessageSquare,
-} from 'lucide-react';
-import { format } from 'date-fns';
-import { generateInvoiceFromJobCard, validateJobCardForInvoicing } from '@/services/invoiceService';
-import { JobCardGeneration } from './JobCardGeneration';
+} from "lucide-react";
+import { format } from "date-fns";
+import {
+  generateInvoiceFromJobCard,
+  validateJobCardForInvoicing,
+} from "@/services/invoiceService";
+import { JobCardGeneration } from "./JobCardGeneration";
 
 interface JobCardWorkflowProps {
   jobCard: JobCard;
@@ -58,34 +58,50 @@ export const JobCardWorkflow: React.FC<JobCardWorkflowProps> = ({
   const [showCustomerLeaveDialog, setShowCustomerLeaveDialog] = useState(false);
   const [showApprovalDialog, setShowApprovalDialog] = useState(false);
   const [timeEntry, setTimeEntry] = useState({
-    hours: '',
-    description: '',
+    hours: "",
+    description: "",
   });
-  const [customerLeaveTime, setCustomerLeaveTime] = useState('');
-  const [approvalNotes, setApprovalNotes] = useState('');
+  const [customerLeaveTime, setCustomerLeaveTime] = useState("");
+  const [approvalNotes, setApprovalNotes] = useState("");
   const [isWorkingTimer, setIsWorkingTimer] = useState(false);
-  const [currentSessionStart, setCurrentSessionStart] = useState<Date | null>(null);
+  const [currentSessionStart, setCurrentSessionStart] = useState<Date | null>(
+    null,
+  );
 
   const isTechnician = user?.role === UserRole.TECHNICIAN;
-  const isOfficeManager = user?.role === UserRole.OFFICE_MANAGER || user?.role === UserRole.ADMIN;
-  const isAssignedTechnician = isTechnician && jobCard.assignedTechnicianId === user?.id;
+  const isOfficeManager =
+    user?.role === UserRole.OFFICE_MANAGER || user?.role === UserRole.ADMIN;
+  const isAssignedTechnician =
+    isTechnician && jobCard.assignedTechnicianId === user?.id;
 
   // Check if current user can perform actions
-  const canStartWork = isAssignedTechnician && jobCard.status === JobStatus.PENDING;
-  const canUpdateTime = isAssignedTechnician && [JobStatus.IN_PROGRESS, JobStatus.WAITING_APPROVAL].includes(jobCard.status);
-  const canMarkComplete = isAssignedTechnician && jobCard.status === JobStatus.IN_PROGRESS;
-  const canApprove = isOfficeManager && jobCard.status === JobStatus.WAITING_APPROVAL;
+  const canStartWork =
+    isAssignedTechnician && jobCard.status === JobStatus.PENDING;
+  const canUpdateTime =
+    isAssignedTechnician &&
+    [JobStatus.IN_PROGRESS, JobStatus.WAITING_APPROVAL].includes(
+      jobCard.status,
+    );
+  const canMarkComplete =
+    isAssignedTechnician && jobCard.status === JobStatus.IN_PROGRESS;
+  const canApprove =
+    isOfficeManager && jobCard.status === JobStatus.WAITING_APPROVAL;
   const canRecordCustomerLeave = isAssignedTechnician;
 
   // Calculate total time worked
-  const totalTimeWorked = jobCard.laborEntries.reduce((total, entry) => total + entry.hours, 0);
+  const totalTimeWorked = jobCard.laborEntries.reduce(
+    (total, entry) => total + entry.hours,
+    0,
+  );
 
   // Get pending approvals
-  const pendingApprovals = jobCard.approvals.filter(approval => approval.status === 'pending');
+  const pendingApprovals = jobCard.approvals.filter(
+    (approval) => approval.status === "pending",
+  );
 
   const startWork = () => {
     if (!canStartWork) return;
-    
+
     onStatusChange(jobCard, JobStatus.IN_PROGRESS);
     setCurrentSessionStart(new Date());
     setIsWorkingTimer(true);
@@ -93,7 +109,7 @@ export const JobCardWorkflow: React.FC<JobCardWorkflowProps> = ({
 
   const recordTimeEntry = () => {
     if (!timeEntry.hours || !timeEntry.description) {
-      alert('Please fill in all time entry fields');
+      alert("Please fill in all time entry fields");
       return;
     }
 
@@ -118,14 +134,14 @@ export const JobCardWorkflow: React.FC<JobCardWorkflowProps> = ({
 
     onUpdateJobCard(updatedJobCard);
     setShowTimeDialog(false);
-    setTimeEntry({ hours: '', description: '' });
+    setTimeEntry({ hours: "", description: "" });
     setIsWorkingTimer(false);
     setCurrentSessionStart(null);
   };
 
   const recordCustomerLeave = () => {
     if (!customerLeaveTime) {
-      alert('Please enter the customer leave time');
+      alert("Please enter the customer leave time");
       return;
     }
 
@@ -138,24 +154,27 @@ export const JobCardWorkflow: React.FC<JobCardWorkflowProps> = ({
 
     onUpdateJobCard(updatedJobCard);
     setShowCustomerLeaveDialog(false);
-    setCustomerLeaveTime('');
+    setCustomerLeaveTime("");
   };
 
   const requestApproval = () => {
     const newApproval: Approval = {
       id: Date.now().toString(),
-      type: 'completion',
+      type: "completion",
       requestedBy: user!.id,
       approverRole: UserRole.OFFICE_MANAGER,
-      status: 'pending',
-      notes: 'Work completed, ready for approval',
+      status: "pending",
+      notes: "Work completed, ready for approval",
     };
 
     const updatedJobCard = {
       ...jobCard,
       status: JobStatus.WAITING_APPROVAL,
       approvals: [...jobCard.approvals, newApproval],
-      notes: [...jobCard.notes, 'Work completed by technician, pending approval'],
+      notes: [
+        ...jobCard.notes,
+        "Work completed by technician, pending approval",
+      ],
       lastUpdatedBy: user!.id,
       lastUpdatedAt: new Date(),
     };
@@ -165,7 +184,7 @@ export const JobCardWorkflow: React.FC<JobCardWorkflowProps> = ({
 
   const approveJob = (approved: boolean) => {
     if (!approvalNotes && !approved) {
-      alert('Please provide notes for rejection');
+      alert("Please provide notes for rejection");
       return;
     }
 
@@ -173,26 +192,28 @@ export const JobCardWorkflow: React.FC<JobCardWorkflowProps> = ({
     if (approved) {
       const validationErrors = validateJobCardForInvoicing(jobCard);
       if (validationErrors.length > 0) {
-        alert(`Cannot complete job due to validation errors:\n${validationErrors.join('\n')}`);
+        alert(
+          `Cannot complete job due to validation errors:\n${validationErrors.join("\n")}`,
+        );
         return;
       }
     }
 
-    const updatedApprovals = jobCard.approvals.map(approval =>
-      approval.status === 'pending' && approval.type === 'completion'
+    const updatedApprovals = jobCard.approvals.map((approval) =>
+      approval.status === "pending" && approval.type === "completion"
         ? {
             ...approval,
-            status: approved ? 'approved' : 'rejected',
+            status: approved ? "approved" : "rejected",
             approvedBy: user!.id,
             approvedAt: new Date(),
             notes: approvalNotes || approval.notes,
           }
-        : approval
+        : approval,
     );
 
     const newStatus = approved ? JobStatus.COMPLETED : JobStatus.IN_PROGRESS;
     const statusNote = approved
-      ? 'Job approved and completed by office manager'
+      ? "Job approved and completed by office manager"
       : `Job rejected by office manager: ${approvalNotes}`;
 
     const updatedJobCard = {
@@ -200,7 +221,9 @@ export const JobCardWorkflow: React.FC<JobCardWorkflowProps> = ({
       status: newStatus,
       approvals: updatedApprovals,
       notes: [...jobCard.notes, statusNote],
-      actualCompletionDate: approved ? new Date() : jobCard.actualCompletionDate,
+      actualCompletionDate: approved
+        ? new Date()
+        : jobCard.actualCompletionDate,
       lastUpdatedBy: user!.id,
       lastUpdatedAt: new Date(),
     };
@@ -214,35 +237,49 @@ export const JobCardWorkflow: React.FC<JobCardWorkflowProps> = ({
         updatedJobCard.invoiceId = invoice.id;
 
         // Show success message
-        alert(`Job completed successfully!\nInvoice ${invoice.invoiceNumber} has been automatically generated and sent to the customer.`);
+        alert(
+          `Job completed successfully!\nInvoice ${invoice.invoiceNumber} has been automatically generated and sent to the customer.`,
+        );
       } catch (error) {
-        console.error('Failed to generate invoice:', error);
-        alert('Job completed but invoice generation failed. Please generate invoice manually.');
+        console.error("Failed to generate invoice:", error);
+        alert(
+          "Job completed but invoice generation failed. Please generate invoice manually.",
+        );
       }
     }
 
     onUpdateJobCard(updatedJobCard);
     setShowApprovalDialog(false);
-    setApprovalNotes('');
+    setApprovalNotes("");
   };
 
   const getStatusIcon = (status: JobStatus) => {
     switch (status) {
-      case JobStatus.PENDING: return Clock;
-      case JobStatus.IN_PROGRESS: return Play;
-      case JobStatus.WAITING_APPROVAL: return AlertTriangle;
-      case JobStatus.COMPLETED: return CheckCircle;
-      default: return Clock;
+      case JobStatus.PENDING:
+        return Clock;
+      case JobStatus.IN_PROGRESS:
+        return Play;
+      case JobStatus.WAITING_APPROVAL:
+        return AlertTriangle;
+      case JobStatus.COMPLETED:
+        return CheckCircle;
+      default:
+        return Clock;
     }
   };
 
   const getStatusColor = (status: JobStatus) => {
     switch (status) {
-      case JobStatus.PENDING: return 'bg-gray-100 text-gray-800';
-      case JobStatus.IN_PROGRESS: return 'bg-blue-100 text-blue-800';
-      case JobStatus.WAITING_APPROVAL: return 'bg-yellow-100 text-yellow-800';
-      case JobStatus.COMPLETED: return 'bg-green-100 text-green-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case JobStatus.PENDING:
+        return "bg-gray-100 text-gray-800";
+      case JobStatus.IN_PROGRESS:
+        return "bg-blue-100 text-blue-800";
+      case JobStatus.WAITING_APPROVAL:
+        return "bg-yellow-100 text-yellow-800";
+      case JobStatus.COMPLETED:
+        return "bg-green-100 text-green-800";
+      default:
+        return "bg-gray-100 text-gray-800";
     }
   };
 
@@ -261,10 +298,11 @@ export const JobCardWorkflow: React.FC<JobCardWorkflowProps> = ({
         <CardContent>
           <div className="flex items-center gap-4 mb-4">
             <Badge className={getStatusColor(jobCard.status)}>
-              {jobCard.status.replace('_', ' ')}
+              {jobCard.status.replace("_", " ")}
             </Badge>
             <span className="text-sm text-gray-600">
-              Last updated: {format(new Date(jobCard.lastUpdatedAt), 'MMM dd, yyyy HH:mm')}
+              Last updated:{" "}
+              {format(new Date(jobCard.lastUpdatedAt), "MMM dd, yyyy HH:mm")}
             </span>
           </div>
 
@@ -282,7 +320,8 @@ export const JobCardWorkflow: React.FC<JobCardWorkflowProps> = ({
             <Alert>
               <AlertTriangle className="h-4 w-4" />
               <AlertDescription>
-                Work completed by technician. Waiting for office manager approval.
+                Work completed by technician. Waiting for office manager
+                approval.
               </AlertDescription>
             </Alert>
           )}
@@ -299,7 +338,9 @@ export const JobCardWorkflow: React.FC<JobCardWorkflowProps> = ({
       </Card>
 
       {/* Job Card Generation - Show when waiting for approval or completed */}
-      {[JobStatus.WAITING_APPROVAL, JobStatus.COMPLETED].includes(jobCard.status) && (
+      {[JobStatus.WAITING_APPROVAL, JobStatus.COMPLETED].includes(
+        jobCard.status,
+      ) && (
         <JobCardGeneration
           jobCard={jobCard}
           onApprove={approveJob}
@@ -320,28 +361,43 @@ export const JobCardWorkflow: React.FC<JobCardWorkflowProps> = ({
           <div className="space-y-4">
             <div className="flex justify-between items-center">
               <span>Total Time Worked:</span>
-              <span className="font-bold">{totalTimeWorked.toFixed(1)} hours</span>
+              <span className="font-bold">
+                {totalTimeWorked.toFixed(1)} hours
+              </span>
             </div>
 
             {jobCard.laborEntries.length > 0 && (
               <div className="space-y-2">
                 <h4 className="font-medium">Time Entries:</h4>
                 {jobCard.laborEntries.map((entry) => (
-                  <div key={entry.id} className="flex justify-between items-center p-2 bg-gray-50 rounded">
+                  <div
+                    key={entry.id}
+                    className="flex justify-between items-center p-2 bg-gray-50 rounded"
+                  >
                     <div>
-                      <span className="font-medium">{entry.technicianName}</span>
-                      <p className="text-sm text-gray-600">{entry.description}</p>
+                      <span className="font-medium">
+                        {entry.technicianName}
+                      </span>
+                      <p className="text-sm text-gray-600">
+                        {entry.description}
+                      </p>
                       <p className="text-xs text-gray-500">
-                        {format(new Date(entry.startTime), 'MMM dd, HH:mm')}
+                        {format(new Date(entry.startTime), "MMM dd, HH:mm")}
                       </p>
                     </div>
                     <div className="text-right">
                       <span className="font-bold">{entry.hours}h</span>
-                      <p className="text-sm text-gray-600">${(entry.hours * entry.hourlyRate).toFixed(2)}</p>
+                      <p className="text-sm text-gray-600">
+                        ${(entry.hours * entry.hourlyRate).toFixed(2)}
+                      </p>
                       {entry.isApproved ? (
-                        <Badge className="bg-green-100 text-green-800 text-xs">Approved</Badge>
+                        <Badge className="bg-green-100 text-green-800 text-xs">
+                          Approved
+                        </Badge>
                       ) : (
-                        <Badge className="bg-yellow-100 text-yellow-800 text-xs">Pending</Badge>
+                        <Badge className="bg-yellow-100 text-yellow-800 text-xs">
+                          Pending
+                        </Badge>
                       )}
                     </div>
                   </div>
@@ -353,7 +409,10 @@ export const JobCardWorkflow: React.FC<JobCardWorkflowProps> = ({
               <Alert>
                 <Timer className="h-4 w-4" />
                 <AlertDescription>
-                  Timer started at {currentSessionStart ? format(currentSessionStart, 'HH:mm') : 'unknown'}
+                  Timer started at{" "}
+                  {currentSessionStart
+                    ? format(currentSessionStart, "HH:mm")
+                    : "unknown"}
                 </AlertDescription>
               </Alert>
             )}
@@ -376,18 +435,15 @@ export const JobCardWorkflow: React.FC<JobCardWorkflowProps> = ({
             )}
 
             {canUpdateTime && (
-              <Button 
-                variant="outline" 
-                onClick={() => setShowTimeDialog(true)}
-              >
+              <Button variant="outline" onClick={() => setShowTimeDialog(true)}>
                 <Timer className="h-4 w-4 mr-2" />
                 Log Time
               </Button>
             )}
 
             {canRecordCustomerLeave && (
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 onClick={() => setShowCustomerLeaveDialog(true)}
               >
                 <Users className="h-4 w-4 mr-2" />
@@ -427,13 +483,17 @@ export const JobCardWorkflow: React.FC<JobCardWorkflowProps> = ({
                 <div key={approval.id} className="p-3 border rounded-lg">
                   <div className="flex justify-between items-start">
                     <div>
-                      <p className="font-medium">{approval.type.replace('_', ' ')}</p>
+                      <p className="font-medium">
+                        {approval.type.replace("_", " ")}
+                      </p>
                       <p className="text-sm text-gray-600">{approval.notes}</p>
                       <p className="text-xs text-gray-500">
                         Requested by technician
                       </p>
                     </div>
-                    <Badge className="bg-yellow-100 text-yellow-800">Pending</Badge>
+                    <Badge className="bg-yellow-100 text-yellow-800">
+                      Pending
+                    </Badge>
                   </div>
                 </div>
               ))}
@@ -477,7 +537,9 @@ export const JobCardWorkflow: React.FC<JobCardWorkflowProps> = ({
                 type="number"
                 step="0.25"
                 value={timeEntry.hours}
-                onChange={(e) => setTimeEntry(prev => ({ ...prev, hours: e.target.value }))}
+                onChange={(e) =>
+                  setTimeEntry((prev) => ({ ...prev, hours: e.target.value }))
+                }
                 placeholder="2.5"
               />
             </div>
@@ -486,7 +548,12 @@ export const JobCardWorkflow: React.FC<JobCardWorkflowProps> = ({
               <Textarea
                 id="description"
                 value={timeEntry.description}
-                onChange={(e) => setTimeEntry(prev => ({ ...prev, description: e.target.value }))}
+                onChange={(e) =>
+                  setTimeEntry((prev) => ({
+                    ...prev,
+                    description: e.target.value,
+                  }))
+                }
                 placeholder="Describe the work performed..."
                 rows={3}
               />
@@ -496,15 +563,16 @@ export const JobCardWorkflow: React.FC<JobCardWorkflowProps> = ({
             <Button variant="outline" onClick={() => setShowTimeDialog(false)}>
               Cancel
             </Button>
-            <Button onClick={recordTimeEntry}>
-              Log Time
-            </Button>
+            <Button onClick={recordTimeEntry}>Log Time</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
       {/* Customer Leave Dialog */}
-      <Dialog open={showCustomerLeaveDialog} onOpenChange={setShowCustomerLeaveDialog}>
+      <Dialog
+        open={showCustomerLeaveDialog}
+        onOpenChange={setShowCustomerLeaveDialog}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Record Customer Leave Time</DialogTitle>
@@ -524,12 +592,13 @@ export const JobCardWorkflow: React.FC<JobCardWorkflowProps> = ({
             </p>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowCustomerLeaveDialog(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setShowCustomerLeaveDialog(false)}
+            >
               Cancel
             </Button>
-            <Button onClick={recordCustomerLeave}>
-              Record Time
-            </Button>
+            <Button onClick={recordCustomerLeave}>Record Time</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -551,9 +620,11 @@ export const JobCardWorkflow: React.FC<JobCardWorkflowProps> = ({
                 Technician: {jobCard.assignedTechnician?.name}
               </p>
             </div>
-            
+
             <div>
-              <Label htmlFor="approvalNotes">Notes (required for rejection)</Label>
+              <Label htmlFor="approvalNotes">
+                Notes (required for rejection)
+              </Label>
               <Textarea
                 id="approvalNotes"
                 value={approvalNotes}
@@ -564,19 +635,20 @@ export const JobCardWorkflow: React.FC<JobCardWorkflowProps> = ({
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowApprovalDialog(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setShowApprovalDialog(false)}
+            >
               Cancel
             </Button>
-            <Button 
-              variant="destructive" 
+            <Button
+              variant="destructive"
               onClick={() => approveJob(false)}
               disabled={!approvalNotes}
             >
               Reject
             </Button>
-            <Button onClick={() => approveJob(true)}>
-              Approve & Complete
-            </Button>
+            <Button onClick={() => approveJob(true)}>Approve & Complete</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

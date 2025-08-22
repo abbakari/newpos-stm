@@ -1,30 +1,27 @@
-import React, { useState, useMemo } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
+import React, { useState, useMemo } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
-import {
-  Alert,
-  AlertDescription,
-} from '@/components/ui/alert';
-import { useAuth } from '@/context/AuthContext';
+} from "@/components/ui/dialog";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useAuth } from "@/context/AuthContext";
 import {
   Customer,
   User as UserType,
@@ -33,7 +30,7 @@ import {
   CreateServiceOrderRequest,
   CreateJobCardRequest,
   Asset,
-} from '@shared/types';
+} from "@shared/types";
 import {
   Plus,
   Search,
@@ -49,38 +46,38 @@ import {
   Send,
   Edit,
   Eye,
-} from 'lucide-react';
-import { format } from 'date-fns';
-import { useNavigate } from 'react-router-dom';
+} from "lucide-react";
+import { format } from "date-fns";
+import { useNavigate } from "react-router-dom";
 
 // Mock data - In real app, this would come from API
 const mockCustomers: Customer[] = [
   {
-    id: '1',
-    name: 'John Smith',
-    email: 'john@example.com',
-    phone: '+1234567890',
-    address: '123 Main St, City, State',
-    customerType: 'individual',
+    id: "1",
+    name: "John Smith",
+    email: "john@example.com",
+    phone: "+1234567890",
+    address: "123 Main St, City, State",
+    customerType: "individual",
     createdAt: new Date(),
     updatedAt: new Date(),
   },
   {
-    id: '2',
-    name: 'ABC Company',
-    email: 'contact@abc.com',
-    phone: '+1234567891',
-    company: 'ABC Corporation',
-    customerType: 'business',
+    id: "2",
+    name: "ABC Company",
+    email: "contact@abc.com",
+    phone: "+1234567891",
+    company: "ABC Corporation",
+    customerType: "business",
     createdAt: new Date(),
     updatedAt: new Date(),
   },
   {
-    id: '3',
-    name: 'Mary Johnson',
-    email: 'mary@example.com',
-    phone: '+1234567894',
-    customerType: 'individual',
+    id: "3",
+    name: "Mary Johnson",
+    email: "mary@example.com",
+    phone: "+1234567894",
+    customerType: "individual",
     createdAt: new Date(),
     updatedAt: new Date(),
   },
@@ -88,65 +85,65 @@ const mockCustomers: Customer[] = [
 
 const mockAssets: Asset[] = [
   {
-    id: '1',
-    type: 'vehicle',
-    make: 'Toyota',
-    model: 'Camry',
+    id: "1",
+    type: "vehicle",
+    make: "Toyota",
+    model: "Camry",
     year: 2020,
-    licensePlate: 'ABC-123',
-    vin: '1234567890',
-    description: 'Blue sedan',
-    customerId: '1',
+    licensePlate: "ABC-123",
+    vin: "1234567890",
+    description: "Blue sedan",
+    customerId: "1",
   },
   {
-    id: '2',
-    type: 'vehicle',
-    make: 'Ford',
-    model: 'F-150',
+    id: "2",
+    type: "vehicle",
+    make: "Ford",
+    model: "F-150",
     year: 2019,
-    licensePlate: 'XYZ-789',
-    description: 'Red pickup truck',
-    customerId: '2',
+    licensePlate: "XYZ-789",
+    description: "Red pickup truck",
+    customerId: "2",
   },
   {
-    id: '3',
-    type: 'vehicle',
-    make: 'Honda',
-    model: 'Civic',
+    id: "3",
+    type: "vehicle",
+    make: "Honda",
+    model: "Civic",
     year: 2021,
-    licensePlate: 'DEF-456',
-    description: 'White hatchback',
-    customerId: '3',
+    licensePlate: "DEF-456",
+    description: "White hatchback",
+    customerId: "3",
   },
 ];
 
 const mockTechnicians: UserType[] = [
   {
-    id: 'tech-1',
-    name: 'Mike Johnson',
-    email: 'mike@company.com',
+    id: "tech-1",
+    name: "Mike Johnson",
+    email: "mike@company.com",
     role: UserRole.TECHNICIAN,
-    phone: '+1234567892',
+    phone: "+1234567892",
     isActive: true,
     createdAt: new Date(),
     permissions: [],
   },
   {
-    id: 'tech-2',
-    name: 'Sarah Wilson',
-    email: 'sarah@company.com',
+    id: "tech-2",
+    name: "Sarah Wilson",
+    email: "sarah@company.com",
     role: UserRole.TECHNICIAN,
-    phone: '+1234567893',
+    phone: "+1234567893",
     isActive: true,
     createdAt: new Date(),
     permissions: [],
   },
   {
-    id: 'tech-3',
-    name: 'Tom Brown',
-    email: 'tom@company.com',
+    id: "tech-3",
+    name: "Tom Brown",
+    email: "tom@company.com",
     role: UserRole.TECHNICIAN,
-    phone: '+1234567894',
+    phone: "+1234567894",
     isActive: false,
     createdAt: new Date(),
     permissions: [],
@@ -155,33 +152,49 @@ const mockTechnicians: UserType[] = [
 
 const serviceTemplates = [
   {
-    id: 'oil-change',
-    name: 'Oil Change Service',
-    description: 'Complete oil change with filter replacement',
+    id: "oil-change",
+    name: "Oil Change Service",
+    description: "Complete oil change with filter replacement",
     estimatedDuration: 45,
-    tasks: ['Drain old oil', 'Replace oil filter', 'Add new oil', 'Check fluid levels'],
+    tasks: [
+      "Drain old oil",
+      "Replace oil filter",
+      "Add new oil",
+      "Check fluid levels",
+    ],
     estimatedCost: { laborCost: 50, materialsCost: 30, additionalCosts: 5 },
   },
   {
-    id: 'brake-service',
-    name: 'Brake Inspection & Service',
-    description: 'Complete brake system inspection and service',
+    id: "brake-service",
+    name: "Brake Inspection & Service",
+    description: "Complete brake system inspection and service",
     estimatedDuration: 120,
-    tasks: ['Inspect brake pads', 'Check brake fluid', 'Test brake performance', 'Replace parts if needed'],
+    tasks: [
+      "Inspect brake pads",
+      "Check brake fluid",
+      "Test brake performance",
+      "Replace parts if needed",
+    ],
     estimatedCost: { laborCost: 100, materialsCost: 150, additionalCosts: 15 },
   },
   {
-    id: 'tire-service',
-    name: 'Tire Service',
-    description: 'Tire rotation, balancing, and inspection',
+    id: "tire-service",
+    name: "Tire Service",
+    description: "Tire rotation, balancing, and inspection",
     estimatedDuration: 60,
-    tasks: ['Remove tires', 'Inspect tire condition', 'Rotate tires', 'Check tire pressure', 'Balance if needed'],
+    tasks: [
+      "Remove tires",
+      "Inspect tire condition",
+      "Rotate tires",
+      "Check tire pressure",
+      "Balance if needed",
+    ],
     estimatedCost: { laborCost: 60, materialsCost: 80, additionalCosts: 10 },
   },
   {
-    id: 'custom',
-    name: 'Custom Service',
-    description: 'Custom service configuration',
+    id: "custom",
+    name: "Custom Service",
+    description: "Custom service configuration",
     estimatedDuration: 60,
     tasks: [],
     estimatedCost: { laborCost: 0, materialsCost: 0, additionalCosts: 0 },
@@ -191,40 +204,54 @@ const serviceTemplates = [
 export default function ActiveOrderCreation() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  
+
   // Form state
-  const [selectedCustomerId, setSelectedCustomerId] = useState<string>('');
-  const [selectedAssetId, setSelectedAssetId] = useState<string>('');
-  const [selectedTechnicianId, setSelectedTechnicianId] = useState<string>('');
-  const [serviceTemplate, setServiceTemplate] = useState<string>('');
-  const [customTitle, setCustomTitle] = useState('');
-  const [customDescription, setCustomDescription] = useState('');
-  const [customTasks, setCustomTasks] = useState<string>('');
+  const [selectedCustomerId, setSelectedCustomerId] = useState<string>("");
+  const [selectedAssetId, setSelectedAssetId] = useState<string>("");
+  const [selectedTechnicianId, setSelectedTechnicianId] = useState<string>("");
+  const [serviceTemplate, setServiceTemplate] = useState<string>("");
+  const [customTitle, setCustomTitle] = useState("");
+  const [customDescription, setCustomDescription] = useState("");
+  const [customTasks, setCustomTasks] = useState<string>("");
   const [priority, setPriority] = useState<JobPriority>(JobPriority.NORMAL);
-  const [scheduledDate, setScheduledDate] = useState<string>('');
-  const [expectedCompletion, setExpectedCompletion] = useState<string>('');
-  const [customerNotes, setCustomerNotes] = useState('');
-  const [estimatedCost, setEstimatedCost] = useState({ laborCost: 0, materialsCost: 0, additionalCosts: 0 });
-  
+  const [scheduledDate, setScheduledDate] = useState<string>("");
+  const [expectedCompletion, setExpectedCompletion] = useState<string>("");
+  const [customerNotes, setCustomerNotes] = useState("");
+  const [estimatedCost, setEstimatedCost] = useState({
+    laborCost: 0,
+    materialsCost: 0,
+    additionalCosts: 0,
+  });
+
   // UI state
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [showCustomerSearch, setShowCustomerSearch] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Derived data
-  const selectedCustomer = mockCustomers.find(c => c.id === selectedCustomerId);
-  const customerAssets = mockAssets.filter(a => a.customerId === selectedCustomerId);
-  const selectedAsset = mockAssets.find(a => a.id === selectedAssetId);
-  const selectedTechnician = mockTechnicians.find(t => t.id === selectedTechnicianId);
-  const selectedTemplate = serviceTemplates.find(s => s.id === serviceTemplate);
-  
+  const selectedCustomer = mockCustomers.find(
+    (c) => c.id === selectedCustomerId,
+  );
+  const customerAssets = mockAssets.filter(
+    (a) => a.customerId === selectedCustomerId,
+  );
+  const selectedAsset = mockAssets.find((a) => a.id === selectedAssetId);
+  const selectedTechnician = mockTechnicians.find(
+    (t) => t.id === selectedTechnicianId,
+  );
+  const selectedTemplate = serviceTemplates.find(
+    (s) => s.id === serviceTemplate,
+  );
+
   // Filter customers based on search
   const filteredCustomers = useMemo(() => {
     if (!searchTerm) return mockCustomers;
-    return mockCustomers.filter(customer =>
-      customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      customer.phone.includes(searchTerm) ||
-      (customer.email && customer.email.toLowerCase().includes(searchTerm.toLowerCase()))
+    return mockCustomers.filter(
+      (customer) =>
+        customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        customer.phone.includes(searchTerm) ||
+        (customer.email &&
+          customer.email.toLowerCase().includes(searchTerm.toLowerCase())),
     );
   }, [searchTerm]);
 
@@ -232,14 +259,16 @@ export default function ActiveOrderCreation() {
   React.useEffect(() => {
     if (scheduledDate && selectedTemplate) {
       const scheduled = new Date(scheduledDate);
-      const completion = new Date(scheduled.getTime() + selectedTemplate.estimatedDuration * 60000);
+      const completion = new Date(
+        scheduled.getTime() + selectedTemplate.estimatedDuration * 60000,
+      );
       setExpectedCompletion(completion.toISOString().slice(0, 16));
     }
   }, [scheduledDate, selectedTemplate]);
 
   // Update cost estimation when template changes
   React.useEffect(() => {
-    if (selectedTemplate && serviceTemplate !== 'custom') {
+    if (selectedTemplate && serviceTemplate !== "custom") {
       setEstimatedCost(selectedTemplate.estimatedCost);
     }
   }, [selectedTemplate, serviceTemplate]);
@@ -247,38 +276,41 @@ export default function ActiveOrderCreation() {
   const handleCustomerSelect = (customer: Customer) => {
     setSelectedCustomerId(customer.id);
     setShowCustomerSearch(false);
-    setSearchTerm('');
+    setSearchTerm("");
     // Reset asset selection when customer changes
-    setSelectedAssetId('');
+    setSelectedAssetId("");
   };
 
   const handleServiceTemplateChange = (templateId: string) => {
     setServiceTemplate(templateId);
-    const template = serviceTemplates.find(s => s.id === templateId);
-    
-    if (template && templateId !== 'custom') {
+    const template = serviceTemplates.find((s) => s.id === templateId);
+
+    if (template && templateId !== "custom") {
       setCustomTitle(template.name);
       setCustomDescription(template.description);
-      setCustomTasks(template.tasks.join('\n'));
-    } else if (templateId === 'custom') {
-      setCustomTitle('');
-      setCustomDescription('');
-      setCustomTasks('');
+      setCustomTasks(template.tasks.join("\n"));
+    } else if (templateId === "custom") {
+      setCustomTitle("");
+      setCustomDescription("");
+      setCustomTasks("");
       setEstimatedCost({ laborCost: 0, materialsCost: 0, additionalCosts: 0 });
     }
   };
 
   const calculateTotal = () => {
-    const subtotal = estimatedCost.laborCost + estimatedCost.materialsCost + estimatedCost.additionalCosts;
+    const subtotal =
+      estimatedCost.laborCost +
+      estimatedCost.materialsCost +
+      estimatedCost.additionalCosts;
     const tax = subtotal * 0.08; // 8% tax
     return subtotal + tax;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!selectedCustomer || !selectedTechnicianId || !customTitle) {
-      alert('Please fill in all required fields');
+      alert("Please fill in all required fields");
       return;
     }
 
@@ -293,19 +325,25 @@ export default function ActiveOrderCreation() {
         assetId: selectedAssetId || undefined,
         assignedTechnicianId: selectedTechnicianId,
         scheduledStartDate: scheduledDate ? new Date(scheduledDate) : undefined,
-        expectedCompletionDate: expectedCompletion ? new Date(expectedCompletion) : undefined,
+        expectedCompletionDate: expectedCompletion
+          ? new Date(expectedCompletion)
+          : undefined,
         priority,
-        tasks: customTasks.split('\n').filter(task => task.trim()),
+        tasks: customTasks.split("\n").filter((task) => task.trim()),
         estimatedCost: {
           ...estimatedCost,
-          tax: calculateTotal() - (estimatedCost.laborCost + estimatedCost.materialsCost + estimatedCost.additionalCosts),
+          tax:
+            calculateTotal() -
+            (estimatedCost.laborCost +
+              estimatedCost.materialsCost +
+              estimatedCost.additionalCosts),
         },
       };
 
       // Create service order request
       const orderRequest: CreateServiceOrderRequest = {
         customerId: selectedCustomerId,
-        serviceType: 'custom',
+        serviceType: "custom",
         scheduledDate: scheduledDate ? new Date(scheduledDate) : undefined,
         estimatedDuration: selectedTemplate?.estimatedDuration || 60,
         priority,
@@ -314,31 +352,32 @@ export default function ActiveOrderCreation() {
       };
 
       // In real app, this would be an API call
-      console.log('Creating active order:', orderRequest);
+      console.log("Creating active order:", orderRequest);
 
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
       // Show success message
-      alert(`Active order created successfully!\nAssigned to: ${selectedTechnician?.name}\nCustomer: ${selectedCustomer.name}`);
+      alert(
+        `Active order created successfully!\nAssigned to: ${selectedTechnician?.name}\nCustomer: ${selectedCustomer.name}`,
+      );
 
       // Navigate to active orders page
-      navigate('/orders/active');
-
+      navigate("/orders/active");
     } catch (error) {
-      console.error('Failed to create active order:', error);
-      alert('Failed to create active order. Please try again.');
+      console.error("Failed to create active order:", error);
+      alert("Failed to create active order. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const getTechnicianStatusColor = (technician: UserType) => {
-    return technician.isActive ? 'text-green-600' : 'text-gray-400';
+    return technician.isActive ? "text-green-600" : "text-gray-400";
   };
 
   const getTechnicianStatusIcon = (technician: UserType) => {
-    return technician.isActive ? '🟢' : '🔴';
+    return technician.isActive ? "🟢" : "🔴";
   };
 
   return (
@@ -348,10 +387,11 @@ export default function ActiveOrderCreation() {
         <div>
           <h1 className="text-3xl font-bold">Create Active Order</h1>
           <p className="text-muted-foreground">
-            Create a new active order from customer information and assign to technician
+            Create a new active order from customer information and assign to
+            technician
           </p>
         </div>
-        <Button variant="outline" onClick={() => navigate('/orders/active')}>
+        <Button variant="outline" onClick={() => navigate("/orders/active")}>
           View Active Orders
         </Button>
       </div>
@@ -369,11 +409,16 @@ export default function ActiveOrderCreation() {
             <CardContent className="space-y-4">
               <div>
                 <Label>Search Customer</Label>
-                <Dialog open={showCustomerSearch} onOpenChange={setShowCustomerSearch}>
+                <Dialog
+                  open={showCustomerSearch}
+                  onOpenChange={setShowCustomerSearch}
+                >
                   <DialogTrigger asChild>
                     <Button variant="outline" className="w-full justify-start">
                       <Search className="h-4 w-4 mr-2" />
-                      {selectedCustomer ? selectedCustomer.name : 'Select Customer'}
+                      {selectedCustomer
+                        ? selectedCustomer.name
+                        : "Select Customer"}
                     </Button>
                   </DialogTrigger>
                   <DialogContent className="max-w-2xl">
@@ -455,7 +500,10 @@ export default function ActiveOrderCreation() {
               {selectedCustomerId && customerAssets.length > 0 && (
                 <div>
                   <Label>Vehicle/Asset (Optional)</Label>
-                  <Select value={selectedAssetId} onValueChange={setSelectedAssetId}>
+                  <Select
+                    value={selectedAssetId}
+                    onValueChange={setSelectedAssetId}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select vehicle/asset" />
                     </SelectTrigger>
@@ -465,7 +513,8 @@ export default function ActiveOrderCreation() {
                         <SelectItem key={asset.id} value={asset.id}>
                           <div className="flex items-center gap-2">
                             <Car className="h-4 w-4" />
-                            {asset.make} {asset.model} {asset.year} - {asset.licensePlate}
+                            {asset.make} {asset.model} {asset.year} -{" "}
+                            {asset.licensePlate}
                           </div>
                         </SelectItem>
                       ))}
@@ -479,7 +528,8 @@ export default function ActiveOrderCreation() {
                   <div className="flex items-center gap-2 mb-2">
                     <Car className="h-4 w-4" />
                     <span className="font-medium">
-                      {selectedAsset.make} {selectedAsset.model} {selectedAsset.year}
+                      {selectedAsset.make} {selectedAsset.model}{" "}
+                      {selectedAsset.year}
                     </span>
                   </div>
                   <div className="text-sm text-muted-foreground">
@@ -500,7 +550,10 @@ export default function ActiveOrderCreation() {
             <CardContent className="space-y-4">
               <div>
                 <Label>Service Template</Label>
-                <Select value={serviceTemplate} onValueChange={handleServiceTemplateChange}>
+                <Select
+                  value={serviceTemplate}
+                  onValueChange={handleServiceTemplateChange}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select service template" />
                   </SelectTrigger>
@@ -547,7 +600,10 @@ export default function ActiveOrderCreation() {
               <div className="grid grid-cols-2 gap-2">
                 <div>
                   <Label>Priority</Label>
-                  <Select value={priority} onValueChange={(value: JobPriority) => setPriority(value)}>
+                  <Select
+                    value={priority}
+                    onValueChange={(value: JobPriority) => setPriority(value)}
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -579,7 +635,10 @@ export default function ActiveOrderCreation() {
             <CardContent className="space-y-4">
               <div>
                 <Label>Assign Technician *</Label>
-                <Select value={selectedTechnicianId} onValueChange={setSelectedTechnicianId}>
+                <Select
+                  value={selectedTechnicianId}
+                  onValueChange={setSelectedTechnicianId}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select technician" />
                   </SelectTrigger>
@@ -588,11 +647,15 @@ export default function ActiveOrderCreation() {
                       <SelectItem key={technician.id} value={technician.id}>
                         <div className="flex items-center gap-2">
                           <span>{getTechnicianStatusIcon(technician)}</span>
-                          <span className={getTechnicianStatusColor(technician)}>
+                          <span
+                            className={getTechnicianStatusColor(technician)}
+                          >
                             {technician.name}
                           </span>
                           {!technician.isActive && (
-                            <Badge variant="secondary" className="text-xs">Offline</Badge>
+                            <Badge variant="secondary" className="text-xs">
+                              Offline
+                            </Badge>
                           )}
                         </div>
                       </SelectItem>
@@ -606,8 +669,10 @@ export default function ActiveOrderCreation() {
                   <div className="flex items-center gap-2">
                     <span>{getTechnicianStatusIcon(selectedTechnician)}</span>
                     <AlertDescription>
-                      <strong>{selectedTechnician.name}</strong> is currently{' '}
-                      {selectedTechnician.isActive ? 'online and available' : 'offline'}
+                      <strong>{selectedTechnician.name}</strong> is currently{" "}
+                      {selectedTechnician.isActive
+                        ? "online and available"
+                        : "offline"}
                     </AlertDescription>
                   </div>
                 </Alert>
@@ -657,10 +722,12 @@ export default function ActiveOrderCreation() {
                   type="number"
                   step="0.01"
                   value={estimatedCost.laborCost}
-                  onChange={(e) => setEstimatedCost(prev => ({
-                    ...prev,
-                    laborCost: parseFloat(e.target.value) || 0
-                  }))}
+                  onChange={(e) =>
+                    setEstimatedCost((prev) => ({
+                      ...prev,
+                      laborCost: parseFloat(e.target.value) || 0,
+                    }))
+                  }
                 />
               </div>
               <div>
@@ -669,10 +736,12 @@ export default function ActiveOrderCreation() {
                   type="number"
                   step="0.01"
                   value={estimatedCost.materialsCost}
-                  onChange={(e) => setEstimatedCost(prev => ({
-                    ...prev,
-                    materialsCost: parseFloat(e.target.value) || 0
-                  }))}
+                  onChange={(e) =>
+                    setEstimatedCost((prev) => ({
+                      ...prev,
+                      materialsCost: parseFloat(e.target.value) || 0,
+                    }))
+                  }
                 />
               </div>
               <div>
@@ -681,10 +750,12 @@ export default function ActiveOrderCreation() {
                   type="number"
                   step="0.01"
                   value={estimatedCost.additionalCosts}
-                  onChange={(e) => setEstimatedCost(prev => ({
-                    ...prev,
-                    additionalCosts: parseFloat(e.target.value) || 0
-                  }))}
+                  onChange={(e) =>
+                    setEstimatedCost((prev) => ({
+                      ...prev,
+                      additionalCosts: parseFloat(e.target.value) || 0,
+                    }))
+                  }
                 />
               </div>
               <div>
@@ -701,12 +772,21 @@ export default function ActiveOrderCreation() {
 
         {/* Action Buttons */}
         <div className="flex justify-between">
-          <Button type="button" variant="outline" onClick={() => navigate('/orders/active')}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => navigate("/orders/active")}
+          >
             Cancel
           </Button>
           <Button
             type="submit"
-            disabled={!selectedCustomer || !selectedTechnicianId || !customTitle || isSubmitting}
+            disabled={
+              !selectedCustomer ||
+              !selectedTechnicianId ||
+              !customTitle ||
+              isSubmitting
+            }
           >
             {isSubmitting ? (
               <>

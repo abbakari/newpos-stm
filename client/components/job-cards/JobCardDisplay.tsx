@@ -1,22 +1,17 @@
-import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
-import { Progress } from '@/components/ui/progress';
+import React from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { Progress } from "@/components/ui/progress";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { format } from 'date-fns';
-import {
-  JobCard,
-  JobStatus,
-  JobPriority,
-  UserRole,
-} from '@shared/types';
+} from "@/components/ui/dropdown-menu";
+import { format } from "date-fns";
+import { JobCard, JobStatus, JobPriority, UserRole } from "@shared/types";
 import {
   Clock,
   User,
@@ -32,10 +27,10 @@ import {
   Play,
   Pause,
   FileText,
-} from 'lucide-react';
-import { useAuth } from '@/context/AuthContext';
-import { JobCardWorkflow } from './JobCardWorkflow';
-import { TechnicianWorkflowEnhanced } from './TechnicianWorkflowEnhanced';
+} from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+import { JobCardWorkflow } from "./JobCardWorkflow";
+import { TechnicianWorkflowEnhanced } from "./TechnicianWorkflowEnhanced";
 
 interface JobCardDisplayProps {
   jobCard: JobCard;
@@ -50,58 +45,58 @@ interface JobCardDisplayProps {
 
 const statusConfig = {
   [JobStatus.PENDING]: {
-    label: 'Pending',
-    color: 'bg-gray-100 text-gray-800',
+    label: "Pending",
+    color: "bg-gray-100 text-gray-800",
     icon: Clock,
   },
   [JobStatus.IN_PROGRESS]: {
-    label: 'In Progress',
-    color: 'bg-blue-100 text-blue-800',
+    label: "In Progress",
+    color: "bg-blue-100 text-blue-800",
     icon: Play,
   },
   [JobStatus.ON_HOLD]: {
-    label: 'On Hold',
-    color: 'bg-yellow-100 text-yellow-800',
+    label: "On Hold",
+    color: "bg-yellow-100 text-yellow-800",
     icon: Pause,
   },
   [JobStatus.WAITING_APPROVAL]: {
-    label: 'Waiting Approval',
-    color: 'bg-orange-100 text-orange-800',
+    label: "Waiting Approval",
+    color: "bg-orange-100 text-orange-800",
     icon: AlertTriangle,
   },
   [JobStatus.WAITING_PARTS]: {
-    label: 'Waiting Parts',
-    color: 'bg-purple-100 text-purple-800',
+    label: "Waiting Parts",
+    color: "bg-purple-100 text-purple-800",
     icon: AlertTriangle,
   },
   [JobStatus.COMPLETED]: {
-    label: 'Completed',
-    color: 'bg-green-100 text-green-800',
+    label: "Completed",
+    color: "bg-green-100 text-green-800",
     icon: CheckCircle,
   },
   [JobStatus.CANCELLED]: {
-    label: 'Cancelled',
-    color: 'bg-red-100 text-red-800',
+    label: "Cancelled",
+    color: "bg-red-100 text-red-800",
     icon: XCircle,
   },
 };
 
 const priorityConfig = {
   [JobPriority.LOW]: {
-    label: 'Low',
-    color: 'bg-green-100 text-green-800',
+    label: "Low",
+    color: "bg-green-100 text-green-800",
   },
   [JobPriority.NORMAL]: {
-    label: 'Normal',
-    color: 'bg-blue-100 text-blue-800',
+    label: "Normal",
+    color: "bg-blue-100 text-blue-800",
   },
   [JobPriority.HIGH]: {
-    label: 'High',
-    color: 'bg-orange-100 text-orange-800',
+    label: "High",
+    color: "bg-orange-100 text-orange-800",
   },
   [JobPriority.URGENT]: {
-    label: 'Urgent',
-    color: 'bg-red-100 text-red-800',
+    label: "Urgent",
+    color: "bg-red-100 text-red-800",
   },
 };
 
@@ -116,16 +111,20 @@ export const JobCardDisplay: React.FC<JobCardDisplayProps> = ({
   showWorkflow = false,
 }) => {
   const { hasPermission, user } = useAuth();
-  
+
   const status = statusConfig[jobCard.status];
   const priority = priorityConfig[jobCard.priority];
   const StatusIcon = status.icon;
 
-  const canEdit = hasPermission('job_cards', 'update') || 
-    (user?.role === UserRole.TECHNICIAN && jobCard.assignedTechnicianId === user.id);
-  const canDelete = hasPermission('job_cards', 'delete');
-  const canChangeStatus = hasPermission('job_cards', 'update') || 
-    (user?.role === UserRole.TECHNICIAN && jobCard.assignedTechnicianId === user.id);
+  const canEdit =
+    hasPermission("job_cards", "update") ||
+    (user?.role === UserRole.TECHNICIAN &&
+      jobCard.assignedTechnicianId === user.id);
+  const canDelete = hasPermission("job_cards", "delete");
+  const canChangeStatus =
+    hasPermission("job_cards", "update") ||
+    (user?.role === UserRole.TECHNICIAN &&
+      jobCard.assignedTechnicianId === user.id);
 
   const calculateProgress = () => {
     if (jobCard.status === JobStatus.COMPLETED) return 100;
@@ -139,7 +138,11 @@ export const JobCardDisplay: React.FC<JobCardDisplayProps> = ({
   };
 
   const getOverdueStatus = () => {
-    if (!jobCard.expectedCompletionDate || jobCard.status === JobStatus.COMPLETED) return false;
+    if (
+      !jobCard.expectedCompletionDate ||
+      jobCard.status === JobStatus.COMPLETED
+    )
+      return false;
     return new Date() > new Date(jobCard.expectedCompletionDate);
   };
 
@@ -147,7 +150,9 @@ export const JobCardDisplay: React.FC<JobCardDisplayProps> = ({
 
   if (compact) {
     return (
-      <Card className={`hover:shadow-md transition-shadow ${isOverdue ? 'border-red-200' : ''}`}>
+      <Card
+        className={`hover:shadow-md transition-shadow ${isOverdue ? "border-red-200" : ""}`}
+      >
         <CardContent className="p-4">
           <div className="flex items-start justify-between">
             <div className="flex-1 min-w-0">
@@ -156,9 +161,13 @@ export const JobCardDisplay: React.FC<JobCardDisplayProps> = ({
                 <Badge variant="outline" className="text-xs">
                   {jobCard.jobNumber}
                 </Badge>
-                {isOverdue && <Badge className="bg-red-100 text-red-800 text-xs">Overdue</Badge>}
+                {isOverdue && (
+                  <Badge className="bg-red-100 text-red-800 text-xs">
+                    Overdue
+                  </Badge>
+                )}
               </div>
-              
+
               <div className="flex items-center gap-4 text-sm text-muted-foreground mb-2">
                 <div className="flex items-center gap-1">
                   <User className="h-3 w-3" />
@@ -171,18 +180,16 @@ export const JobCardDisplay: React.FC<JobCardDisplayProps> = ({
                   </div>
                 )}
               </div>
-              
+
               <div className="flex items-center gap-2">
                 <Badge className={status.color}>
                   <StatusIcon className="h-3 w-3 mr-1" />
                   {status.label}
                 </Badge>
-                <Badge className={priority.color}>
-                  {priority.label}
-                </Badge>
+                <Badge className={priority.color}>{priority.label}</Badge>
               </div>
             </div>
-            
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm">
@@ -203,7 +210,7 @@ export const JobCardDisplay: React.FC<JobCardDisplayProps> = ({
                   </DropdownMenuItem>
                 )}
                 {canDelete && onDelete && (
-                  <DropdownMenuItem 
+                  <DropdownMenuItem
                     onClick={() => onDelete(jobCard)}
                     className="text-destructive"
                   >
@@ -220,16 +227,20 @@ export const JobCardDisplay: React.FC<JobCardDisplayProps> = ({
   }
 
   return (
-    <Card className={`hover:shadow-lg transition-shadow ${isOverdue ? 'border-red-200' : ''}`}>
+    <Card
+      className={`hover:shadow-lg transition-shadow ${isOverdue ? "border-red-200" : ""}`}
+    >
       <CardHeader>
         <div className="flex items-start justify-between">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">
               <CardTitle className="text-lg">{jobCard.title}</CardTitle>
               <Badge variant="outline">{jobCard.jobNumber}</Badge>
-              {isOverdue && <Badge className="bg-red-100 text-red-800">Overdue</Badge>}
+              {isOverdue && (
+                <Badge className="bg-red-100 text-red-800">Overdue</Badge>
+              )}
             </div>
-            
+
             <div className="flex items-center gap-4 text-sm text-muted-foreground">
               <div className="flex items-center gap-1">
                 <User className="h-4 w-4" />
@@ -243,11 +254,11 @@ export const JobCardDisplay: React.FC<JobCardDisplayProps> = ({
               )}
               <div className="flex items-center gap-1">
                 <Calendar className="h-4 w-4" />
-                Created: {format(new Date(jobCard.createdAt), 'MMM dd, yyyy')}
+                Created: {format(new Date(jobCard.createdAt), "MMM dd, yyyy")}
               </div>
             </div>
           </div>
-          
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="sm">
@@ -268,7 +279,7 @@ export const JobCardDisplay: React.FC<JobCardDisplayProps> = ({
                 </DropdownMenuItem>
               )}
               {canDelete && onDelete && (
-                <DropdownMenuItem 
+                <DropdownMenuItem
                   onClick={() => onDelete(jobCard)}
                   className="text-destructive"
                 >
@@ -321,13 +332,25 @@ export const JobCardDisplay: React.FC<JobCardDisplayProps> = ({
             </h4>
             <div className="bg-muted/50 rounded-lg p-3">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
-                <div><span className="font-medium">Make/Model:</span> {jobCard.asset.make} {jobCard.asset.model}</div>
-                <div><span className="font-medium">Year:</span> {jobCard.asset.year}</div>
+                <div>
+                  <span className="font-medium">Make/Model:</span>{" "}
+                  {jobCard.asset.make} {jobCard.asset.model}
+                </div>
+                <div>
+                  <span className="font-medium">Year:</span>{" "}
+                  {jobCard.asset.year}
+                </div>
                 {jobCard.asset.licensePlate && (
-                  <div><span className="font-medium">License:</span> {jobCard.asset.licensePlate}</div>
+                  <div>
+                    <span className="font-medium">License:</span>{" "}
+                    {jobCard.asset.licensePlate}
+                  </div>
                 )}
                 {jobCard.asset.vin && (
-                  <div><span className="font-medium">VIN:</span> {jobCard.asset.vin}</div>
+                  <div>
+                    <span className="font-medium">VIN:</span>{" "}
+                    {jobCard.asset.vin}
+                  </div>
                 )}
               </div>
             </div>
@@ -355,16 +378,21 @@ export const JobCardDisplay: React.FC<JobCardDisplayProps> = ({
             <div>
               <h4 className="text-sm font-medium mb-1">Scheduled Start</h4>
               <p className="text-sm text-muted-foreground">
-                {format(new Date(jobCard.scheduledStartDate), 'MMM dd, yyyy')}
+                {format(new Date(jobCard.scheduledStartDate), "MMM dd, yyyy")}
               </p>
             </div>
           )}
           {jobCard.expectedCompletionDate && (
             <div>
               <h4 className="text-sm font-medium mb-1">Expected Completion</h4>
-              <p className={`text-sm ${isOverdue ? 'text-red-600' : 'text-muted-foreground'}`}>
-                {format(new Date(jobCard.expectedCompletionDate), 'MMM dd, yyyy')}
-                {isOverdue && ' (Overdue)'}
+              <p
+                className={`text-sm ${isOverdue ? "text-red-600" : "text-muted-foreground"}`}
+              >
+                {format(
+                  new Date(jobCard.expectedCompletionDate),
+                  "MMM dd, yyyy",
+                )}
+                {isOverdue && " (Overdue)"}
               </p>
             </div>
           )}
@@ -379,9 +407,18 @@ export const JobCardDisplay: React.FC<JobCardDisplayProps> = ({
             </h4>
             <div className="bg-muted/50 rounded-lg p-3">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-sm">
-                <div><span className="font-medium">Labor:</span> ${jobCard.estimatedCost.laborCost.toFixed(2)}</div>
-                <div><span className="font-medium">Materials:</span> ${jobCard.estimatedCost.materialsCost.toFixed(2)}</div>
-                <div><span className="font-medium">Additional:</span> ${jobCard.estimatedCost.additionalCosts.toFixed(2)}</div>
+                <div>
+                  <span className="font-medium">Labor:</span> $
+                  {jobCard.estimatedCost.laborCost.toFixed(2)}
+                </div>
+                <div>
+                  <span className="font-medium">Materials:</span> $
+                  {jobCard.estimatedCost.materialsCost.toFixed(2)}
+                </div>
+                <div>
+                  <span className="font-medium">Additional:</span> $
+                  {jobCard.estimatedCost.additionalCosts.toFixed(2)}
+                </div>
               </div>
               <Separator className="my-2" />
               <div className="flex justify-between text-sm font-medium">

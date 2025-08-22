@@ -1,10 +1,16 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import React, { useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Clock,
   Play,
@@ -19,9 +25,9 @@ import {
   DollarSign,
   FileText,
   ShoppingCart,
-} from 'lucide-react';
-import { useAuth } from '@/context/AuthContext';
-import { CommunicationCenter } from '@/components/communication/CommunicationCenter';
+} from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+import { CommunicationCenter } from "@/components/communication/CommunicationCenter";
 
 export default function TechnicianDashboard() {
   const { user } = useAuth();
@@ -31,57 +37,69 @@ export default function TechnicianDashboard() {
   // Mock data - In real app, this would come from API
   const assignedJobs = [
     {
-      id: 'JOB-2024-001',
-      jobNumber: 'JOB-2024-001',
-      title: 'Oil Change and Filter Replacement',
-      customer: 'John Smith',
-      vehicle: '2020 Toyota Camry',
-      licensePlate: 'ABC-123',
-      status: 'in_progress',
-      priority: 'normal',
+      id: "JOB-2024-001",
+      jobNumber: "JOB-2024-001",
+      title: "Oil Change and Filter Replacement",
+      customer: "John Smith",
+      vehicle: "2020 Toyota Camry",
+      licensePlate: "ABC-123",
+      status: "in_progress",
+      priority: "normal",
       estimatedTime: 2, // hours
       timeSpent: 1.5,
-      tasks: ['Drain old oil', 'Replace oil filter', 'Add new oil', 'Check fluid levels'],
-      customerArrival: '9:00 AM',
-      estimatedCompletion: '11:00 AM',
+      tasks: [
+        "Drain old oil",
+        "Replace oil filter",
+        "Add new oil",
+        "Check fluid levels",
+      ],
+      customerArrival: "9:00 AM",
+      estimatedCompletion: "11:00 AM",
       materials: [
-        { name: 'Engine Oil 5W-30', quantity: 5, unit: 'liters' },
-        { name: 'Oil Filter', quantity: 1, unit: 'piece' },
+        { name: "Engine Oil 5W-30", quantity: 5, unit: "liters" },
+        { name: "Oil Filter", quantity: 1, unit: "piece" },
       ],
     },
     {
-      id: 'JOB-2024-002',
-      jobNumber: 'JOB-2024-002', 
-      title: 'Brake Inspection',
-      customer: 'ABC Company',
-      vehicle: '2019 Ford F-150',
-      licensePlate: 'XYZ-789',
-      status: 'pending',
-      priority: 'high',
+      id: "JOB-2024-002",
+      jobNumber: "JOB-2024-002",
+      title: "Brake Inspection",
+      customer: "ABC Company",
+      vehicle: "2019 Ford F-150",
+      licensePlate: "XYZ-789",
+      status: "pending",
+      priority: "high",
       estimatedTime: 1.5,
       timeSpent: 0,
-      tasks: ['Inspect brake pads', 'Check brake fluid', 'Test brake performance'],
-      customerArrival: '2:00 PM',
-      estimatedCompletion: '3:30 PM',
+      tasks: [
+        "Inspect brake pads",
+        "Check brake fluid",
+        "Test brake performance",
+      ],
+      customerArrival: "2:00 PM",
+      estimatedCompletion: "3:30 PM",
       materials: [],
     },
     {
-      id: 'JOB-2024-003',
-      jobNumber: 'JOB-2024-003',
-      title: 'Tire Rotation and Balance',
-      customer: 'Mary Johnson',
-      vehicle: '2021 Honda Civic',
-      licensePlate: 'DEF-456',
-      status: 'waiting_parts',
-      priority: 'low',
+      id: "JOB-2024-003",
+      jobNumber: "JOB-2024-003",
+      title: "Tire Rotation and Balance",
+      customer: "Mary Johnson",
+      vehicle: "2021 Honda Civic",
+      licensePlate: "DEF-456",
+      status: "waiting_parts",
+      priority: "low",
       estimatedTime: 1,
       timeSpent: 0.5,
-      tasks: ['Remove all tires', 'Rotate positions', 'Balance wheels', 'Reinstall'],
-      customerArrival: '10:30 AM',
-      estimatedCompletion: '12:00 PM',
-      materials: [
-        { name: 'Wheel Weights', quantity: 4, unit: 'sets' },
+      tasks: [
+        "Remove all tires",
+        "Rotate positions",
+        "Balance wheels",
+        "Reinstall",
       ],
+      customerArrival: "10:30 AM",
+      estimatedCompletion: "12:00 PM",
+      materials: [{ name: "Wheel Weights", quantity: 4, unit: "sets" }],
     },
   ];
 
@@ -93,27 +111,41 @@ export default function TechnicianDashboard() {
   };
 
   const recentSales = [
-    { item: 'Air Freshener', quantity: 2, price: 15.99, time: '10:30 AM' },
-    { item: 'Windshield Washer Fluid', quantity: 1, price: 8.50, time: '11:15 AM' },
-    { item: 'Car Charger', quantity: 1, price: 24.99, time: '2:45 PM' },
+    { item: "Air Freshener", quantity: 2, price: 15.99, time: "10:30 AM" },
+    {
+      item: "Windshield Washer Fluid",
+      quantity: 1,
+      price: 8.5,
+      time: "11:15 AM",
+    },
+    { item: "Car Charger", quantity: 1, price: 24.99, time: "2:45 PM" },
   ];
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pending': return 'bg-gray-100 text-gray-800';
-      case 'in_progress': return 'bg-blue-100 text-blue-800';
-      case 'waiting_parts': return 'bg-orange-100 text-orange-800';
-      case 'completed': return 'bg-green-100 text-green-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case "pending":
+        return "bg-gray-100 text-gray-800";
+      case "in_progress":
+        return "bg-blue-100 text-blue-800";
+      case "waiting_parts":
+        return "bg-orange-100 text-orange-800";
+      case "completed":
+        return "bg-green-100 text-green-800";
+      default:
+        return "bg-gray-100 text-gray-800";
     }
   };
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'high': return 'bg-red-100 text-red-800';
-      case 'normal': return 'bg-blue-100 text-blue-800';
-      case 'low': return 'bg-green-100 text-green-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case "high":
+        return "bg-red-100 text-red-800";
+      case "normal":
+        return "bg-blue-100 text-blue-800";
+      case "low":
+        return "bg-green-100 text-green-800";
+      default:
+        return "bg-gray-100 text-gray-800";
     }
   };
 
@@ -143,12 +175,18 @@ export default function TechnicianDashboard() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Technician Dashboard</h1>
-          <p className="text-gray-600">Welcome back, {user?.name}! Here are your assigned jobs.</p>
+          <h1 className="text-3xl font-bold text-gray-900">
+            Technician Dashboard
+          </h1>
+          <p className="text-gray-600">
+            Welcome back, {user?.name}! Here are your assigned jobs.
+          </p>
         </div>
         <div className="text-right">
           <p className="text-sm text-gray-600">Today</p>
-          <p className="text-2xl font-bold">{new Date().toLocaleDateString()}</p>
+          <p className="text-2xl font-bold">
+            {new Date().toLocaleDateString()}
+          </p>
         </div>
       </div>
 
@@ -158,8 +196,12 @@ export default function TechnicianDashboard() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Assigned Jobs</p>
-                <p className="text-2xl font-bold text-blue-600">{todayStats.assignedJobs}</p>
+                <p className="text-sm font-medium text-gray-600">
+                  Assigned Jobs
+                </p>
+                <p className="text-2xl font-bold text-blue-600">
+                  {todayStats.assignedJobs}
+                </p>
               </div>
               <div className="h-12 w-12 bg-blue-100 rounded-full flex items-center justify-center">
                 <FileText className="h-6 w-6 text-blue-600" />
@@ -172,8 +214,12 @@ export default function TechnicianDashboard() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Completed Today</p>
-                <p className="text-2xl font-bold text-green-600">{todayStats.completedJobs}</p>
+                <p className="text-sm font-medium text-gray-600">
+                  Completed Today
+                </p>
+                <p className="text-2xl font-bold text-green-600">
+                  {todayStats.completedJobs}
+                </p>
               </div>
               <div className="h-12 w-12 bg-green-100 rounded-full flex items-center justify-center">
                 <CheckCircle className="h-6 w-6 text-green-600" />
@@ -186,8 +232,12 @@ export default function TechnicianDashboard() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Hours Worked</p>
-                <p className="text-2xl font-bold text-purple-600">{todayStats.hoursWorked}h</p>
+                <p className="text-sm font-medium text-gray-600">
+                  Hours Worked
+                </p>
+                <p className="text-2xl font-bold text-purple-600">
+                  {todayStats.hoursWorked}h
+                </p>
               </div>
               <div className="h-12 w-12 bg-purple-100 rounded-full flex items-center justify-center">
                 <Timer className="h-6 w-6 text-purple-600" />
@@ -200,8 +250,12 @@ export default function TechnicianDashboard() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">On-Time Rate</p>
-                <p className="text-2xl font-bold text-green-600">{todayStats.onTimeCompletion}%</p>
+                <p className="text-sm font-medium text-gray-600">
+                  On-Time Rate
+                </p>
+                <p className="text-2xl font-bold text-green-600">
+                  {todayStats.onTimeCompletion}%
+                </p>
               </div>
               <div className="h-12 w-12 bg-green-100 rounded-full flex items-center justify-center">
                 <Clock className="h-6 w-6 text-green-600" />
@@ -230,7 +284,7 @@ export default function TechnicianDashboard() {
                       <div className="flex items-center gap-2 mb-2">
                         <h3 className="text-lg font-semibold">{job.title}</h3>
                         <Badge className={getStatusColor(job.status)}>
-                          {job.status.replace('_', ' ')}
+                          {job.status.replace("_", " ")}
                         </Badge>
                         <Badge className={getPriorityColor(job.priority)}>
                           {job.priority}
@@ -260,8 +314,8 @@ export default function TechnicianDashboard() {
                       <p className="text-sm text-gray-500">
                         {job.timeSpent}/{job.estimatedTime}h
                       </p>
-                      <Progress 
-                        value={(job.timeSpent / job.estimatedTime) * 100} 
+                      <Progress
+                        value={(job.timeSpent / job.estimatedTime) * 100}
                         className="w-24 h-2 mt-1"
                       />
                     </div>
@@ -272,7 +326,10 @@ export default function TechnicianDashboard() {
                     <h4 className="font-medium mb-2">Tasks:</h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-1">
                       {job.tasks.map((task, index) => (
-                        <div key={index} className="flex items-center gap-2 text-sm">
+                        <div
+                          key={index}
+                          className="flex items-center gap-2 text-sm"
+                        >
                           <div className="h-1.5 w-1.5 bg-gray-400 rounded-full" />
                           {task}
                         </div>
@@ -286,9 +343,14 @@ export default function TechnicianDashboard() {
                       <h4 className="font-medium mb-2">Materials:</h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                         {job.materials.map((material, index) => (
-                          <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                          <div
+                            key={index}
+                            className="flex items-center justify-between p-2 bg-gray-50 rounded"
+                          >
                             <span className="text-sm">{material.name}</span>
-                            <span className="text-sm font-medium">{material.quantity} {material.unit}</span>
+                            <span className="text-sm font-medium">
+                              {material.quantity} {material.unit}
+                            </span>
                           </div>
                         ))}
                       </div>
@@ -297,21 +359,21 @@ export default function TechnicianDashboard() {
 
                   {/* Action Buttons */}
                   <div className="flex gap-2 flex-wrap">
-                    {job.status === 'pending' && (
-                      <Button 
-                        size="sm" 
-                        onClick={() => updateJobStatus(job.id, 'in_progress')}
+                    {job.status === "pending" && (
+                      <Button
+                        size="sm"
+                        onClick={() => updateJobStatus(job.id, "in_progress")}
                       >
                         <Play className="h-4 w-4 mr-1" />
                         Start Job
                       </Button>
                     )}
-                    
-                    {job.status === 'in_progress' && (
+
+                    {job.status === "in_progress" && (
                       <>
                         {activeTimer === job.id ? (
-                          <Button 
-                            size="sm" 
+                          <Button
+                            size="sm"
                             variant="outline"
                             onClick={() => stopTimer(job.id)}
                           >
@@ -319,8 +381,8 @@ export default function TechnicianDashboard() {
                             Stop Timer
                           </Button>
                         ) : (
-                          <Button 
-                            size="sm" 
+                          <Button
+                            size="sm"
                             variant="outline"
                             onClick={() => startTimer(job.id)}
                           >
@@ -328,17 +390,17 @@ export default function TechnicianDashboard() {
                             Start Timer
                           </Button>
                         )}
-                        
-                        <Button 
+
+                        <Button
                           size="sm"
-                          onClick={() => updateJobStatus(job.id, 'completed')}
+                          onClick={() => updateJobStatus(job.id, "completed")}
                         >
                           <CheckCircle className="h-4 w-4 mr-1" />
                           Mark Complete
                         </Button>
-                        
-                        <Button 
-                          size="sm" 
+
+                        <Button
+                          size="sm"
                           variant="outline"
                           onClick={() => recordCustomerLeave(job.id)}
                         >
@@ -347,10 +409,10 @@ export default function TechnicianDashboard() {
                       </>
                     )}
 
-                    {job.status === 'waiting_parts' && (
-                      <Button 
+                    {job.status === "waiting_parts" && (
+                      <Button
                         size="sm"
-                        onClick={() => updateJobStatus(job.id, 'in_progress')}
+                        onClick={() => updateJobStatus(job.id, "in_progress")}
                       >
                         Parts Arrived
                       </Button>

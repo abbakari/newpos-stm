@@ -1,39 +1,36 @@
-import React, { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import React, { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from '@/components/ui/dialog';
-import {
-  Alert,
-  AlertDescription,
-} from '@/components/ui/alert';
+} from "@/components/ui/dialog";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { useAuth } from '@/context/AuthContext';
-import { useTechnicianStatus } from '@/context/TechnicianStatusContext';
+} from "@/components/ui/select";
+import { useAuth } from "@/context/AuthContext";
+import { useTechnicianStatus } from "@/context/TechnicianStatusContext";
 import {
   JobCard,
   JobStatus,
   UserRole,
   LaborEntry,
   Material,
-} from '@shared/types';
+} from "@shared/types";
 import {
   Clock,
   Play,
@@ -53,8 +50,8 @@ import {
   RefreshCw,
   Wrench,
   MapPin,
-} from 'lucide-react';
-import { format } from 'date-fns';
+} from "lucide-react";
+import { format } from "date-fns";
 
 interface TechnicianWorkflowEnhancedProps {
   jobCard: JobCard;
@@ -76,46 +73,53 @@ interface MaterialEntry {
   category: string;
 }
 
-export const TechnicianWorkflowEnhanced: React.FC<TechnicianWorkflowEnhancedProps> = ({
-  jobCard,
-  onUpdateJobCard,
-  onStatusChange,
-}) => {
+export const TechnicianWorkflowEnhanced: React.FC<
+  TechnicianWorkflowEnhancedProps
+> = ({ jobCard, onUpdateJobCard, onStatusChange }) => {
   const { user } = useAuth();
-  const { currentUserStatus, updateCurrentTask, updateLocation } = useTechnicianStatus();
-  
+  const { currentUserStatus, updateCurrentTask, updateLocation } =
+    useTechnicianStatus();
+
   // Time tracking state
-  const [currentTimeEntry, setCurrentTimeEntry] = useState<TimeEntry | null>(null);
-  const [timeDescription, setTimeDescription] = useState('');
+  const [currentTimeEntry, setCurrentTimeEntry] = useState<TimeEntry | null>(
+    null,
+  );
+  const [timeDescription, setTimeDescription] = useState("");
   const [showTimeDialog, setShowTimeDialog] = useState(false);
-  
+
   // Materials state
   const [showMaterialDialog, setShowMaterialDialog] = useState(false);
   const [materialEntry, setMaterialEntry] = useState<MaterialEntry>({
-    name: '',
-    partNumber: '',
+    name: "",
+    partNumber: "",
     quantity: 1,
     unitPrice: 0,
-    category: 'parts',
+    category: "parts",
   });
-  
+
   // Task management
-  const [taskProgress, setTaskProgress] = useState<{ [key: number]: boolean }>({});
-  const [newTaskDescription, setNewTaskDescription] = useState('');
-  
+  const [taskProgress, setTaskProgress] = useState<{ [key: number]: boolean }>(
+    {},
+  );
+  const [newTaskDescription, setNewTaskDescription] = useState("");
+
   // Notes and communication
-  const [progressNote, setProgressNote] = useState('');
-  const [customerMessage, setCustomerMessage] = useState('');
-  
+  const [progressNote, setProgressNote] = useState("");
+  const [customerMessage, setCustomerMessage] = useState("");
+
   // Status management
   const [isWorking, setIsWorking] = useState(false);
-  
+
   const isTechnician = user?.role === UserRole.TECHNICIAN;
-  const isAssignedTechnician = isTechnician && jobCard.assignedTechnicianId === user?.id;
+  const isAssignedTechnician =
+    isTechnician && jobCard.assignedTechnicianId === user?.id;
 
   // Check permissions
-  const canWork = isAssignedTechnician && [JobStatus.PENDING, JobStatus.IN_PROGRESS].includes(jobCard.status);
-  const canComplete = isAssignedTechnician && jobCard.status === JobStatus.IN_PROGRESS;
+  const canWork =
+    isAssignedTechnician &&
+    [JobStatus.PENDING, JobStatus.IN_PROGRESS].includes(jobCard.status);
+  const canComplete =
+    isAssignedTechnician && jobCard.status === JobStatus.IN_PROGRESS;
 
   // Initialize task progress
   useEffect(() => {
@@ -130,14 +134,24 @@ export const TechnicianWorkflowEnhanced: React.FC<TechnicianWorkflowEnhancedProp
   useEffect(() => {
     if (isWorking && isAssignedTechnician) {
       updateCurrentTask(`${jobCard.title} - ${jobCard.customer.name}`);
-    } else if (!isWorking && currentUserStatus?.currentTask?.includes(jobCard.title)) {
+    } else if (
+      !isWorking &&
+      currentUserStatus?.currentTask?.includes(jobCard.title)
+    ) {
       updateCurrentTask(undefined);
     }
-  }, [isWorking, jobCard.title, jobCard.customer.name, isAssignedTechnician, updateCurrentTask, currentUserStatus]);
+  }, [
+    isWorking,
+    jobCard.title,
+    jobCard.customer.name,
+    isAssignedTechnician,
+    updateCurrentTask,
+    currentUserStatus,
+  ]);
 
   const startWork = () => {
     if (!canWork) return;
-    
+
     onStatusChange(jobCard, JobStatus.IN_PROGRESS);
     setIsWorking(true);
     startTimeTracking();
@@ -145,23 +159,25 @@ export const TechnicianWorkflowEnhanced: React.FC<TechnicianWorkflowEnhancedProp
 
   const startTimeTracking = () => {
     if (currentTimeEntry?.isActive) return;
-    
+
     const newEntry: TimeEntry = {
       startTime: new Date(),
       description: timeDescription || `Work on ${jobCard.title}`,
       isActive: true,
     };
-    
+
     setCurrentTimeEntry(newEntry);
-    setTimeDescription('');
+    setTimeDescription("");
   };
 
   const stopTimeTracking = () => {
     if (!currentTimeEntry?.isActive) return;
-    
+
     const endTime = new Date();
-    const hours = (endTime.getTime() - currentTimeEntry.startTime.getTime()) / (1000 * 60 * 60);
-    
+    const hours =
+      (endTime.getTime() - currentTimeEntry.startTime.getTime()) /
+      (1000 * 60 * 60);
+
     const laborEntry: LaborEntry = {
       id: Date.now().toString(),
       technicianId: user!.id,
@@ -187,7 +203,7 @@ export const TechnicianWorkflowEnhanced: React.FC<TechnicianWorkflowEnhancedProp
 
   const addMaterial = () => {
     if (!materialEntry.name || materialEntry.quantity <= 0) {
-      alert('Please fill in material name and valid quantity');
+      alert("Please fill in material name and valid quantity");
       return;
     }
 
@@ -210,11 +226,11 @@ export const TechnicianWorkflowEnhanced: React.FC<TechnicianWorkflowEnhancedProp
 
     onUpdateJobCard(updatedJobCard);
     setMaterialEntry({
-      name: '',
-      partNumber: '',
+      name: "",
+      partNumber: "",
       quantity: 1,
       unitPrice: 0,
-      category: 'parts',
+      category: "parts",
     });
     setShowMaterialDialog(false);
   };
@@ -222,7 +238,7 @@ export const TechnicianWorkflowEnhanced: React.FC<TechnicianWorkflowEnhancedProp
   const removeMaterial = (materialId: string) => {
     const updatedJobCard = {
       ...jobCard,
-      materialsUsed: jobCard.materialsUsed.filter(m => m.id !== materialId),
+      materialsUsed: jobCard.materialsUsed.filter((m) => m.id !== materialId),
       lastUpdatedBy: user!.id,
       lastUpdatedAt: new Date(),
     };
@@ -230,17 +246,17 @@ export const TechnicianWorkflowEnhanced: React.FC<TechnicianWorkflowEnhancedProp
   };
 
   const updateTaskProgress = (taskIndex: number, completed: boolean) => {
-    setTaskProgress(prev => ({ ...prev, [taskIndex]: completed }));
-    
+    setTaskProgress((prev) => ({ ...prev, [taskIndex]: completed }));
+
     // Add progress note
     const task = jobCard.tasks[taskIndex];
-    const note = `Task ${completed ? 'completed' : 'marked incomplete'}: ${task}`;
+    const note = `Task ${completed ? "completed" : "marked incomplete"}: ${task}`;
     addProgressNote(note);
   };
 
   const addTask = () => {
     if (!newTaskDescription.trim()) return;
-    
+
     const updatedJobCard = {
       ...jobCard,
       tasks: [...jobCard.tasks, newTaskDescription.trim()],
@@ -249,12 +265,12 @@ export const TechnicianWorkflowEnhanced: React.FC<TechnicianWorkflowEnhancedProp
     };
 
     onUpdateJobCard(updatedJobCard);
-    setNewTaskDescription('');
+    setNewTaskDescription("");
   };
 
   const addProgressNote = (note: string) => {
-    const timestampedNote = `[${format(new Date(), 'HH:mm')}] ${note}`;
-    
+    const timestampedNote = `[${format(new Date(), "HH:mm")}] ${note}`;
+
     const updatedJobCard = {
       ...jobCard,
       notes: [...jobCard.notes, timestampedNote],
@@ -267,40 +283,45 @@ export const TechnicianWorkflowEnhanced: React.FC<TechnicianWorkflowEnhancedProp
 
   const sendProgressUpdate = () => {
     if (!progressNote.trim()) return;
-    
+
     addProgressNote(`Progress Update: ${progressNote.trim()}`);
-    setProgressNote('');
+    setProgressNote("");
   };
 
   const sendCustomerMessage = () => {
     if (!customerMessage.trim()) return;
-    
+
     addProgressNote(`Message to customer: ${customerMessage.trim()}`);
-    setCustomerMessage('');
-    
+    setCustomerMessage("");
+
     // In real app, this would send a notification to the office manager
-    alert('Message sent to office manager for customer communication');
+    alert("Message sent to office manager for customer communication");
   };
 
   const requestApproval = () => {
     if (currentTimeEntry?.isActive) {
       stopTimeTracking();
     }
-    
+
     setIsWorking(false);
     onStatusChange(jobCard, JobStatus.WAITING_APPROVAL);
-    addProgressNote('Work completed - requesting approval from office manager');
+    addProgressNote("Work completed - requesting approval from office manager");
   };
 
   const getTotalTimeWorked = () => {
-    let total = jobCard.laborEntries.reduce((sum, entry) => sum + entry.hours, 0);
-    
+    let total = jobCard.laborEntries.reduce(
+      (sum, entry) => sum + entry.hours,
+      0,
+    );
+
     // Add current active time if tracking
     if (currentTimeEntry?.isActive) {
-      const currentHours = (new Date().getTime() - currentTimeEntry.startTime.getTime()) / (1000 * 60 * 60);
+      const currentHours =
+        (new Date().getTime() - currentTimeEntry.startTime.getTime()) /
+        (1000 * 60 * 60);
       total += currentHours;
     }
-    
+
     return total;
   };
 
@@ -314,7 +335,10 @@ export const TechnicianWorkflowEnhanced: React.FC<TechnicianWorkflowEnhancedProp
   };
 
   const getTotalMaterialsCost = () => {
-    return jobCard.materialsUsed.reduce((sum, material) => sum + material.totalPrice, 0);
+    return jobCard.materialsUsed.reduce(
+      (sum, material) => sum + material.totalPrice,
+      0,
+    );
   };
 
   if (!isAssignedTechnician) {
@@ -322,7 +346,8 @@ export const TechnicianWorkflowEnhanced: React.FC<TechnicianWorkflowEnhancedProp
       <Alert>
         <AlertTriangle className="h-4 w-4" />
         <AlertDescription>
-          This job card is not assigned to you. Only the assigned technician can work on it.
+          This job card is not assigned to you. Only the assigned technician can
+          work on it.
         </AlertDescription>
       </Alert>
     );
@@ -354,7 +379,9 @@ export const TechnicianWorkflowEnhanced: React.FC<TechnicianWorkflowEnhancedProp
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
             <div className="text-center p-3 bg-blue-50 rounded-lg">
-              <div className="text-2xl font-bold text-blue-600">{getTotalTimeWorked().toFixed(1)}h</div>
+              <div className="text-2xl font-bold text-blue-600">
+                {getTotalTimeWorked().toFixed(1)}h
+              </div>
               <div className="text-sm text-muted-foreground">Time Worked</div>
             </div>
             <div className="text-center p-3 bg-green-50 rounded-lg">
@@ -364,8 +391,12 @@ export const TechnicianWorkflowEnhanced: React.FC<TechnicianWorkflowEnhancedProp
               <div className="text-sm text-muted-foreground">Tasks Done</div>
             </div>
             <div className="text-center p-3 bg-orange-50 rounded-lg">
-              <div className="text-2xl font-bold text-orange-600">${getTotalMaterialsCost().toFixed(2)}</div>
-              <div className="text-sm text-muted-foreground">Materials Used</div>
+              <div className="text-2xl font-bold text-orange-600">
+                ${getTotalMaterialsCost().toFixed(2)}
+              </div>
+              <div className="text-sm text-muted-foreground">
+                Materials Used
+              </div>
             </div>
           </div>
 
@@ -390,8 +421,11 @@ export const TechnicianWorkflowEnhanced: React.FC<TechnicianWorkflowEnhancedProp
                     Stop Timer
                   </Button>
                 )}
-                
-                <Button variant="outline" onClick={() => setShowMaterialDialog(true)}>
+
+                <Button
+                  variant="outline"
+                  onClick={() => setShowMaterialDialog(true)}
+                >
                   <Package className="h-4 w-4 mr-2" />
                   Add Material
                 </Button>
@@ -425,14 +459,21 @@ export const TechnicianWorkflowEnhanced: React.FC<TechnicianWorkflowEnhancedProp
             <CardContent>
               <div className="space-y-3">
                 {jobCard.tasks.map((task, index) => (
-                  <div key={index} className="flex items-center gap-3 p-3 border rounded-lg">
+                  <div
+                    key={index}
+                    className="flex items-center gap-3 p-3 border rounded-lg"
+                  >
                     <input
                       type="checkbox"
                       checked={taskProgress[index] || false}
-                      onChange={(e) => updateTaskProgress(index, e.target.checked)}
+                      onChange={(e) =>
+                        updateTaskProgress(index, e.target.checked)
+                      }
                       className="h-4 w-4"
                     />
-                    <span className={`flex-1 ${taskProgress[index] ? 'line-through text-muted-foreground' : ''}`}>
+                    <span
+                      className={`flex-1 ${taskProgress[index] ? "line-through text-muted-foreground" : ""}`}
+                    >
                       {task}
                     </span>
                     {taskProgress[index] && (
@@ -440,16 +481,19 @@ export const TechnicianWorkflowEnhanced: React.FC<TechnicianWorkflowEnhancedProp
                     )}
                   </div>
                 ))}
-                
+
                 {/* Add new task */}
                 <div className="flex gap-2 pt-2">
                   <Input
                     placeholder="Add a new task..."
                     value={newTaskDescription}
                     onChange={(e) => setNewTaskDescription(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && addTask()}
+                    onKeyPress={(e) => e.key === "Enter" && addTask()}
                   />
-                  <Button onClick={addTask} disabled={!newTaskDescription.trim()}>
+                  <Button
+                    onClick={addTask}
+                    disabled={!newTaskDescription.trim()}
+                  >
                     <Plus className="h-4 w-4" />
                   </Button>
                 </div>
@@ -473,21 +517,28 @@ export const TechnicianWorkflowEnhanced: React.FC<TechnicianWorkflowEnhancedProp
             <CardContent>
               {jobCard.materialsUsed.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
-                  No materials added yet. Click "Add Material" to start tracking.
+                  No materials added yet. Click "Add Material" to start
+                  tracking.
                 </div>
               ) : (
                 <div className="space-y-3">
                   {jobCard.materialsUsed.map((material) => (
-                    <div key={material.id} className="flex items-center justify-between p-3 border rounded-lg">
+                    <div
+                      key={material.id}
+                      className="flex items-center justify-between p-3 border rounded-lg"
+                    >
                       <div className="flex-1">
                         <div className="font-medium">{material.name}</div>
                         <div className="text-sm text-muted-foreground">
-                          Part #: {material.partNumber || 'N/A'} | Qty: {material.quantity} | 
-                          Unit: ${material.unitPrice.toFixed(2)}
+                          Part #: {material.partNumber || "N/A"} | Qty:{" "}
+                          {material.quantity} | Unit: $
+                          {material.unitPrice.toFixed(2)}
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="font-bold">${material.totalPrice.toFixed(2)}</span>
+                        <span className="font-bold">
+                          ${material.totalPrice.toFixed(2)}
+                        </span>
                         <Button
                           variant="ghost"
                           size="sm"
@@ -520,8 +571,10 @@ export const TechnicianWorkflowEnhanced: React.FC<TechnicianWorkflowEnhancedProp
                 <Alert className="mb-4">
                   <Timer className="h-4 w-4" />
                   <AlertDescription>
-                    <strong>Currently tracking:</strong> {currentTimeEntry.description}<br />
-                    Started at: {format(currentTimeEntry.startTime, 'HH:mm:ss')}
+                    <strong>Currently tracking:</strong>{" "}
+                    {currentTimeEntry.description}
+                    <br />
+                    Started at: {format(currentTimeEntry.startTime, "HH:mm:ss")}
                   </AlertDescription>
                 </Alert>
               )}
@@ -533,12 +586,16 @@ export const TechnicianWorkflowEnhanced: React.FC<TechnicianWorkflowEnhancedProp
                       <div>
                         <div className="font-medium">{entry.description}</div>
                         <div className="text-sm text-muted-foreground">
-                          {format(new Date(entry.startTime), 'MMM dd, HH:mm')} -
-                          {entry.endTime ? format(new Date(entry.endTime), 'HH:mm') : 'In Progress'}
+                          {format(new Date(entry.startTime), "MMM dd, HH:mm")} -
+                          {entry.endTime
+                            ? format(new Date(entry.endTime), "HH:mm")
+                            : "In Progress"}
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className="font-bold">{entry.hours.toFixed(2)}h</div>
+                        <div className="font-bold">
+                          {entry.hours.toFixed(2)}h
+                        </div>
                         <div className="text-sm text-muted-foreground">
                           ${(entry.hours * entry.hourlyRate).toFixed(2)}
                         </div>
@@ -547,11 +604,13 @@ export const TechnicianWorkflowEnhanced: React.FC<TechnicianWorkflowEnhancedProp
                   </div>
                 ))}
 
-                {jobCard.laborEntries.length === 0 && !currentTimeEntry?.isActive && (
-                  <div className="text-center py-8 text-muted-foreground">
-                    No time entries yet. Start the timer to begin tracking your work.
-                  </div>
-                )}
+                {jobCard.laborEntries.length === 0 &&
+                  !currentTimeEntry?.isActive && (
+                    <div className="text-center py-8 text-muted-foreground">
+                      No time entries yet. Start the timer to begin tracking
+                      your work.
+                    </div>
+                  )}
               </div>
             </CardContent>
           </Card>
@@ -572,7 +631,10 @@ export const TechnicianWorkflowEnhanced: React.FC<TechnicianWorkflowEnhancedProp
                     onChange={(e) => setProgressNote(e.target.value)}
                     rows={3}
                   />
-                  <Button onClick={sendProgressUpdate} disabled={!progressNote.trim()}>
+                  <Button
+                    onClick={sendProgressUpdate}
+                    disabled={!progressNote.trim()}
+                  >
                     <MessageSquare className="h-4 w-4 mr-2" />
                     Add Progress Note
                   </Button>
@@ -592,7 +654,10 @@ export const TechnicianWorkflowEnhanced: React.FC<TechnicianWorkflowEnhancedProp
                     onChange={(e) => setCustomerMessage(e.target.value)}
                     rows={3}
                   />
-                  <Button onClick={sendCustomerMessage} disabled={!customerMessage.trim()}>
+                  <Button
+                    onClick={sendCustomerMessage}
+                    disabled={!customerMessage.trim()}
+                  >
                     <Send className="h-4 w-4 mr-2" />
                     Send to Customer (via Office Manager)
                   </Button>
@@ -611,11 +676,17 @@ export const TechnicianWorkflowEnhanced: React.FC<TechnicianWorkflowEnhancedProp
                       No notes yet.
                     </div>
                   ) : (
-                    jobCard.notes.slice(-10).reverse().map((note, index) => (
-                      <div key={index} className="p-2 bg-muted rounded text-sm">
-                        {note}
-                      </div>
-                    ))
+                    jobCard.notes
+                      .slice(-10)
+                      .reverse()
+                      .map((note, index) => (
+                        <div
+                          key={index}
+                          className="p-2 bg-muted rounded text-sm"
+                        >
+                          {note}
+                        </div>
+                      ))
                   )}
                 </div>
               </CardContent>
@@ -636,7 +707,12 @@ export const TechnicianWorkflowEnhanced: React.FC<TechnicianWorkflowEnhancedProp
                 <Label>Material Name *</Label>
                 <Input
                   value={materialEntry.name}
-                  onChange={(e) => setMaterialEntry(prev => ({ ...prev, name: e.target.value }))}
+                  onChange={(e) =>
+                    setMaterialEntry((prev) => ({
+                      ...prev,
+                      name: e.target.value,
+                    }))
+                  }
                   placeholder="Enter material name"
                 />
               </div>
@@ -644,7 +720,12 @@ export const TechnicianWorkflowEnhanced: React.FC<TechnicianWorkflowEnhancedProp
                 <Label>Part Number</Label>
                 <Input
                   value={materialEntry.partNumber}
-                  onChange={(e) => setMaterialEntry(prev => ({ ...prev, partNumber: e.target.value }))}
+                  onChange={(e) =>
+                    setMaterialEntry((prev) => ({
+                      ...prev,
+                      partNumber: e.target.value,
+                    }))
+                  }
                   placeholder="Enter part number"
                 />
               </div>
@@ -656,7 +737,12 @@ export const TechnicianWorkflowEnhanced: React.FC<TechnicianWorkflowEnhancedProp
                   type="number"
                   min="1"
                   value={materialEntry.quantity}
-                  onChange={(e) => setMaterialEntry(prev => ({ ...prev, quantity: parseInt(e.target.value) || 1 }))}
+                  onChange={(e) =>
+                    setMaterialEntry((prev) => ({
+                      ...prev,
+                      quantity: parseInt(e.target.value) || 1,
+                    }))
+                  }
                 />
               </div>
               <div>
@@ -665,11 +751,21 @@ export const TechnicianWorkflowEnhanced: React.FC<TechnicianWorkflowEnhancedProp
                   type="number"
                   step="0.01"
                   value={materialEntry.unitPrice}
-                  onChange={(e) => setMaterialEntry(prev => ({ ...prev, unitPrice: parseFloat(e.target.value) || 0 }))}
+                  onChange={(e) =>
+                    setMaterialEntry((prev) => ({
+                      ...prev,
+                      unitPrice: parseFloat(e.target.value) || 0,
+                    }))
+                  }
                 />
               </div>
               <div>
-                <Label>Total: ${(materialEntry.quantity * materialEntry.unitPrice).toFixed(2)}</Label>
+                <Label>
+                  Total: $
+                  {(materialEntry.quantity * materialEntry.unitPrice).toFixed(
+                    2,
+                  )}
+                </Label>
                 <div className="text-sm text-muted-foreground pt-2">
                   Auto-calculated
                 </div>
@@ -677,9 +773,11 @@ export const TechnicianWorkflowEnhanced: React.FC<TechnicianWorkflowEnhancedProp
             </div>
             <div>
               <Label>Category</Label>
-              <Select 
-                value={materialEntry.category} 
-                onValueChange={(value) => setMaterialEntry(prev => ({ ...prev, category: value }))}
+              <Select
+                value={materialEntry.category}
+                onValueChange={(value) =>
+                  setMaterialEntry((prev) => ({ ...prev, category: value }))
+                }
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -695,12 +793,13 @@ export const TechnicianWorkflowEnhanced: React.FC<TechnicianWorkflowEnhancedProp
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowMaterialDialog(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setShowMaterialDialog(false)}
+            >
               Cancel
             </Button>
-            <Button onClick={addMaterial}>
-              Add Material
-            </Button>
+            <Button onClick={addMaterial}>Add Material</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

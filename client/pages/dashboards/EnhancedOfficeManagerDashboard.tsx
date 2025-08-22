@@ -1,19 +1,22 @@
-import React, { useState, useMemo } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import React, { useState, useMemo } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import {
-  Alert,
-  AlertDescription,
-} from '@/components/ui/alert';
+} from "@/components/ui/dialog";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Users,
   Plus,
@@ -37,95 +40,122 @@ import {
   MapPin,
   Timer,
   Zap,
-} from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { format } from 'date-fns';
-import { useTechnicianStatus, TechnicianStatusIndicator } from '@/context/TechnicianStatusContext';
-import { CommunicationCenter } from '@/components/communication/CommunicationCenter';
-import { JobCard, JobStatus, JobPriority } from '@shared/types';
+} from "lucide-react";
+import { Link } from "react-router-dom";
+import { format } from "date-fns";
+import {
+  useTechnicianStatus,
+  TechnicianStatusIndicator,
+} from "@/context/TechnicianStatusContext";
+import { CommunicationCenter } from "@/components/communication/CommunicationCenter";
+import { JobCard, JobStatus, JobPriority } from "@shared/types";
 
 // Mock data for active orders and technician activities
 const mockActiveOrders = [
   {
-    id: 'ORD-2024-015',
-    jobNumber: 'JOB-2024-015',
-    customer: 'John Smith',
-    vehicle: 'Toyota Camry (ABC-123)',
-    service: 'Oil Change + Inspection',
-    technician: 'Mike Johnson',
-    technicianId: 'tech-1',
-    status: 'in_progress',
-    priority: 'normal',
+    id: "ORD-2024-015",
+    jobNumber: "JOB-2024-015",
+    customer: "John Smith",
+    vehicle: "Toyota Camry (ABC-123)",
+    service: "Oil Change + Inspection",
+    technician: "Mike Johnson",
+    technicianId: "tech-1",
+    status: "in_progress",
+    priority: "normal",
     startTime: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
     estimatedCompletion: new Date(Date.now() + 30 * 60 * 1000), // 30 minutes from now
     progress: 75,
-    estimatedCost: 140.50,
-    location: 'Service Bay 1',
+    estimatedCost: 140.5,
+    location: "Service Bay 1",
   },
   {
-    id: 'ORD-2024-016',
-    customer: 'ABC Company',
-    jobNumber: 'JOB-2024-016',
-    vehicle: 'Ford F-150 (XYZ-789)',
-    service: 'Tire Replacement',
-    technician: 'Sarah Wilson',
-    technicianId: 'tech-2',
-    status: 'waiting_approval',
-    priority: 'high',
+    id: "ORD-2024-016",
+    customer: "ABC Company",
+    jobNumber: "JOB-2024-016",
+    vehicle: "Ford F-150 (XYZ-789)",
+    service: "Tire Replacement",
+    technician: "Sarah Wilson",
+    technicianId: "tech-2",
+    status: "waiting_approval",
+    priority: "high",
     startTime: new Date(Date.now() - 4 * 60 * 60 * 1000), // 4 hours ago
     estimatedCompletion: new Date(Date.now() - 30 * 60 * 1000), // 30 minutes ago (overdue)
     progress: 100,
-    estimatedCost: 340.20,
-    location: 'Service Bay 2',
+    estimatedCost: 340.2,
+    location: "Service Bay 2",
   },
   {
-    id: 'ORD-2024-017',
-    customer: 'Mary Johnson',
-    jobNumber: 'JOB-2024-017',
-    vehicle: 'Honda Civic (DEF-456)',
-    service: 'Brake Service',
-    technician: 'Tom Brown',
-    technicianId: 'tech-3',
-    status: 'pending',
-    priority: 'normal',
+    id: "ORD-2024-017",
+    customer: "Mary Johnson",
+    jobNumber: "JOB-2024-017",
+    vehicle: "Honda Civic (DEF-456)",
+    service: "Brake Service",
+    technician: "Tom Brown",
+    technicianId: "tech-3",
+    status: "pending",
+    priority: "normal",
     startTime: new Date(Date.now() + 60 * 60 * 1000), // 1 hour from now
     estimatedCompletion: new Date(Date.now() + 3 * 60 * 60 * 1000), // 3 hours from now
     progress: 0,
     estimatedCost: 220.75,
-    location: 'Service Bay 3',
+    location: "Service Bay 3",
   },
 ];
 
 const mockPendingApprovals = [
   {
-    id: 'APP-001',
-    jobNumber: 'JOB-2024-016',
-    customer: 'ABC Company',
-    technician: 'Sarah Wilson',
-    service: 'Tire Replacement',
+    id: "APP-001",
+    jobNumber: "JOB-2024-016",
+    customer: "ABC Company",
+    technician: "Sarah Wilson",
+    service: "Tire Replacement",
     completedAt: new Date(Date.now() - 30 * 60 * 1000),
-    totalCost: 340.20,
+    totalCost: 340.2,
     timeWorked: 3.5,
-    priority: 'high',
+    priority: "high",
   },
   {
-    id: 'APP-002',
-    jobNumber: 'JOB-2024-014',
-    customer: 'Express Taxi',
-    technician: 'Mike Johnson',
-    service: 'Engine Diagnostic',
+    id: "APP-002",
+    jobNumber: "JOB-2024-014",
+    customer: "Express Taxi",
+    technician: "Mike Johnson",
+    service: "Engine Diagnostic",
     completedAt: new Date(Date.now() - 45 * 60 * 1000),
-    totalCost: 180.00,
+    totalCost: 180.0,
     timeWorked: 2.0,
-    priority: 'normal',
+    priority: "normal",
   },
 ];
 
 const mockTodaySchedule = [
-  { time: '9:00 AM', customer: 'David Wilson', service: 'Oil Change', status: 'completed', technician: 'Mike Johnson' },
-  { time: '10:30 AM', customer: 'Lisa Chen', service: 'Tire Rotation', status: 'in_progress', technician: 'Sarah Wilson' },
-  { time: '2:00 PM', customer: 'Robert Lee', service: 'Brake Inspection', status: 'pending', technician: 'Tom Brown' },
-  { time: '3:30 PM', customer: 'Anna Garcia', service: 'Full Service', status: 'pending', technician: 'Mike Johnson' },
+  {
+    time: "9:00 AM",
+    customer: "David Wilson",
+    service: "Oil Change",
+    status: "completed",
+    technician: "Mike Johnson",
+  },
+  {
+    time: "10:30 AM",
+    customer: "Lisa Chen",
+    service: "Tire Rotation",
+    status: "in_progress",
+    technician: "Sarah Wilson",
+  },
+  {
+    time: "2:00 PM",
+    customer: "Robert Lee",
+    service: "Brake Inspection",
+    status: "pending",
+    technician: "Tom Brown",
+  },
+  {
+    time: "3:30 PM",
+    customer: "Anna Garcia",
+    service: "Full Service",
+    status: "pending",
+    technician: "Mike Johnson",
+  },
 ];
 
 export default function EnhancedOfficeManagerDashboard() {
@@ -138,11 +168,15 @@ export default function EnhancedOfficeManagerDashboard() {
   // Calculate dashboard statistics
   const stats = useMemo(() => {
     const activeTechnicians = getActiveTechnicians();
-    const activeOrders = mockActiveOrders.filter(order => order.status !== 'completed');
+    const activeOrders = mockActiveOrders.filter(
+      (order) => order.status !== "completed",
+    );
     const completedToday = 8; // Mock data
     const pendingApprovals = mockPendingApprovals.length;
-    const overdueOrders = mockActiveOrders.filter(order => 
-      new Date() > new Date(order.estimatedCompletion) && order.status !== 'completed'
+    const overdueOrders = mockActiveOrders.filter(
+      (order) =>
+        new Date() > new Date(order.estimatedCompletion) &&
+        order.status !== "completed",
     ).length;
     const totalRevenue = 12580; // Mock data
 
@@ -160,26 +194,36 @@ export default function EnhancedOfficeManagerDashboard() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'completed': return 'bg-green-100 text-green-800';
-      case 'in_progress': return 'bg-blue-100 text-blue-800';
-      case 'waiting_approval': return 'bg-orange-100 text-orange-800';
-      case 'pending': return 'bg-gray-100 text-gray-800';
-      case 'overdue': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case "completed":
+        return "bg-green-100 text-green-800";
+      case "in_progress":
+        return "bg-blue-100 text-blue-800";
+      case "waiting_approval":
+        return "bg-orange-100 text-orange-800";
+      case "pending":
+        return "bg-gray-100 text-gray-800";
+      case "overdue":
+        return "bg-red-100 text-red-800";
+      default:
+        return "bg-gray-100 text-gray-800";
     }
   };
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'high': return 'bg-red-100 text-red-800';
-      case 'normal': return 'bg-blue-100 text-blue-800';
-      case 'low': return 'bg-green-100 text-green-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case "high":
+        return "bg-red-100 text-red-800";
+      case "normal":
+        return "bg-blue-100 text-blue-800";
+      case "low":
+        return "bg-green-100 text-green-800";
+      default:
+        return "bg-gray-100 text-gray-800";
     }
   };
 
   const isOverdue = (estimatedCompletion: Date, status: string) => {
-    return new Date() > new Date(estimatedCompletion) && status !== 'completed';
+    return new Date() > new Date(estimatedCompletion) && status !== "completed";
   };
 
   const handleViewOrder = (order: any) => {
@@ -194,7 +238,9 @@ export default function EnhancedOfficeManagerDashboard() {
 
   const handleApproveJob = (approval: any, approved: boolean) => {
     // In real app, this would make API call
-    console.log(`${approved ? 'Approved' : 'Rejected'} job ${approval.jobNumber}`);
+    console.log(
+      `${approved ? "Approved" : "Rejected"} job ${approval.jobNumber}`,
+    );
     setShowApprovalDialog(false);
     setSelectedApproval(null);
   };
@@ -204,8 +250,12 @@ export default function EnhancedOfficeManagerDashboard() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Process Control Center</h1>
-          <p className="text-gray-600">Centralized workflow management and team coordination</p>
+          <h1 className="text-3xl font-bold text-gray-900">
+            Process Control Center
+          </h1>
+          <p className="text-gray-600">
+            Centralized workflow management and team coordination
+          </p>
         </div>
         <div className="flex gap-2">
           <Button asChild>
@@ -229,7 +279,9 @@ export default function EnhancedOfficeManagerDashboard() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Active Technicians</p>
+                <p className="text-sm font-medium text-gray-600">
+                  Active Technicians
+                </p>
                 <p className="text-2xl font-bold text-green-600">
                   {stats.activeTechnicians}/{stats.totalTechnicians}
                 </p>
@@ -247,8 +299,12 @@ export default function EnhancedOfficeManagerDashboard() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Active Orders</p>
-                <p className="text-2xl font-bold text-blue-600">{stats.activeOrders}</p>
+                <p className="text-sm font-medium text-gray-600">
+                  Active Orders
+                </p>
+                <p className="text-2xl font-bold text-blue-600">
+                  {stats.activeOrders}
+                </p>
                 <p className="text-xs text-gray-500">In progress</p>
               </div>
               <div className="h-12 w-12 bg-blue-100 rounded-full flex items-center justify-center">
@@ -263,8 +319,12 @@ export default function EnhancedOfficeManagerDashboard() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Pending Approvals</p>
-                <p className="text-2xl font-bold text-orange-600">{stats.pendingApprovals}</p>
+                <p className="text-sm font-medium text-gray-600">
+                  Pending Approvals
+                </p>
+                <p className="text-2xl font-bold text-orange-600">
+                  {stats.pendingApprovals}
+                </p>
                 <p className="text-xs text-gray-500">Need review</p>
               </div>
               <div className="h-12 w-12 bg-orange-100 rounded-full flex items-center justify-center">
@@ -279,8 +339,12 @@ export default function EnhancedOfficeManagerDashboard() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Today's Revenue</p>
-                <p className="text-2xl font-bold text-green-600">${stats.totalRevenue.toLocaleString()}</p>
+                <p className="text-sm font-medium text-gray-600">
+                  Today's Revenue
+                </p>
+                <p className="text-2xl font-bold text-green-600">
+                  ${stats.totalRevenue.toLocaleString()}
+                </p>
                 <p className="text-xs text-gray-500">Completed jobs</p>
               </div>
               <div className="h-12 w-12 bg-green-100 rounded-full flex items-center justify-center">
@@ -297,7 +361,8 @@ export default function EnhancedOfficeManagerDashboard() {
         <Alert className="border-red-200 bg-red-50">
           <AlertTriangle className="h-4 w-4 text-red-600" />
           <AlertDescription>
-            <strong>Attention Required:</strong> {stats.overdueOrders} order(s) are overdue and need immediate attention.
+            <strong>Attention Required:</strong> {stats.overdueOrders} order(s)
+            are overdue and need immediate attention.
           </AlertDescription>
         </Alert>
       )}
@@ -313,18 +378,23 @@ export default function EnhancedOfficeManagerDashboard() {
               </div>
               <Badge variant="outline">{mockActiveOrders.length} total</Badge>
             </CardTitle>
-            <CardDescription>Live tracking of all ongoing service orders</CardDescription>
+            <CardDescription>
+              Live tracking of all ongoing service orders
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               {mockActiveOrders.map((order) => {
-                const overdue = isOverdue(order.estimatedCompletion, order.status);
-                
+                const overdue = isOverdue(
+                  order.estimatedCompletion,
+                  order.status,
+                );
+
                 return (
-                  <div 
-                    key={order.id} 
+                  <div
+                    key={order.id}
                     className={`p-4 border rounded-lg cursor-pointer hover:bg-accent transition-colors ${
-                      overdue ? 'border-red-200 bg-red-50/30' : ''
+                      overdue ? "border-red-200 bg-red-50/30" : ""
                     }`}
                     onClick={() => handleViewOrder(order)}
                   >
@@ -333,16 +403,20 @@ export default function EnhancedOfficeManagerDashboard() {
                         <div className="flex items-center gap-2 mb-1">
                           <span className="font-medium">{order.jobNumber}</span>
                           <Badge className={getStatusColor(order.status)}>
-                            {order.status.replace('_', ' ')}
+                            {order.status.replace("_", " ")}
                           </Badge>
                           <Badge className={getPriorityColor(order.priority)}>
                             {order.priority}
                           </Badge>
                           {overdue && (
-                            <Badge className="bg-red-100 text-red-800">Overdue</Badge>
+                            <Badge className="bg-red-100 text-red-800">
+                              Overdue
+                            </Badge>
                           )}
                         </div>
-                        <p className="text-sm text-gray-600">{order.customer} • {order.service}</p>
+                        <p className="text-sm text-gray-600">
+                          {order.customer} • {order.service}
+                        </p>
                         <div className="flex items-center gap-4 text-xs text-gray-500 mt-1">
                           <div className="flex items-center gap-1">
                             <User className="h-3 w-3" />
@@ -354,15 +428,26 @@ export default function EnhancedOfficeManagerDashboard() {
                           </div>
                           <div className="flex items-center gap-1">
                             <Clock className="h-3 w-3" />
-                            Due: {format(new Date(order.estimatedCompletion), 'HH:mm')}
+                            Due:{" "}
+                            {format(
+                              new Date(order.estimatedCompletion),
+                              "HH:mm",
+                            )}
                           </div>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <TechnicianStatusIndicator technicianId={order.technicianId} size="sm" />
+                        <TechnicianStatusIndicator
+                          technicianId={order.technicianId}
+                          size="sm"
+                        />
                         <div className="text-right">
-                          <div className="text-sm font-medium">${order.estimatedCost.toFixed(2)}</div>
-                          <div className="text-xs text-gray-500">{order.progress}% complete</div>
+                          <div className="text-sm font-medium">
+                            ${order.estimatedCost.toFixed(2)}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            {order.progress}% complete
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -386,23 +471,30 @@ export default function EnhancedOfficeManagerDashboard() {
               <Users className="h-5 w-5" />
               Team Status
             </CardTitle>
-            <CardDescription>Real-time technician availability and workload</CardDescription>
+            <CardDescription>
+              Real-time technician availability and workload
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
               {technicians.map((technician) => (
-                <div key={technician.id} className="flex items-center justify-between p-3 border rounded-lg">
+                <div
+                  key={technician.id}
+                  className="flex items-center justify-between p-3 border rounded-lg"
+                >
                   <div className="flex items-center gap-3">
-                    <TechnicianStatusIndicator 
-                      technicianId={technician.id} 
-                      showDetails={true} 
-                      size="md" 
+                    <TechnicianStatusIndicator
+                      technicianId={technician.id}
+                      showDetails={true}
+                      size="md"
                     />
                   </div>
                   <div className="text-right">
-                    <div className="text-sm font-medium">{technician.workloadCount} jobs</div>
+                    <div className="text-sm font-medium">
+                      {technician.workloadCount} jobs
+                    </div>
                     <div className="text-xs text-gray-500">
-                      {technician.location || 'No location'}
+                      {technician.location || "No location"}
                     </div>
                   </div>
                 </div>
@@ -447,16 +539,25 @@ export default function EnhancedOfficeManagerDashboard() {
               ) : (
                 <div className="space-y-4">
                   {mockPendingApprovals.map((approval) => (
-                    <div key={approval.id} className="p-4 border rounded-lg hover:bg-accent transition-colors">
+                    <div
+                      key={approval.id}
+                      className="p-4 border rounded-lg hover:bg-accent transition-colors"
+                    >
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2">
-                            <span className="font-medium">{approval.jobNumber}</span>
-                            <Badge className={getPriorityColor(approval.priority)}>
+                            <span className="font-medium">
+                              {approval.jobNumber}
+                            </span>
+                            <Badge
+                              className={getPriorityColor(approval.priority)}
+                            >
                               {approval.priority}
                             </Badge>
                             <Badge variant="outline">
-                              Completed {format(new Date(approval.completedAt), 'HH:mm')} ago
+                              Completed{" "}
+                              {format(new Date(approval.completedAt), "HH:mm")}{" "}
+                              ago
                             </Badge>
                           </div>
                           <p className="text-sm text-gray-600 mb-2">
@@ -472,14 +573,14 @@ export default function EnhancedOfficeManagerDashboard() {
                               {approval.timeWorked}h worked
                             </div>
                             <div className="flex items-center gap-1">
-                              <DollarSign className="h-3 w-3" />
-                              ${approval.totalCost.toFixed(2)}
+                              <DollarSign className="h-3 w-3" />$
+                              {approval.totalCost.toFixed(2)}
                             </div>
                           </div>
                         </div>
                         <div className="flex gap-2">
-                          <Button 
-                            size="sm" 
+                          <Button
+                            size="sm"
                             variant="outline"
                             onClick={() => handleViewApproval(approval)}
                           >
@@ -504,19 +605,26 @@ export default function EnhancedOfficeManagerDashboard() {
                 <Calendar className="h-5 w-5" />
                 Today's Service Schedule
               </CardTitle>
-              <CardDescription>Planned appointments and current progress</CardDescription>
+              <CardDescription>
+                Planned appointments and current progress
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
                 {mockTodaySchedule.map((appointment, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                  <div
+                    key={index}
+                    className="flex items-center justify-between p-3 border rounded-lg"
+                  >
                     <div className="flex items-center gap-4">
                       <div className="text-sm font-medium text-gray-600 w-20">
                         {appointment.time}
                       </div>
                       <div className="flex-1">
                         <p className="font-medium">{appointment.customer}</p>
-                        <p className="text-sm text-gray-600">{appointment.service}</p>
+                        <p className="text-sm text-gray-600">
+                          {appointment.service}
+                        </p>
                       </div>
                       <div className="text-sm text-gray-500">
                         {appointment.technician}
@@ -524,13 +632,17 @@ export default function EnhancedOfficeManagerDashboard() {
                     </div>
                     <div className="flex items-center gap-2">
                       <Badge className={getStatusColor(appointment.status)}>
-                        {appointment.status.replace('_', ' ')}
+                        {appointment.status.replace("_", " ")}
                       </Badge>
-                      <div className={`h-3 w-3 rounded-full ${
-                        appointment.status === 'completed' ? 'bg-green-500' :
-                        appointment.status === 'in_progress' ? 'bg-blue-500 animate-pulse' :
-                        'bg-gray-300'
-                      }`} />
+                      <div
+                        className={`h-3 w-3 rounded-full ${
+                          appointment.status === "completed"
+                            ? "bg-green-500"
+                            : appointment.status === "in_progress"
+                              ? "bg-blue-500 animate-pulse"
+                              : "bg-gray-300"
+                        }`}
+                      />
                     </div>
                   </div>
                 ))}
@@ -557,11 +669,15 @@ export default function EnhancedOfficeManagerDashboard() {
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="text-center p-3 bg-blue-50 rounded-lg">
-                    <p className="text-2xl font-bold text-blue-600">{stats.completedToday}</p>
+                    <p className="text-2xl font-bold text-blue-600">
+                      {stats.completedToday}
+                    </p>
                     <p className="text-sm text-gray-600">Jobs Completed</p>
                   </div>
                   <div className="text-center p-3 bg-green-50 rounded-lg">
-                    <p className="text-2xl font-bold text-green-600">{stats.avgCompletionTime}h</p>
+                    <p className="text-2xl font-bold text-green-600">
+                      {stats.avgCompletionTime}h
+                    </p>
                     <p className="text-sm text-gray-600">Avg Time</p>
                   </div>
                 </div>
@@ -588,7 +704,10 @@ export default function EnhancedOfficeManagerDashboard() {
                   <div key={tech.id} className="space-y-2">
                     <div className="flex justify-between text-sm">
                       <span className="flex items-center gap-2">
-                        <TechnicianStatusIndicator technicianId={tech.id} size="sm" />
+                        <TechnicianStatusIndicator
+                          technicianId={tech.id}
+                          size="sm"
+                        />
                         {tech.name}
                       </span>
                       <span>{tech.workloadCount} jobs</span>
@@ -654,20 +773,30 @@ export default function EnhancedOfficeManagerDashboard() {
       <Dialog open={showOrderDialog} onOpenChange={setShowOrderDialog}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Order Details - {selectedOrder?.jobNumber}</DialogTitle>
+            <DialogTitle>
+              Order Details - {selectedOrder?.jobNumber}
+            </DialogTitle>
           </DialogHeader>
           {selectedOrder && (
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <h4 className="font-medium mb-2">Customer Information</h4>
-                  <p className="text-sm text-gray-600">{selectedOrder.customer}</p>
-                  <p className="text-sm text-gray-600">{selectedOrder.vehicle}</p>
+                  <p className="text-sm text-gray-600">
+                    {selectedOrder.customer}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    {selectedOrder.vehicle}
+                  </p>
                 </div>
                 <div>
                   <h4 className="font-medium mb-2">Service Details</h4>
-                  <p className="text-sm text-gray-600">{selectedOrder.service}</p>
-                  <p className="text-sm text-gray-600">Technician: {selectedOrder.technician}</p>
+                  <p className="text-sm text-gray-600">
+                    {selectedOrder.service}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    Technician: {selectedOrder.technician}
+                  </p>
                 </div>
               </div>
               <div className="flex justify-between items-center">
@@ -676,7 +805,10 @@ export default function EnhancedOfficeManagerDashboard() {
               </div>
               <Progress value={selectedOrder.progress} />
               <div className="flex justify-end gap-2">
-                <Button variant="outline" onClick={() => setShowOrderDialog(false)}>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowOrderDialog(false)}
+                >
                   Close
                 </Button>
                 <Button asChild>
@@ -694,37 +826,58 @@ export default function EnhancedOfficeManagerDashboard() {
       <Dialog open={showApprovalDialog} onOpenChange={setShowApprovalDialog}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Job Approval - {selectedApproval?.jobNumber}</DialogTitle>
+            <DialogTitle>
+              Job Approval - {selectedApproval?.jobNumber}
+            </DialogTitle>
           </DialogHeader>
           {selectedApproval && (
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <h4 className="font-medium mb-2">Job Information</h4>
-                  <p className="text-sm text-gray-600">{selectedApproval.customer}</p>
-                  <p className="text-sm text-gray-600">{selectedApproval.service}</p>
-                  <p className="text-sm text-gray-600">Technician: {selectedApproval.technician}</p>
+                  <p className="text-sm text-gray-600">
+                    {selectedApproval.customer}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    {selectedApproval.service}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    Technician: {selectedApproval.technician}
+                  </p>
                 </div>
                 <div>
                   <h4 className="font-medium mb-2">Work Summary</h4>
-                  <p className="text-sm text-gray-600">Time worked: {selectedApproval.timeWorked} hours</p>
-                  <p className="text-sm text-gray-600">Total cost: ${selectedApproval.totalCost.toFixed(2)}</p>
                   <p className="text-sm text-gray-600">
-                    Completed: {format(new Date(selectedApproval.completedAt), 'MMM dd, HH:mm')}
+                    Time worked: {selectedApproval.timeWorked} hours
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    Total cost: ${selectedApproval.totalCost.toFixed(2)}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    Completed:{" "}
+                    {format(
+                      new Date(selectedApproval.completedAt),
+                      "MMM dd, HH:mm",
+                    )}
                   </p>
                 </div>
               </div>
               <div className="flex justify-end gap-2">
-                <Button variant="outline" onClick={() => setShowApprovalDialog(false)}>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowApprovalDialog(false)}
+                >
                   Close
                 </Button>
-                <Button 
+                <Button
                   variant="destructive"
                   onClick={() => handleApproveJob(selectedApproval, false)}
                 >
                   Reject
                 </Button>
-                <Button onClick={() => handleApproveJob(selectedApproval, true)}>
+                <Button
+                  onClick={() => handleApproveJob(selectedApproval, true)}
+                >
                   Approve
                 </Button>
               </div>
