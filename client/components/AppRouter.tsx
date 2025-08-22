@@ -20,6 +20,7 @@ import NewSaleTransaction from "../pages/sales/NewSaleTransaction";
 import SalesAnalytics from "../pages/sales/SalesAnalytics";
 import JobCards from "../pages/orders/JobCards";
 import ActiveOrders from "../pages/orders/ActiveOrders";
+import ActiveOrderCreation from "../pages/orders/ActiveOrderCreation";
 import CompletedOrders from "../pages/orders/CompletedOrders";
 import NotFound from "../pages/NotFound";
 import Login from "../pages/Login";
