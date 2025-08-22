@@ -533,8 +533,8 @@ export const TechnicianWorkflowEnhanced: React.FC<TechnicianWorkflowEnhancedProp
                       <div>
                         <div className="font-medium">{entry.description}</div>
                         <div className="text-sm text-muted-foreground">
-                          {format(new Date(entry.startTime), 'MMM dd, HH:mm')} - 
-                          {entry.endTime ? format(new Date(entry.endTime), 'HH:mm')} : 'In Progress'}
+                          {format(new Date(entry.startTime), 'MMM dd, HH:mm')} -
+                          {entry.endTime ? format(new Date(entry.endTime), 'HH:mm') : 'In Progress'}
                         </div>
                       </div>
                       <div className="text-right">
