@@ -201,11 +201,9 @@ export const AppRouter: React.FC = () => {
       <Route
         path="/orders/active"
         element={
-          <WrappedPlaceholder
-            title="Active Orders"
-            description="View and manage currently active service orders"
-            icon={Clock}
-          />
+          <ProtectedPage requiredRole={[UserRole.ADMIN, UserRole.OFFICE_MANAGER]}>
+            <ActiveOrders />
+          </ProtectedPage>
         }
       />
       <Route
