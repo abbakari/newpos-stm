@@ -20,7 +20,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <AuthProvider>
-        <TechnicianStatusProvider>
+        <TechnicianStatusProviderWrapper>
           <CustomerStoreProvider>
             <VisitTrackingProvider>
               <BrowserRouter>
@@ -28,7 +28,7 @@ const App = () => (
               </BrowserRouter>
             </VisitTrackingProvider>
           </CustomerStoreProvider>
-        </TechnicianStatusProvider>
+        </TechnicianStatusProviderWrapper>
       </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
