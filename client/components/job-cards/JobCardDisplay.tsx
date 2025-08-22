@@ -109,8 +109,10 @@ export const JobCardDisplay: React.FC<JobCardDisplayProps> = ({
   onEdit,
   onDelete,
   onStatusChange,
+  onUpdateJobCard,
   onViewDetails,
   compact = false,
+  showWorkflow = false,
 }) => {
   const { hasPermission, user } = useAuth();
   
