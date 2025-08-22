@@ -168,7 +168,16 @@ export const JobCardWorkflow: React.FC<JobCardWorkflowProps> = ({
       return;
     }
 
-    const updatedApprovals = jobCard.approvals.map(approval => 
+    // Validate job card for invoicing if being approved
+    if (approved) {
+      const validationErrors = validateJobCardForInvoicing(jobCard);
+      if (validationErrors.length > 0) {
+        alert(`Cannot complete job due to validation errors:\n${validationErrors.join('\n')}`);
+        return;
+      }
+    }
+
+    const updatedApprovals = jobCard.approvals.map(approval =>
       approval.status === 'pending' && approval.type === 'completion'
         ? {
             ...approval,
@@ -181,7 +190,7 @@ export const JobCardWorkflow: React.FC<JobCardWorkflowProps> = ({
     );
 
     const newStatus = approved ? JobStatus.COMPLETED : JobStatus.IN_PROGRESS;
-    const statusNote = approved 
+    const statusNote = approved
       ? 'Job approved and completed by office manager'
       : `Job rejected by office manager: ${approvalNotes}`;
 
@@ -194,6 +203,22 @@ export const JobCardWorkflow: React.FC<JobCardWorkflowProps> = ({
       lastUpdatedBy: user!.id,
       lastUpdatedAt: new Date(),
     };
+
+    // Auto-generate invoice if job is being completed
+    if (approved) {
+      try {
+        const invoice = generateInvoiceFromJobCard(updatedJobCard);
+        const invoiceNote = `Invoice ${invoice.invoiceNumber} automatically generated`;
+        updatedJobCard.notes = [...updatedJobCard.notes, invoiceNote];
+        updatedJobCard.invoiceId = invoice.id;
+
+        // Show success message
+        alert(`Job completed successfully!\nInvoice ${invoice.invoiceNumber} has been automatically generated and sent to the customer.`);
+      } catch (error) {
+        console.error('Failed to generate invoice:', error);
+        alert('Job completed but invoice generation failed. Please generate invoice manually.');
+      }
+    }
 
     onUpdateJobCard(updatedJobCard);
     setShowApprovalDialog(false);
