@@ -298,6 +298,16 @@ export const JobCardWorkflow: React.FC<JobCardWorkflowProps> = ({
         </CardContent>
       </Card>
 
+      {/* Job Card Generation - Show when waiting for approval or completed */}
+      {[JobStatus.WAITING_APPROVAL, JobStatus.COMPLETED].includes(jobCard.status) && (
+        <JobCardGeneration
+          jobCard={jobCard}
+          onApprove={approveJob}
+          onUpdateJobCard={onUpdateJobCard}
+          isReadOnly={jobCard.status === JobStatus.COMPLETED}
+        />
+      )}
+
       {/* Time Tracking */}
       <Card>
         <CardHeader>
