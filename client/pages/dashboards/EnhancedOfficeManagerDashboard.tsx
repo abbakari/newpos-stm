@@ -539,6 +539,11 @@ export default function EnhancedOfficeManagerDashboard() {
           </Card>
         </TabsContent>
 
+        {/* Communication Tab */}
+        <TabsContent value="communication">
+          <CommunicationCenter />
+        </TabsContent>
+
         {/* Performance Analytics Tab */}
         <TabsContent value="analytics">
           <div className="grid gap-6 md:grid-cols-2">
