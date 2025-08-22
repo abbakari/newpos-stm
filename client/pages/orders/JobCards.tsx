@@ -311,10 +311,16 @@ export default function JobCards() {
   };
 
   const handleStatusChange = (jobCard: JobCard, newStatus: JobStatus) => {
-    setJobCards(prev => prev.map(job => 
-      job.id === jobCard.id 
+    setJobCards(prev => prev.map(job =>
+      job.id === jobCard.id
         ? { ...job, status: newStatus, lastUpdatedAt: new Date(), lastUpdatedBy: user?.id || 'unknown' }
         : job
+    ));
+  };
+
+  const handleUpdateJobCard = (updatedJobCard: JobCard) => {
+    setJobCards(prev => prev.map(job =>
+      job.id === updatedJobCard.id ? updatedJobCard : job
     ));
   };
 
