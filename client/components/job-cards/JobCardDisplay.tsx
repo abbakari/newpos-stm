@@ -41,8 +41,10 @@ interface JobCardDisplayProps {
   onEdit?: (jobCard: JobCard) => void;
   onDelete?: (jobCard: JobCard) => void;
   onStatusChange?: (jobCard: JobCard, newStatus: JobStatus) => void;
+  onUpdateJobCard?: (jobCard: JobCard) => void;
   onViewDetails?: (jobCard: JobCard) => void;
   compact?: boolean;
+  showWorkflow?: boolean;
 }
 
 const statusConfig = {
