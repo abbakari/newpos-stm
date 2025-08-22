@@ -391,8 +391,19 @@ export const JobCardDisplay: React.FC<JobCardDisplayProps> = ({
           </div>
         )}
 
-        {/* Quick Actions */}
-        {canChangeStatus && onStatusChange && (
+        {/* Workflow Section */}
+        {showWorkflow && onUpdateJobCard && onStatusChange && (
+          <div className="mt-6 pt-6 border-t">
+            <JobCardWorkflow
+              jobCard={jobCard}
+              onUpdateJobCard={onUpdateJobCard}
+              onStatusChange={onStatusChange}
+            />
+          </div>
+        )}
+
+        {/* Quick Actions (only show if workflow is not shown) */}
+        {!showWorkflow && canChangeStatus && onStatusChange && (
           <div className="flex gap-2 pt-2">
             {jobCard.status === JobStatus.PENDING && (
               <Button
