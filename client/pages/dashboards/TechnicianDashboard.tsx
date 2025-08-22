@@ -364,33 +364,8 @@ export default function TechnicianDashboard() {
       </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Recent Sales */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <ShoppingCart className="h-5 w-5" />
-              Today's Sales
-            </CardTitle>
-            <CardDescription>Items sold during service</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {recentSales.map((sale, index) => (
-                <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <div>
-                    <p className="font-medium">{sale.item}</p>
-                    <p className="text-sm text-gray-500">Qty: {sale.quantity} • {sale.time}</p>
-                  </div>
-                  <span className="font-medium">${sale.price}</span>
-                </div>
-              ))}
-            </div>
-            <Button variant="outline" className="w-full mt-4">
-              <Plus className="h-4 w-4 mr-2" />
-              Record Sale
-            </Button>
-          </CardContent>
-        </Card>
+        {/* Communication Center */}
+        <CommunicationCenter compact={true} />
 
         {/* Time Tracking */}
         <Card>
