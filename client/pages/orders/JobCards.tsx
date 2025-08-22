@@ -504,12 +504,14 @@ export default function JobCards() {
               key={jobCard.id}
               jobCard={jobCard}
               compact={viewMode === 'list'}
+              showWorkflow={viewMode === 'grid'} // Show workflow in grid view for better space
               onEdit={canEdit ? (job) => {
                 setSelectedJobCard(job);
                 setShowEditDialog(true);
               } : undefined}
               onDelete={canDelete ? handleDeleteJobCard : undefined}
               onStatusChange={handleStatusChange}
+              onUpdateJobCard={handleUpdateJobCard}
               onViewDetails={(job) => {
                 setSelectedJobCard(job);
                 // Navigate to detailed view
