@@ -413,9 +413,10 @@ export default function EnhancedOfficeManagerDashboard() {
       </div>
 
       <Tabs defaultValue="approvals" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="approvals">Pending Approvals</TabsTrigger>
           <TabsTrigger value="schedule">Today's Schedule</TabsTrigger>
+          <TabsTrigger value="communication">Communication</TabsTrigger>
           <TabsTrigger value="analytics">Performance Analytics</TabsTrigger>
         </TabsList>
 
