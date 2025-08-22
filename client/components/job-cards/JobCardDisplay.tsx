@@ -395,11 +395,19 @@ export const JobCardDisplay: React.FC<JobCardDisplayProps> = ({
         {/* Workflow Section */}
         {showWorkflow && onUpdateJobCard && onStatusChange && (
           <div className="mt-6 pt-6 border-t">
-            <JobCardWorkflow
-              jobCard={jobCard}
-              onUpdateJobCard={onUpdateJobCard}
-              onStatusChange={onStatusChange}
-            />
+            {user?.role === UserRole.TECHNICIAN ? (
+              <TechnicianWorkflowEnhanced
+                jobCard={jobCard}
+                onUpdateJobCard={onUpdateJobCard}
+                onStatusChange={onStatusChange}
+              />
+            ) : (
+              <JobCardWorkflow
+                jobCard={jobCard}
+                onUpdateJobCard={onUpdateJobCard}
+                onStatusChange={onStatusChange}
+              />
+            )}
           </div>
         )}
 
