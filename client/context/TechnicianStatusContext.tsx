@@ -1,260 +1,182 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { useAuth } from './AuthContext';
-import { UserRole } from '@shared/types';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
+import { User, UserRole } from "@shared/types";
 
-// Technician status types
-export type TechnicianWorkStatus = 'available' | 'busy' | 'break' | 'offline';
-
-export interface TechnicianStatus {
+interface TechnicianStatus {
   id: string;
   name: string;
-  email: string;
-  phone?: string;
-  avatar?: string;
-  isActive: boolean;
-  lastSeen: Date;
-  currentStatus: TechnicianWorkStatus;
-  currentJobId?: string;
-  currentJobTitle?: string;
-  skillset: string[];
-  completedJobsToday: number;
-  hoursWorkedToday: number;
-  efficiency: number;
+  isOnline: boolean;
+  currentTask?: string;
   location?: string;
-  notes?: string;
+  lastActivity: Date;
+  workloadCount: number;
+  statusMessage?: string;
 }
 
 interface TechnicianStatusContextType {
   technicians: TechnicianStatus[];
   currentUserStatus: TechnicianStatus | null;
-  updateStatus: (status: TechnicianWorkStatus, notes?: string) => void;
-  setCurrentJob: (jobId: string, jobTitle: string) => void;
-  clearCurrentJob: () => void;
-  markActive: () => void;
-  markOffline: () => void;
-  sendHeartbeat: () => void;
+  updateStatus: (status: Partial<TechnicianStatus>) => void;
+  setOnlineStatus: (isOnline: boolean) => void;
+  updateCurrentTask: (task: string | undefined) => void;
+  updateLocation: (location: string) => void;
+  updateStatusMessage: (message: string) => void;
   getActiveTechnicians: () => TechnicianStatus[];
-  getAvailableTechnicians: () => TechnicianStatus[];
   getTechnicianById: (id: string) => TechnicianStatus | undefined;
 }
 
-const TechnicianStatusContext = createContext<TechnicianStatusContextType | undefined>(undefined);
+const TechnicianStatusContext = createContext<
+  TechnicianStatusContextType | undefined
+>(undefined);
 
 // Mock initial technician data
 const initialTechnicians: TechnicianStatus[] = [
   {
-    id: 'tech-1',
-    name: 'Mike Johnson',
-    email: 'mike@company.com',
-    phone: '+1234567892',
-    isActive: false,
-    lastSeen: new Date(Date.now() - 30 * 60 * 1000), // 30 minutes ago
-    currentStatus: 'offline',
-    skillset: ['Engine Repair', 'Oil Changes', 'Brake Service'],
-    completedJobsToday: 0,
-    hoursWorkedToday: 0,
-    efficiency: 95,
+    id: "tech-1",
+    name: "Mike Johnson",
+    isOnline: true,
+    currentTask: "Oil Change - Toyota Camry",
+    location: "Service Bay 1",
+    lastActivity: new Date(),
+    workloadCount: 3,
+    statusMessage: "Working on priority tasks",
   },
   {
-    id: 'tech-2',
-    name: 'Sarah Wilson',
-    email: 'sarah@company.com',
-    phone: '+1234567893',
-    isActive: false,
-    lastSeen: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
-    currentStatus: 'offline',
-    skillset: ['Tire Service', 'Brake Repair', 'Diagnostics'],
-    completedJobsToday: 0,
-    hoursWorkedToday: 0,
-    efficiency: 88,
+    id: "tech-2",
+    name: "Sarah Wilson",
+    isOnline: true,
+    currentTask: undefined,
+    location: "Service Bay 2",
+    lastActivity: new Date(Date.now() - 15 * 60 * 1000), // 15 minutes ago
+    workloadCount: 1,
+    statusMessage: "Available for new assignments",
   },
   {
-    id: 'tech-3',
-    name: 'Tom Brown',
-    email: 'tom@company.com',
-    phone: '+1234567894',
-    isActive: false,
-    lastSeen: new Date(Date.now() - 4 * 60 * 60 * 1000), // 4 hours ago
-    currentStatus: 'offline',
-    skillset: ['Engine Diagnostics', 'Electrical', 'AC Service'],
-    completedJobsToday: 0,
-    hoursWorkedToday: 0,
-    efficiency: 92,
+    id: "tech-3",
+    name: "Tom Brown",
+    isOnline: false,
+    currentTask: undefined,
+    location: "Off-site",
+    lastActivity: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
+    workloadCount: 0,
+    statusMessage: "On break",
   },
 ];
 
-export const TechnicianStatusProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const { user } = useAuth();
-  const [technicians, setTechnicians] = useState<TechnicianStatus[]>(initialTechnicians);
+export const TechnicianStatusProvider: React.FC<{
+  children: ReactNode;
+  currentUser?: User;
+}> = ({ children, currentUser }) => {
+  const [technicians, setTechnicians] =
+    useState<TechnicianStatus[]>(initialTechnicians);
 
-  // Get current user's technician status
-  const currentUserStatus = user?.role === UserRole.TECHNICIAN 
-    ? technicians.find(tech => tech.id === user.id) || null 
-    : null;
+  // Get current user's status if they are a technician
+  const currentUserStatus =
+    currentUser?.role === UserRole.TECHNICIAN
+      ? technicians.find((t) => t.id === currentUser.id) || null
+      : null;
 
-  // Auto-mark technician as active when they log in
+  // Auto-update last activity for current user
   useEffect(() => {
-    if (user?.role === UserRole.TECHNICIAN) {
-      markActive();
-    }
-  }, [user]);
+    if (currentUser?.role === UserRole.TECHNICIAN) {
+      const interval = setInterval(() => {
+        setTechnicians((prev) =>
+          prev.map((tech) =>
+            tech.id === currentUser.id
+              ? { ...tech, lastActivity: new Date() }
+              : tech,
+          ),
+        );
+      }, 30000); // Update every 30 seconds
 
-  // Heartbeat to keep status updated
-  useEffect(() => {
-    if (user?.role === UserRole.TECHNICIAN) {
-      const interval = setInterval(sendHeartbeat, 30000); // Every 30 seconds
       return () => clearInterval(interval);
     }
-  }, [user]);
+  }, [currentUser]);
 
-  // Auto-detect idle/offline status
+  // Mark technicians as offline if they haven't been active for more than 10 minutes
   useEffect(() => {
-    let idleTimer: NodeJS.Timeout;
-    let offlineTimer: NodeJS.Timeout;
+    const interval = setInterval(() => {
+      const now = new Date();
+      setTechnicians((prev) =>
+        prev.map((tech) => {
+          const timeSinceActivity = now.getTime() - tech.lastActivity.getTime();
+          const tenMinutes = 10 * 60 * 1000;
 
-    const resetTimers = () => {
-      clearTimeout(idleTimer);
-      clearTimeout(offlineTimer);
-      
-      if (user?.role === UserRole.TECHNICIAN && currentUserStatus?.isActive) {
-        // Mark as break after 15 minutes of inactivity
-        idleTimer = setTimeout(() => {
-          updateStatus('break', 'Auto-marked as on break due to inactivity');
-        }, 15 * 60 * 1000);
+          // Don't auto-set offline if it's the current user
+          if (tech.id === currentUser?.id) return tech;
 
-        // Mark as offline after 1 hour of inactivity
-        offlineTimer = setTimeout(() => {
-          markOffline();
-        }, 60 * 60 * 1000);
-      }
-    };
+          if (timeSinceActivity > tenMinutes && tech.isOnline) {
+            return {
+              ...tech,
+              isOnline: false,
+              statusMessage: "Away (auto-timeout)",
+            };
+          }
+          return tech;
+        }),
+      );
+    }, 60000); // Check every minute
 
-    // Reset timers on user activity
-    const handleActivity = () => {
-      if (user?.role === UserRole.TECHNICIAN && currentUserStatus?.isActive) {
-        sendHeartbeat();
-        resetTimers();
-      }
-    };
+    return () => clearInterval(interval);
+  }, [currentUser]);
 
-    // Listen for user activity
-    document.addEventListener('mousedown', handleActivity);
-    document.addEventListener('keydown', handleActivity);
-    document.addEventListener('scroll', handleActivity);
-    
-    resetTimers();
+  const updateStatus = (statusUpdate: Partial<TechnicianStatus>) => {
+    if (!currentUser?.role === UserRole.TECHNICIAN) return;
 
-    return () => {
-      clearTimeout(idleTimer);
-      clearTimeout(offlineTimer);
-      document.removeEventListener('mousedown', handleActivity);
-      document.removeEventListener('keydown', handleActivity);
-      document.removeEventListener('scroll', handleActivity);
-    };
-  }, [user, currentUserStatus?.isActive]);
-
-  const updateTechnicianStatus = (
-    technicianId: string, 
-    updates: Partial<TechnicianStatus>
-  ) => {
-    setTechnicians(prev => 
-      prev.map(tech => 
-        tech.id === technicianId 
-          ? { ...tech, ...updates, lastSeen: new Date() }
-          : tech
-      )
+    setTechnicians((prev) =>
+      prev.map((tech) =>
+        tech.id === currentUser?.id
+          ? { ...tech, ...statusUpdate, lastActivity: new Date() }
+          : tech,
+      ),
     );
   };
 
-  const updateStatus = (status: TechnicianWorkStatus, notes?: string) => {
-    if (!user || user.role !== UserRole.TECHNICIAN) return;
-
-    updateTechnicianStatus(user.id, {
-      currentStatus: status,
-      notes,
-      isActive: status !== 'offline',
-    });
-
-    // In real app, this would send to API
-    console.log(`Technician ${user.name} status updated to: ${status}`, notes);
-  };
-
-  const setCurrentJob = (jobId: string, jobTitle: string) => {
-    if (!user || user.role !== UserRole.TECHNICIAN) return;
-
-    updateTechnicianStatus(user.id, {
-      currentJobId: jobId,
-      currentJobTitle: jobTitle,
-      currentStatus: 'busy',
+  const setOnlineStatus = (isOnline: boolean) => {
+    updateStatus({
+      isOnline,
+      statusMessage: isOnline ? "Available" : "Offline",
+      ...(isOnline ? {} : { currentTask: undefined }),
     });
   };
 
-  const clearCurrentJob = () => {
-    if (!user || user.role !== UserRole.TECHNICIAN) return;
-
-    updateTechnicianStatus(user.id, {
-      currentJobId: undefined,
-      currentJobTitle: undefined,
-      currentStatus: 'available',
+  const updateCurrentTask = (task: string | undefined) => {
+    updateStatus({
+      currentTask: task,
+      statusMessage: task ? "Working on task" : "Available for new assignments",
     });
   };
 
-  const markActive = () => {
-    if (!user || user.role !== UserRole.TECHNICIAN) return;
-
-    updateTechnicianStatus(user.id, {
-      isActive: true,
-      currentStatus: 'available',
-      lastSeen: new Date(),
-    });
-
-    console.log(`Technician ${user.name} marked as active`);
+  const updateLocation = (location: string) => {
+    updateStatus({ location });
   };
 
-  const markOffline = () => {
-    if (!user || user.role !== UserRole.TECHNICIAN) return;
-
-    updateTechnicianStatus(user.id, {
-      isActive: false,
-      currentStatus: 'offline',
-      currentJobId: undefined,
-      currentJobTitle: undefined,
-    });
-
-    console.log(`Technician ${user.name} marked as offline`);
+  const updateStatusMessage = (message: string) => {
+    updateStatus({ statusMessage: message });
   };
 
-  const sendHeartbeat = () => {
-    if (!user || user.role !== UserRole.TECHNICIAN) return;
-
-    updateTechnicianStatus(user.id, {
-      lastSeen: new Date(),
-    });
+  const getActiveTechnicians = () => {
+    return technicians.filter((tech) => tech.isOnline);
   };
 
-  const getActiveTechnicians = (): TechnicianStatus[] => {
-    return technicians.filter(tech => tech.isActive);
-  };
-
-  const getAvailableTechnicians = (): TechnicianStatus[] => {
-    return technicians.filter(tech => tech.isActive && tech.currentStatus === 'available');
-  };
-
-  const getTechnicianById = (id: string): TechnicianStatus | undefined => {
-    return technicians.find(tech => tech.id === id);
+  const getTechnicianById = (id: string) => {
+    return technicians.find((tech) => tech.id === id);
   };
 
   const value: TechnicianStatusContextType = {
     technicians,
     currentUserStatus,
     updateStatus,
-    setCurrentJob,
-    clearCurrentJob,
-    markActive,
-    markOffline,
-    sendHeartbeat,
+    setOnlineStatus,
+    updateCurrentTask,
+    updateLocation,
+    updateStatusMessage,
     getActiveTechnicians,
-    getAvailableTechnicians,
     getTechnicianById,
   };
 
@@ -268,23 +190,175 @@ export const TechnicianStatusProvider: React.FC<{ children: ReactNode }> = ({ ch
 export const useTechnicianStatus = (): TechnicianStatusContextType => {
   const context = useContext(TechnicianStatusContext);
   if (context === undefined) {
-    throw new Error('useTechnicianStatus must be used within a TechnicianStatusProvider');
+    throw new Error(
+      "useTechnicianStatus must be used within a TechnicianStatusProvider",
+    );
   }
   return context;
 };
 
-// Hook for office managers to monitor technician status
-export const useMonitorTechnicians = () => {
-  const { technicians, getActiveTechnicians, getAvailableTechnicians } = useTechnicianStatus();
-  
-  return {
-    allTechnicians: technicians,
-    activeTechnicians: getActiveTechnicians(),
-    availableTechnicians: getAvailableTechnicians(),
-    totalTechnicians: technicians.length,
-    onlineCount: technicians.filter(t => t.isActive).length,
-    busyCount: technicians.filter(t => t.currentStatus === 'busy').length,
+// Component for displaying technician status indicator
+export const TechnicianStatusIndicator: React.FC<{
+  technicianId: string;
+  showDetails?: boolean;
+  size?: "sm" | "md" | "lg";
+}> = ({ technicianId, showDetails = false, size = "md" }) => {
+  const { getTechnicianById } = useTechnicianStatus();
+  const technician = getTechnicianById(technicianId);
+
+  if (!technician) return null;
+
+  const sizeClasses = {
+    sm: "h-2 w-2",
+    md: "h-3 w-3",
+    lg: "h-4 w-4",
   };
+
+  const getStatusColor = () => {
+    if (!technician.isOnline) return "bg-gray-400";
+    if (technician.currentTask) return "bg-orange-500"; // Busy
+    return "bg-green-500"; // Available
+  };
+
+  const getStatusText = () => {
+    if (!technician.isOnline) return "Offline";
+    if (technician.currentTask) return "Busy";
+    return "Available";
+  };
+
+  return (
+    <div className="flex items-center gap-2">
+      <div
+        className={`${sizeClasses[size]} rounded-full ${getStatusColor()} animate-pulse`}
+        title={`${technician.name} - ${getStatusText()}`}
+      />
+      {showDetails && (
+        <div className="flex flex-col">
+          <span className="text-sm font-medium">{technician.name}</span>
+          <span className="text-xs text-muted-foreground">
+            {technician.statusMessage || getStatusText()}
+          </span>
+          {technician.currentTask && (
+            <span className="text-xs text-blue-600">
+              {technician.currentTask}
+            </span>
+          )}
+        </div>
+      )}
+    </div>
+  );
 };
 
-export default TechnicianStatusContext;
+// Component for technician to control their own status
+export const TechnicianStatusControl: React.FC = () => {
+  const {
+    currentUserStatus,
+    setOnlineStatus,
+    updateStatusMessage,
+    updateLocation,
+  } = useTechnicianStatus();
+
+  const [customMessage, setCustomMessage] = useState("");
+  const [location, setLocation] = useState("");
+
+  useEffect(() => {
+    if (currentUserStatus) {
+      setCustomMessage(currentUserStatus.statusMessage || "");
+      setLocation(currentUserStatus.location || "");
+    }
+  }, [currentUserStatus]);
+
+  if (!currentUserStatus) return null;
+
+  const handleStatusToggle = () => {
+    setOnlineStatus(!currentUserStatus.isOnline);
+  };
+
+  const handleMessageUpdate = () => {
+    if (customMessage.trim()) {
+      updateStatusMessage(customMessage.trim());
+    }
+  };
+
+  const handleLocationUpdate = () => {
+    if (location.trim()) {
+      updateLocation(location.trim());
+    }
+  };
+
+  return (
+    <div className="p-4 border rounded-lg bg-card">
+      <h3 className="font-medium mb-3">Your Status</h3>
+
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <span className="text-sm">Online Status:</span>
+          <button
+            onClick={handleStatusToggle}
+            className={`flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+              currentUserStatus.isOnline
+                ? "bg-green-100 text-green-800 hover:bg-green-200"
+                : "bg-gray-100 text-gray-800 hover:bg-gray-200"
+            }`}
+          >
+            <div
+              className={`h-2 w-2 rounded-full ${
+                currentUserStatus.isOnline ? "bg-green-500" : "bg-gray-400"
+              }`}
+            />
+            {currentUserStatus.isOnline ? "Online" : "Offline"}
+          </button>
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Status Message:</label>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={customMessage}
+              onChange={(e) => setCustomMessage(e.target.value)}
+              placeholder="Enter status message"
+              className="flex-1 px-3 py-1 border rounded text-sm"
+              onKeyPress={(e) => e.key === "Enter" && handleMessageUpdate()}
+            />
+            <button
+              onClick={handleMessageUpdate}
+              className="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700"
+            >
+              Update
+            </button>
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Location:</label>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              placeholder="Enter current location"
+              className="flex-1 px-3 py-1 border rounded text-sm"
+              onKeyPress={(e) => e.key === "Enter" && handleLocationUpdate()}
+            />
+            <button
+              onClick={handleLocationUpdate}
+              className="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700"
+            >
+              Update
+            </button>
+          </div>
+        </div>
+
+        {currentUserStatus.currentTask && (
+          <div className="p-2 bg-blue-50 rounded">
+            <span className="text-sm font-medium">Current Task:</span>
+            <p className="text-sm text-blue-700">
+              {currentUserStatus.currentTask}
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};

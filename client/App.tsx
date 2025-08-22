@@ -10,7 +10,7 @@ import { AppRouter } from "./components/AppRouter";
 import { VisitTrackingProvider } from "./context/VisitTrackingContext";
 import { CustomerStoreProvider } from "./context/CustomerStoreContext";
 import { AuthProvider } from "./context/AuthContext";
-import { TechnicianStatusProvider } from "./context/TechnicianStatusContext";
+import { TechnicianStatusProviderWrapper } from "./components/TechnicianStatusProviderWrapper";
 
 const queryClient = new QueryClient();
 
@@ -20,7 +20,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <AuthProvider>
-        <TechnicianStatusProvider>
+        <TechnicianStatusProviderWrapper>
           <CustomerStoreProvider>
             <VisitTrackingProvider>
               <BrowserRouter>
@@ -28,7 +28,7 @@ const App = () => (
               </BrowserRouter>
             </VisitTrackingProvider>
           </CustomerStoreProvider>
-        </TechnicianStatusProvider>
+        </TechnicianStatusProviderWrapper>
       </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>

@@ -1,8 +1,8 @@
-import React from 'react';
+import React from "react";
 import { Routes, Route } from "react-router-dom";
 import { DashboardLayout } from "./layout/DashboardLayout";
 import { ProtectedRoute } from "./auth/ProtectedRoute";
-import { UserRole } from '@shared/types';
+import { UserRole } from "@shared/types";
 
 // Import pages
 import Dashboard from "../pages/Dashboard";
@@ -20,6 +20,7 @@ import NewSaleTransaction from "../pages/sales/NewSaleTransaction";
 import SalesAnalytics from "../pages/sales/SalesAnalytics";
 import JobCards from "../pages/orders/JobCards";
 import ActiveOrders from "../pages/orders/ActiveOrders";
+import ActiveOrderCreation from "../pages/orders/ActiveOrderCreation";
 import CompletedOrders from "../pages/orders/CompletedOrders";
 import NotFound from "../pages/NotFound";
 import Login from "../pages/Login";
@@ -63,18 +64,16 @@ function WrappedPlaceholder({
   );
 }
 
-function ProtectedPage({ 
-  children, 
-  requiredRole 
-}: { 
-  children: React.ReactNode; 
+function ProtectedPage({
+  children,
+  requiredRole,
+}: {
+  children: React.ReactNode;
   requiredRole?: UserRole | UserRole[];
 }) {
   return (
     <ProtectedRoute requiredRole={requiredRole}>
-      <DashboardLayout>
-        {children}
-      </DashboardLayout>
+      <DashboardLayout>{children}</DashboardLayout>
     </ProtectedRoute>
   );
 }
@@ -99,7 +98,9 @@ export const AppRouter: React.FC = () => {
       <Route
         path="/customers/search"
         element={
-          <ProtectedPage requiredRole={[UserRole.ADMIN, UserRole.OFFICE_MANAGER]}>
+          <ProtectedPage
+            requiredRole={[UserRole.ADMIN, UserRole.OFFICE_MANAGER]}
+          >
             <SearchCustomers />
           </ProtectedPage>
         }
@@ -107,7 +108,9 @@ export const AppRouter: React.FC = () => {
       <Route
         path="/customers/add"
         element={
-          <ProtectedPage requiredRole={[UserRole.ADMIN, UserRole.OFFICE_MANAGER]}>
+          <ProtectedPage
+            requiredRole={[UserRole.ADMIN, UserRole.OFFICE_MANAGER]}
+          >
             <AddCustomer />
           </ProtectedPage>
         }
@@ -115,7 +118,9 @@ export const AppRouter: React.FC = () => {
       <Route
         path="/customers/:customerId"
         element={
-          <ProtectedPage requiredRole={[UserRole.ADMIN, UserRole.OFFICE_MANAGER]}>
+          <ProtectedPage
+            requiredRole={[UserRole.ADMIN, UserRole.OFFICE_MANAGER]}
+          >
             <CustomerDetails />
           </ProtectedPage>
         }
@@ -123,7 +128,9 @@ export const AppRouter: React.FC = () => {
       <Route
         path="/customers/types"
         element={
-          <ProtectedPage requiredRole={[UserRole.ADMIN, UserRole.OFFICE_MANAGER]}>
+          <ProtectedPage
+            requiredRole={[UserRole.ADMIN, UserRole.OFFICE_MANAGER]}
+          >
             <CustomerTypes />
           </ProtectedPage>
         }
@@ -149,7 +156,9 @@ export const AppRouter: React.FC = () => {
       <Route
         path="/inventory/tires"
         element={
-          <ProtectedPage requiredRole={[UserRole.ADMIN, UserRole.OFFICE_MANAGER]}>
+          <ProtectedPage
+            requiredRole={[UserRole.ADMIN, UserRole.OFFICE_MANAGER]}
+          >
             <TireInventory />
           </ProtectedPage>
         }
@@ -157,7 +166,9 @@ export const AppRouter: React.FC = () => {
       <Route
         path="/invoices"
         element={
-          <ProtectedPage requiredRole={[UserRole.ADMIN, UserRole.OFFICE_MANAGER]}>
+          <ProtectedPage
+            requiredRole={[UserRole.ADMIN, UserRole.OFFICE_MANAGER]}
+          >
             <InvoiceManagement />
           </ProtectedPage>
         }
@@ -181,7 +192,9 @@ export const AppRouter: React.FC = () => {
       <Route
         path="/sales/analytics"
         element={
-          <ProtectedPage requiredRole={[UserRole.ADMIN, UserRole.OFFICE_MANAGER]}>
+          <ProtectedPage
+            requiredRole={[UserRole.ADMIN, UserRole.OFFICE_MANAGER]}
+          >
             <SalesAnalytics />
           </ProtectedPage>
         }
@@ -202,15 +215,29 @@ export const AppRouter: React.FC = () => {
       <Route
         path="/orders/active"
         element={
-          <ProtectedPage requiredRole={[UserRole.ADMIN, UserRole.OFFICE_MANAGER]}>
+          <ProtectedPage
+            requiredRole={[UserRole.ADMIN, UserRole.OFFICE_MANAGER]}
+          >
             <ActiveOrders />
+          </ProtectedPage>
+        }
+      />
+      <Route
+        path="/orders/create"
+        element={
+          <ProtectedPage
+            requiredRole={[UserRole.ADMIN, UserRole.OFFICE_MANAGER]}
+          >
+            <ActiveOrderCreation />
           </ProtectedPage>
         }
       />
       <Route
         path="/orders/completed"
         element={
-          <ProtectedPage requiredRole={[UserRole.ADMIN, UserRole.OFFICE_MANAGER]}>
+          <ProtectedPage
+            requiredRole={[UserRole.ADMIN, UserRole.OFFICE_MANAGER]}
+          >
             <CompletedOrders />
           </ProtectedPage>
         }
@@ -317,13 +344,13 @@ export const AppRouter: React.FC = () => {
       />
 
       {/* 404 Route */}
-      <Route 
-        path="*" 
+      <Route
+        path="*"
         element={
           <ProtectedRoute>
             <NotFound />
           </ProtectedRoute>
-        } 
+        }
       />
     </Routes>
   );
