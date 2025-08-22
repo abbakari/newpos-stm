@@ -21,6 +21,7 @@ import {
   ShoppingCart,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { CommunicationCenter } from '@/components/communication/CommunicationCenter';
 
 export default function TechnicianDashboard() {
   const { user } = useAuth();
