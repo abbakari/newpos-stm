@@ -35,6 +35,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { JobCardWorkflow } from './JobCardWorkflow';
+import { TechnicianWorkflowEnhanced } from './TechnicianWorkflowEnhanced';
 
 interface JobCardDisplayProps {
   jobCard: JobCard;
